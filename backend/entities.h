@@ -56,7 +56,7 @@ typedef struct
 
 typedef struct
 {
-	alien_t alien[ALIEN_FILS][ALIEN_COLS];
+	alien_t alien[ALIENS_FILS][ALIENS_COLS];
 	unsigned char direction;
 	unsigned char tickRate;
 } alienFormation_t;
@@ -75,7 +75,7 @@ typedef struct
 
 typedef struct 
 {
-	barrierPixel_t pixel[BARRIER_HEIGHT][BARRIER_LENGHT];
+	barrierPixel_t pixel[BARRIER_HEIGHT][BARRIER_WIDTH];
 } barrier_t;
 
 typedef struct
@@ -89,7 +89,7 @@ typedef struct
 {
 	entity_t entity;
 	unsigned char powerUpType;
-} powerUp_t
+} powerUp_t;
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
@@ -114,8 +114,9 @@ typedef struct
  * x and y are the coordinates of the entity
  * 0, 0 is the top left corner
 */
+
 ship_t createShip(int x, int y);
-alienformation_t createEnemies(int x, int y);
+alienFormation_t createEnemies(int x, int y);
 barrier_t createBarrier(int x, int y);
 bullet_t createBullet(int x, int y);
 
@@ -124,8 +125,8 @@ bullet_t createBullet(int x, int y);
 */
 void moveShipLeft(ship_t * ship);
 void moveShipRight(ship_t * ship);
-void moveEnemiesLeft(alienformation_t * enemies);
-void moveEnemiesRight(alienformation_t * enemies);
+void moveEnemiesLeft(alienFormation_t * enemies);
+void moveEnemiesRight(alienFormation_t * enemies);
 void moveEnemiesDown(alienFormation_t * enemies);
 void moveMothership(mothership_t * mothership);
 void moveBullet(bullet_t * bullet);
