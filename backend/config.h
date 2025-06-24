@@ -24,11 +24,11 @@
   #define SCREEN_WIDTH 1920
   #define SCREEN_HEIGHT 1080
 
-  #define SHIP_INITIAL_X (SCREEN_WIDTH / 2 - SHIP_SIZE / 2)
-  #define SHIP_INITIAL_Y (SCREEN_HEIGHT * (0.95) - SHIP_SIZE / 2) 
-  #define ALIENS_INITIAL_X (SCREEN_WIDTH / ALIENS_COLS - ALIEN_SIZE / 2)
-  #define ALIENS_INITIAL_Y
-  
+  #define SHIP_SIZE 10
+  #define ALIEN_SIZE 10
+  #define BULLET_SIZE 3
+  #define POWERUP_SIZE 5
+  #define BARRIER_PIXEL_SIZE 12
 
   #define ALIENS_COLS 11
   #define ALIENS_FILS 5
@@ -37,11 +37,10 @@
   #define BARRIER_WIDTH 6
   #define BARRIERS 4
 
-  #define SHIP_SIZE 10
-  #define ALIEN_SIZE 10
-  #define BULLET_SIZE 3
-  #define POWERUP_SIZE 5
-  #define BARRIER_PIXEL_SIZE 12
+  #define SHIP_INITIAL_X (SCREEN_WIDTH / 2 - SHIP_SIZE / 2)
+  #define SHIP_INITIAL_Y (SCREEN_HEIGHT * 0.95 - SHIP_SIZE / 2) 
+  #define ALIENS_INITIAL_X (SCREEN_WIDTH / ALIENS_COLS - ALIEN_SIZE / 2)
+  #define ALIENS_INITIAL_Y (ALIEN_SIZE)
 
 #else  // Raspberry Pi
   #define SCREEN_WIDTH 16
