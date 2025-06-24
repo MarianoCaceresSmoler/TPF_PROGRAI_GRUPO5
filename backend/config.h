@@ -55,6 +55,8 @@
 
 #define BARRIER_PIXEL_SIZE 2
 
+#define SHIP_LIVES 3
+
 #define ALIEN_MAX_MOVE_INTERVAL 1000
 #define ALIEN_MIN_MOVE_INTERVAL 100 
 
@@ -82,14 +84,6 @@
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
-
-/**
- * @brief TODO: returns 1 to spawn mothership, if not returns 0
- * @param param1 Descripcion parametro 1
- * @param param2 Descripcion parametro 2
- * @return Descripcion valor que devuelve
-*/
-// +ej: char lcd_goto (int fil, int col);+
 
 /**
  * @brief TODO: function to get a random number using rand from stdlib
