@@ -35,8 +35,8 @@
  ******************************************************************************/
 
 /**
- * @brief TODO: function to check a collision between two entities
- * @param entityA, entityB the two entities to compare
+ * @brief function to check a collision between two entities
+ * @param entityA entityB the two entities to compare
  * @return 1 if there is a collision, 0 if not
 */
 int check_entities_collision(entity_t entityA, entity_t entityB);

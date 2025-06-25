@@ -60,8 +60,6 @@
   #define BARRIER_PIXEL_SIZE 1
 #endif
 
-
-
 #define SHIP_LIVES 3
 
 #define ALIEN_MAX_MOVE_INTERVAL 1000
