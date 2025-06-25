@@ -26,7 +26,8 @@ typedef struct
 {
 	unsigned short int x;
 	unsigned short int y;
-	unsigned short int size;
+	unsigned short int height;
+	unsigned short int width;
 	unsigned char isAlive;
 } entity_t;
 
@@ -42,16 +43,15 @@ typedef struct
 typedef struct
 {
 	entity_t entity;
-	unsigned char alienType		: 6;
-	unsigned char canShoot		: 1;
-	unsigned char isMoving		: 1;
+	unsigned char alienType;
 } alien_t;
 
 typedef struct
 {
 	alien_t alien[ALIENS_ROWS][ALIENS_COLS];
-	unsigned char direction;
-	unsigned char tickRate;
+	unsigned char tickRate		: 4;
+	unsigned char direction		: 2;
+	unsigned char canShoot		: 2;
 } alienFormation_t;
 
 typedef struct
@@ -133,7 +133,23 @@ void alienShoot(alien_t * alien, bullet_t * bullet);
 /*
  *
 */
-
+int getAlienPoints(alien_t *alien)
+{
+    switch(alien->alienType)
+    {
+    case 0:
+        return ALIEN_TYPE_0_POINTS;
+        break;
+    case 1:
+        return ALIEN_TYPE_1_POINTS;
+        break;
+    case 2:
+        return ALIEN_TYPE_2_POINTS;
+        break;
+    default:
+        break;
+    }
+}
 
 // POSIBLES CAMBIOS
 /*
