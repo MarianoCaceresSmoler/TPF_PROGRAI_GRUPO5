@@ -11,8 +11,6 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
-
-
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
@@ -21,18 +19,23 @@
 #define LOGICAL_HEIGHT 32
 
 #ifdef PLATFORM_PC
+
   #define SCREEN_WIDTH 1920
   #define SCREEN_HEIGHT 1080
 
-  #define SHIP_SIZE 10
-  #define ALIEN_SIZE 10
-  #define BULLET_SIZE 3
-  #define POWERUP_SIZE 5
-  #define BARRIER_PIXEL_SIZE 12
-
-  #define ALIENS_COLS 11
   #define ALIENS_ROWS 5
+  #define ALIENS_COLS 11
 
+  #define SHIP_WIDTH 240
+  #define SHIP_HEIGHT 120
+  #define ALIEN_WIDTH 240
+  #define ALIEN_HEIGTH 120
+  #define BULLET_WIDTH 40
+  #define BULLET_HEIGHT 20
+  #define POWERUP_WIDTH 120
+  #define POWERUP_HEIGHT 120
+  #define BARRIER_PIXEL_WIDTH 40
+  #define BARRIER_PIXEL_HEIGHT 40
   #define BARRIER_HEIGHT 4
   #define BARRIER_WIDTH 6
   #define BARRIERS 4
@@ -42,39 +45,57 @@
   #define ALIENS_INITIAL_X (SCREEN_WIDTH / ALIENS_COLS - ALIEN_SIZE / 2)
   #define ALIENS_INITIAL_Y (ALIEN_SIZE)
 
+  #define ALIEN_MAX_MOVE_INTERVAL 60
+  #define ALIEN_MIN_MOVE_INTERVAL 12 
+  #define MOTHERSHIP_MOVE_RATE 12
+  #define BULLET_MOVE_RATE 15
+  #define SHIP_MOVE_RATE 12
+
+  #define FPS 30
+
 #else  // Raspberry Pi
+
   #define SCREEN_WIDTH 16
   #define SCREEN_HEIGHT 16
 
+  #define ALIENS_ROWS 4
   #define ALIENS_COLS 5
-  #define ALIENS_ROWS 3
 
-  #define BARRIER_HEIGHT 2
-  #define BARRIER_WIDTH 3
+  #define SHIP_WIDTH 3
+  #define SHIP_HEIGHT 2
+  #define ALIEN_WIDTH 2
+  #define ALIEN_HEIGTH 1
+  #define BULLET_WIDTH 1
+  #define BULLET_HEIGHT 2
+  #define POWERUP_WIDTH 1
+  #define POWERUP_HEIGHT 1
+  #define BARRIER_PIXEL_WIDTH 1
+  #define BARRIER_PIXEL_HEIGHT 1
+  #define BARRIER_WIDTH 4
+  #define BARRIER_HEIGHT 3
   #define BARRIERS 3
 
-  #define SHIP_SIZE 4
-  #define ALIEN_SIZE 3
-  #define BULLET_SIZE 1
-  #define POWERUP_SIZE 2
-  #define BARRIER_PIXEL_SIZE 1
+  #define SHIP_INITIAL_X 1
+  #define SHIP_INITIAL_Y 14
+  #define ALIENS_INITIAL_X 1
+  #define ALIENS_INITIAL_Y 1
+
+
+  #define ALIEN_MAX_MOVE_INTERVAL 5
+  #define ALIEN_MIN_MOVE_INTERVAL 1
+  #define MOTHERSHIP_MOVE_RATE 1
+  #define BULLET_MOVE_RATE 1
+  #define SHIP_MOVE_RATE 1
+
 #endif
 
 #define SHIP_LIVES 3
 
 #define MAX_BULLETS 2
 
-#define ALIEN_MAX_MOVE_INTERVAL 1000
-#define ALIEN_MIN_MOVE_INTERVAL 100 
-
-#define BULLET_SPEED 10
-
-#define SHIP_MOVE_RATE 5
+#define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS)
 
 #define MOTHERSHIP_CHANCE 10  // %
-
-#define FPS 30
-
 
 
 /*******************************************************************************

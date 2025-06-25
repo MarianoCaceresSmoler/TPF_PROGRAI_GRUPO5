@@ -30,7 +30,7 @@ typedef enum {GAME_ERROR = -1, GAME_MENU, GAME_RUNNING, GAME_PAUSED, GAME_END} g
 
 typedef struct 
 {
-	ship_t ship;
+	  ship_t ship;
     alienFormation_t aliens;
     bullet_t bullets[MAX_BULLETS];
     barrier_t barriers[BARRIERS];

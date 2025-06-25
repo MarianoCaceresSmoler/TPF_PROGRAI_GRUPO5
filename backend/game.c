@@ -66,6 +66,7 @@ void gameInit(game_t * game)
 	game->currentLevel = 1;
 	game->tickCounter = 0;
 	game->aliensRemaining = ALIENS_COLS * ALIENS_ROWS;
+
 }
 
 void gameReset(game_t * game)

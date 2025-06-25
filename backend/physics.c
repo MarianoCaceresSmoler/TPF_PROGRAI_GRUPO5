@@ -74,6 +74,21 @@ void handle_collisions(game_t *game)
 
 void check_bullet_hits_aliens(game_t *game)
 {
+    int i, j, k;
+
+    for (i = 0; i < ALIENS_ROWS; i++)
+    {
+        for (i = 0; i < ALIENS_COLS; i++)
+        {
+            for (k = 0; k < MAX_BULLETS; k++)
+            {
+                if (check_entities_collision(game->aliens.alien[i][j].entity, game->bullets[k].entity))
+                {
+                    
+                }
+            }
+        }        
+    }   
 
 }
 
