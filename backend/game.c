@@ -116,10 +116,10 @@ void gameUpdate(game_t * game, input_t input)
 		// HACER FUNCIONES Y VER SI HACE FALTA AGREGAR MAS COSAS
 
 		// Update entities 
-		update_ship(game->ship, input);
-		update_bullets(game->bullets, input);
-		update_aliens(game->aliens, game->tickCounter);
-		update_mothership(game->mothership);
+		updateShip(game->ship, input);
+		updateBullets(game, input);
+		updateAliens(game->aliens, game->tickCounter);
+		updateMothership(game->mothership);
 
 		// Collisions
 		points = handleCollisions(game);
