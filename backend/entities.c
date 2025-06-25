@@ -1,15 +1,70 @@
+/***************************************************************************//**
+  @file     +Nombre del archivo (ej: template.c)+
+  @brief    +Descripcion del archivo+
+  @author   +Nombre del autor (ej: Salvador Allende)+
+ ******************************************************************************/
+
+/*******************************************************************************
+ * INCLUDE HEADER FILES
+ ******************************************************************************/
+
 #include <entities.h>
+
+/*******************************************************************************
+ * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
+ ******************************************************************************/
+
+#define MOVING_UP -1
+#define MOVING_LEFT -1
+#define STILL 0
+#define MOVING_DOWN 1
+#define MOVING_RIGHT 1
+
+/*******************************************************************************
+ * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
+ ******************************************************************************/
+
+
+
+/*******************************************************************************
+ * VARIABLES WITH GLOBAL SCOPE
+ ******************************************************************************/
+
+// +ej: unsigned int anio_actual;+
+
+
+/*******************************************************************************
+ * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
+ ******************************************************************************/
+
+static barrierPixel_t createBarrierPixel(int x, int y, int isAlive);
+static alien_t createAlien(int x, int y, int type);
+
+
+/*******************************************************************************
+ * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
+ ******************************************************************************/
+
+// +ej: static const int temperaturas_medias[4] = {23, 26, 24, 29};+
+
+
+/*******************************************************************************
+ * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
+ ******************************************************************************/
+
+// +ej: static int temperaturas_actuales[4];+
+
+
+/*******************************************************************************
+ *******************************************************************************
+                        GLOBAL FUNCTION DEFINITIONS
+ *******************************************************************************
+ ******************************************************************************/
 
 ship_t createShip(int x, int y)
 {
 	ship_t ship = {{x, y, SHIP_HEIGHT, SHIP_WIDTH, 1}, SHIP_LIVES, 1, 0, 0};
 	return ship;
-}
-
-static alien_t createAlien(int x, int y, int type)
-{
-	alien_t alien = {{x, y, ALIEN_HEIGTH, ALIEN_WIDTH, 1}, type};
-	return alien;
 }
 
 alienFormation_t createEnemies(int x, int y)
@@ -29,10 +84,9 @@ alienFormation_t createEnemies(int x, int y)
 	return enemies;
 }
 
-static barrierPixel_t createBarrierPixel(int x, int y, int isAlive)
+mothership_t createMothership(int x, int y)
 {
-	barrierPixel_t pixel = {{x, y, BARRIER_PIXEL_HEIGHT, BARRIER_PIXEL_WIDTH, isAlive}};
-	return pixel;
+	mothership_t mothership = {{x, y, SHIP_HEIGHT, SHIP_WIDTH, 0}, 0};
 }
 
 barrier_t createBarrier(int x, int y)
@@ -49,26 +103,128 @@ barrier_t createBarrier(int x, int y)
 	return barrier;
 }
 
-bullet_t createBullet(int x, int y)
+bullet_t createBullet(int x, int y, int direction)
 {
-
+	bullet_t bullet = {{x, y, BULLET_HEIGHT, BULLET_WIDTH, 0}, direction};
+	return bullet;
 }
 
-mothership_t createMothership(int x, int y)
+powerUp_t createPowerUp(int x, int y, int type)
 {
-	
+	powerUp_t powerUp = {{x, y, POWERUP_HEIGHT, POWERUP_WIDTH, 0}, type};
+	return powerUp;
+}
+
+void shipShoot(ship_t * ship, bullet_t * bullet)
+{
+	bullet->entity.x = ship->entity.x + SHIP_WIDTH / 2;
+	bullet->entity.y = ship->entity.y - BULLET_HEIGHT / 2;
+	bullet->direction = MOVING_UP;
+	bullet->entity.isAlive = 1;
+}
+
+void alienShoot(alien_t * alien, bullet_t * bullet)
+{
+	bullet->entity.x = alien->entity.x + ALIEN_WIDTH / 2;
+	bullet->entity.y = alien->entity.y + BULLET_HEIGHT / 2;
+	bullet->direction = MOVING_DOWN;
+	bullet->entity.isAlive = 1;
 }
 
 void moveShipLeft(ship_t * ship)
 {
-
+	ship->entity.x -= SHIP_MOVE_RATE;
+	ship->movingRight = 0;
+	ship->movingLeft = 1;
 }
 
-void moveShipRight(ship_t * ship);
-void moveEnemiesLeft(alienFormation_t * enemies);
-void moveEnemiesRight(alienFormation_t * enemies);
-void moveEnemiesDown(alienFormation_t * enemies);
-void moveMothership(mothership_t * mothership);
-void moveBullet(bullet_t * bullet);
-void shipShoot(ship_t * ship, bullet_t * bullet);
-void alienShoot(alien_t * alien, bullet_t * bullet);
+void moveShipRight(ship_t * ship)
+{
+	ship->entity.x += SHIP_MOVE_RATE;
+	ship->movingLeft = 0;
+	ship->movingRight = 1;
+}
+
+void moveEnemiesLeft(alienFormation_t * enemies, int moveRate)
+{
+	int i, j;
+	for (i = 0; i < ALIENS_ROWS; i++)
+	{
+		for (j = 0; j < ALIENS_COLS; j++)
+		{
+			enemies->alien[i][j].entity.x -= moveRate;
+		}
+	}
+}
+
+void moveEnemiesRight(alienFormation_t * enemies, int moveRate)
+{
+	int i, j;
+	for (i = 0; i < ALIENS_ROWS; i++)
+	{
+		for (j = 0; j < ALIENS_COLS; j++)
+		{
+			enemies->alien[i][j].entity.x += moveRate;
+		}
+	}
+}
+
+void moveEnemiesDown(alienFormation_t * enemies, int moveRate)
+{
+	int i, j;
+	for (i = 0; i < ALIENS_ROWS; i++)
+	{
+		for (j = 0; j < ALIENS_COLS; j++)
+		{
+			enemies->alien[i][j].entity.y -= moveRate;
+		}
+	}
+}
+
+void moveMothership(mothership_t * mothership, int moveRate,int direction)
+{
+	mothership->entity.x += direction * moveRate;
+}
+
+void moveBullet(bullet_t * bullet, int moveRate, int direction)
+{
+	bullet->entity.y += direction * moveRate;
+}
+
+int getAlienPoints(alien_t *alien)
+{
+    switch(alien->alienType)
+    {
+    case 0:
+        return ALIEN_TYPE_0_POINTS;
+        break;
+    case 1:
+        return ALIEN_TYPE_1_POINTS;
+        break;
+    case 2:
+        return ALIEN_TYPE_2_POINTS;
+        break;
+    default:
+        break;
+    }
+}
+
+/*******************************************************************************
+ *******************************************************************************
+                        LOCAL FUNCTION DEFINITIONS
+ *******************************************************************************
+ ******************************************************************************/
+
+static alien_t createAlien(int x, int y, int type)
+{
+	alien_t alien = {{x, y, ALIEN_HEIGTH, ALIEN_WIDTH, 1}, type};
+	return alien;
+}
+
+static barrierPixel_t createBarrierPixel(int x, int y, int isAlive)
+{
+	barrierPixel_t pixel = {{x, y, BARRIER_PIXEL_HEIGHT, BARRIER_PIXEL_WIDTH, isAlive}};
+	return pixel;
+}
+
+/******************************************************************************/
