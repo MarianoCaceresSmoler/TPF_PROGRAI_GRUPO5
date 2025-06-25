@@ -31,7 +31,7 @@
   #define BARRIER_PIXEL_SIZE 12
 
   #define ALIENS_COLS 11
-  #define ALIENS_FILS 5
+  #define ALIENS_ROWS 5
 
   #define BARRIER_HEIGHT 4
   #define BARRIER_WIDTH 6
@@ -47,7 +47,7 @@
   #define SCREEN_HEIGHT 16
 
   #define ALIENS_COLS 5
-  #define ALIENS_FILS 3
+  #define ALIENS_ROWS 3
 
   #define BARRIER_HEIGHT 2
   #define BARRIER_WIDTH 3
@@ -60,9 +60,9 @@
   #define BARRIER_PIXEL_SIZE 1
 #endif
 
-
-
 #define SHIP_LIVES 3
+
+#define MAX_BULLETS 2
 
 #define ALIEN_MAX_MOVE_INTERVAL 1000
 #define ALIEN_MIN_MOVE_INTERVAL 100 
@@ -93,7 +93,7 @@
  ******************************************************************************/
 
 /**
- * @brief TODO: function to get a random number using rand from stdlib
+ * @brief function to get a random number using rand from stdlib
  * @param min min value
  * @param max max value
  * @return a random number between min and max

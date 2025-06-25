@@ -33,30 +33,23 @@ typedef struct
 typedef struct 
 {
 	entity_t entity;
-	unsigned char livesLeft		: 2;
+	unsigned char livesLeft		: 5;
 	unsigned char canShoot 		: 1;
 	unsigned char movingLeft 	: 1;
 	unsigned char movingRight	: 1;
-	unsigned char 	: 1;
-	unsigned char	: 1;
-	unsigned char	: 1;
 } ship_t;
 
 typedef struct
 {
 	entity_t entity;
-	unsigned char alienType		: 2;
+	unsigned char alienType		: 6;
 	unsigned char canShoot		: 1;
 	unsigned char isMoving		: 1;
-	unsigned char 	: 1;
-	unsigned char 	: 1;
-	unsigned char 	: 1;
-	unsigned char	: 1;
 } alien_t;
 
 typedef struct
 {
-	alien_t alien[ALIENS_FILS][ALIENS_COLS];
+	alien_t alien[ALIENS_ROWS][ALIENS_COLS];
 	unsigned char direction;
 	unsigned char tickRate;
 } alienFormation_t;
@@ -141,6 +134,20 @@ void alienShoot(alien_t * alien, bullet_t * bullet);
  *
 */
 
+
+// POSIBLES CAMBIOS
+/*
+void update_ship(ship_t *ship, input_t input);
+void update_aliens(alienFormation_t *aliens, int tick);
+void update_bullets(bullet_t bullets[MAX_BULLETS]);
+void update_mothership(mothership_t *mothership, int tick);
+
+void shoot_bullet(bullet_t bullets[MAX_BULLETS], int x, int y, direction_t dir);
+void init_aliens(alienFormation_t *aliens);
+void init_barriers(barrier_t barriers[BARRIERS]);
+void init_ship(ship_t *ship);
+
+*/
 
 /*******************************************************************************
  ******************************************************************************/

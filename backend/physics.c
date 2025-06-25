@@ -67,6 +67,27 @@ int check_entities_collision(entity_t entityA, entity_t entityB)
     );
 }
 
+void handle_collisions(game_t *game)
+{
+
+}
+
+void check_bullet_hits_aliens(game_t *game)
+{
+
+}
+
+void check_bullet_hits_player(game_t *game)
+{
+
+}
+
+void check_bullet_hits_barriers(game_t *game)
+{
+
+}
+
+
 /*******************************************************************************
  *******************************************************************************
                         LOCAL FUNCTION DEFINITIONS
