@@ -9,9 +9,9 @@
  ******************************************************************************/
 
 // +Incluir el header propio (ej: #include "template.h")+
-#include <game.h>
-#include <entities.h>
-#include <physics.h>
+#include "game.h"
+#include "entities.h"
+#include "physics.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -65,8 +65,7 @@ void gameInit(game_t * game)
 	game->score = 0;
 	game->currentLevel = 1;
 	game->tickCounter = 0;
-	game->aliensRemaining = ALIENS_COLS * ALIENS_ROWS;
-
+	game->aliensRemaining = ALIENS_NUMBER;
 }
 
 void gameReset(game_t * game)
@@ -110,6 +109,8 @@ void gameUpdate(game_t * game, input_t input)
 {
 	if(game->status == GAME_RUNNING)
 	{
+		int points;
+
 		game->tickCounter++;
 
 		// HACER FUNCIONES Y VER SI HACE FALTA AGREGAR MAS COSAS
@@ -121,7 +122,8 @@ void gameUpdate(game_t * game, input_t input)
 		update_mothership(game->mothership);
 
 		// Collisions
-		check_collisions(game);
+		points = handleCollisions(game);
+		incrementScore(game, points); // add points to the score if there was a collision with an alien, if not adds 0
 
 		// Check game state
 

@@ -32,7 +32,8 @@ typedef struct
 {
 	  ship_t ship;
     alienFormation_t aliens;
-    bullet_t bullets[MAX_BULLETS];
+    bullet_t alienBullet;
+    bullet_t shipBullet;
     barrier_t barriers[BARRIERS];
     mothership_t mothership;
 

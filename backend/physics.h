@@ -11,7 +11,6 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
-#include "entities.h"
 #include "game.h"
 
 /*******************************************************************************
@@ -36,26 +35,11 @@
  ******************************************************************************/
 
 /**
- * @brief: function to check a collision between two entities
- * @param entityA, entityB the two entities to compare
- * @return 1 if there is a collision, 0 if not
-*/
-int check_entities_collision(entity_t entityA, entity_t entityB);
-
-/**
  * @brief general function to handle all colisions
  * @param game pointer to the game information
+ * @return the points acumulated if there was a collision with an alien
 */
-void handle_collisions(game_t *game); 
-
-/**
- * @brief functions to check each possible collision individually
- * @param game pointer to the game information
-*/
-void check_bullet_hits_aliens(game_t *game);
-void check_bullet_hits_player(game_t *game);
-void check_bullet_hits_barriers(game_t *game);
-
+int handleCollisions(game_t *game); 
 
 /*******************************************************************************
  ******************************************************************************/
