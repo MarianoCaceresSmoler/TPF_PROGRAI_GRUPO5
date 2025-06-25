@@ -91,11 +91,14 @@
 
 #define SHIP_LIVES 3
 
-#define MAX_BULLETS 2
-
 #define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS)
 
 #define MOTHERSHIP_CHANCE 10  // %
+
+#define ALIEN_TYPE_0_POINTS 10
+#define ALIEN_TYPE_1_POINTS 20
+#define ALIEN_TYPE_2_POINTS 40
+
 
 
 /*******************************************************************************
