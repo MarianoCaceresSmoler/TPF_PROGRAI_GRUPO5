@@ -4,13 +4,15 @@
   @author   +Nombre del autor (ej: Salvador Allende)+
  ******************************************************************************/
 
-#ifndef RENDER_H
-#define RENDER_H
+#ifndef RENDER_PC_H
+#define RENDER_PC_H
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
+#include "../backend/entities.h"
+#include "../backend/game.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -42,17 +44,26 @@
 */
 // +ej: char lcd_goto (int fil, int col);+
 
-void render_game(game_t *game);  // Dibuja todo
-void draw_ship(ship_t *ship);
-void draw_aliens(alienFormation_t *aliens);
-void draw_bullets(bullet_t bullets[]);
-void draw_barriers(barrier_t barriers[]);
-void draw_score(int score);
-void init_graphics();
-void cleanup_graphics();
+/**
+ * @brief functions to create and detroy allegro graphics
+*/
+void initGraphics();
+void cleanupGraphics();
+
+/**
+ * @brief function to render the game state
+ * @param game copy of the game object
+*/
+void renderGame(game_t game);
+
+/**
+ * @brief function to render the menu
+ * @param game copy of the game object
+*/
+void renderMenu(game_t game);
 
 
 /*******************************************************************************
  ******************************************************************************/
 
-#endif // RENDER_H
+#endif // RENDER_PC_H

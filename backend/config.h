@@ -28,6 +28,8 @@
 
   #define SHIP_WIDTH 240
   #define SHIP_HEIGHT 120
+  #define MOTHERSHIP_WIDTH 240
+  #define MOTHERSHIP_HEIGHT 120
   #define ALIEN_WIDTH 240
   #define ALIEN_HEIGTH 120
   #define BULLET_WIDTH 40
@@ -53,8 +55,6 @@
   #define BULLET_MOVE_RATE 15
   #define SHIP_MOVE_RATE 12
 
-  #define FPS 30
-
 #else  // Raspberry Pi
 
   #define SCREEN_WIDTH 16
@@ -65,6 +65,8 @@
 
   #define SHIP_WIDTH 3
   #define SHIP_HEIGHT 2
+  #define MOTHERSHIP_WIDTH 3
+  #define MOTHERSHIP_HEIGHT 2
   #define ALIEN_WIDTH 2
   #define ALIEN_HEIGTH 1
   #define BULLET_WIDTH 1
@@ -104,6 +106,8 @@
 #define ALIEN_TYPE_2_POINTS 30
 #define ALIEN_TYPE_3_POINTS 20
 #define ALIEN_TYPE_4_POINTS 10
+
+#define FPS 30
 
 
 
