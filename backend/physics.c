@@ -99,14 +99,13 @@ static int checkBulletHitsAliens(game_t *game)
 {
     int i, j;
 
-    for (i = 0; i < ALIENS_ROWS; i++)
+    if(game->shipBullet.entity.isAlive) // check collision only if the bullet is active
     {
-        for (j = 0; j < ALIENS_COLS; j++)
+        for (i = 0; i < ALIENS_ROWS; i++)
         {
-            if (game->aliens.alien[i][j].entity.isAlive && game->shipBullet.entity.isAlive) // check collision only if the entitys are alive
+            for (j = 0; j < ALIENS_COLS; j++)
             {
-
-                if (check_entities_collision(game->aliens.alien[i][j].entity, game->shipBullet.entity))
+                if (game->aliens.alien[i][j].entity.isAlive && check_entities_collision(game->aliens.alien[i][j].entity, game->shipBullet.entity)) 
                 {
                     // if collision detected, kill the alien and the bullet
                     game->aliens.alien[i][j].entity.isAlive = 0;
@@ -116,13 +115,13 @@ static int checkBulletHitsAliens(game_t *game)
                     // allows the ship to shoot
                     game->ship.canShoot = 1;
 
-
-                    return getAlienPoints(game->aliens.alien[i][j]);
-                    
-                }  
+                    return getAlienPoints(game->aliens.alien[i][j]);    
+                } 
             }
         }
     }
+
+    return 0;
 }
 
 static void checkBulletHitsShip(game_t *game)
@@ -189,7 +188,7 @@ static void checkBulletHitsMothership(game_t *game)
 
             // allows the ship to shoot
             game->ship.canShoot = 1;
-// METER FUNCIONES DE SCORE;
+    // METER FUNCIONES DE SCORE;
         }
     }
 }

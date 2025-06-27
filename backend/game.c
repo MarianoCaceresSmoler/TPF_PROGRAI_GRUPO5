@@ -96,7 +96,7 @@ void incrementScore(game_t * game, int points)
 void resetLevel(game_t * game)
 {
 	game->tickCounter = 0;
-	game->aliensRemaining = ALIENS_COLS * ALIENS_ROWS;
+	game->aliensRemaining = ALIENS_NUMBER;
 }
 
 void nextLevel(game_t * game)
@@ -116,10 +116,11 @@ void gameUpdate(game_t * game, input_t input)
 		// HACER FUNCIONES Y VER SI HACE FALTA AGREGAR MAS COSAS
 
 		// Update entities 
-		updateShip(game->ship, input);
-		updateBullets(game, input);
-		updateAliens(game->aliens, game->tickCounter);
-		updateMothership(game->mothership);
+		updateShip(&game->ship);
+		updateBullet(&game->shipBullet);
+		updateBullet(&game->alienBullet);
+		updateAliens(&game->aliens);
+		updateMothership(&game->mothership);
 
 		// Collisions
 		points = handleCollisions(game);
@@ -127,7 +128,7 @@ void gameUpdate(game_t * game, input_t input)
 
 		// Check game state
 
-		if (player_is_dead(game->ship)) {
+		if (entityIsDead(game->ship.entity)) {
 			gameEnd(game);
 			return;
 		}

@@ -106,6 +106,15 @@ barrier_t createBarrier(int x, int y);
 bullet_t createBullet(int x, int y, int direction); // 1 is down, -1 is up
 powerUp_t createPowerUp(int x, int y, int type); // 0 is freeze, 1 is double shot, etc 
 
+/* "update" functions update a type of entity
+ * ship/enemies are pointers to the entity to move
+ * moveRate is the amount of units moved
+*/
+void updateShip(ship_t * ship);
+void updateAliens(alienFormation_t * enemies);
+void updateMothership(mothership_t * mothership);
+void updateBullet(bullet_t * bullet);
+
 /* "move" functions move an entity
  * ship/enemies are pointers to the entity to move
  * moveRate is the amount of units moved
