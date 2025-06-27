@@ -34,7 +34,7 @@
 // +ej: static void falta_envido (int);+
 
 /**
- * @brief: function to check a collision between two entities
+ * @brief function to check a collision between two entities
  * @param entityA, entityB the two entities to compare
  * @return 1 if there is a collision, 0 if not
  */

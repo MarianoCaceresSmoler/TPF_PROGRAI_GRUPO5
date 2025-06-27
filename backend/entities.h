@@ -129,7 +129,7 @@ void alienShoot(alien_t * alien, bullet_t * bullet);
 /* "getAlienPoints" returns the amount of points given by the type of alien killed
  * alien is a pointer to the structure of the enemy killed
 */
-int getAlienPoints(alien_t *alien);
+int getAlienPoints(alien_t alien);
 
 // POSIBLES CAMBIOS
 /*

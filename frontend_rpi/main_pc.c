@@ -1,7 +1,6 @@
-
 /***************************************************************************//**
-  @render_pc.c
-  @Render frontend
+  @main_pc.c
+  @Main program for the PC version of the game.
   @Grupo_5
  ******************************************************************************/
 
@@ -10,19 +9,15 @@
  ******************************************************************************/
 // +Incluir el header propio (ej: #include "template.h")+
 
+#include <stdio.h>
+#include "../backend/game.h"
 #include "../backend/config.h"
-#include "render_pc.h"
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define SCALE_X (SCREEN_WIDTH / LOGICAL_WIDTH)
-#define SCALE_Y (SCREEN_HEIGHT / LOGICAL_HEIGHT)
+
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -56,8 +51,6 @@
 
 // +ej: static int temperaturas_actuales[4];+
 
-static ALLEGRO_DISPLAY *display = NULL;
-static ALLEGRO_FONT *font = NULL;
 
 /*******************************************************************************
  *******************************************************************************
@@ -65,8 +58,7 @@ static ALLEGRO_FONT *font = NULL;
  *******************************************************************************
  ******************************************************************************/
 
-
-int get_random_number(int min, int max) 
+int getRandomNumber(int min, int max) 
 {
     srand(time(NULL)); // Seed the random number generator with the current time
     return rand() % (max - min + 1) + min;
@@ -78,32 +70,21 @@ int get_random_number(int min, int max)
  *******************************************************************************
  ******************************************************************************/
 
+int main(void) {
 
+    init_graphics();
+    init_audio();
 
-// render_pc.c
-#include <stdio.h>
-#include "config.h"
+    game_t game;
+    game_init(&game);
 
-#define SCREEN_WIDTH 1920
-#define SCREEN_HEIGHT 1080
+    while (!exit_requested()) {
+        input_t input = get_input();
+        game_update(&game, input);
+        render_game(&game);
+    }
 
-int scale_x(int logic_x) {
-    return logic_x * SCREEN_WIDTH / LOGICAL_WIDTH;
-}
-
-int scale_y(int logic_y) {
-    return logic_y * SCREEN_HEIGHT / LOGICAL_HEIGHT;
-}
-
-// Demo
-int main() {
-    int logic_x = 10;
-    int logic_y = 5;
-
-    int px = scale_x(logic_x);
-    int py = scale_y(logic_y);
-
-    printf("Allegro: lógica (%d, %d) → píxel (%d, %d)\n", logic_x, logic_y, px, py);
-
+    cleanup_graphics();
     return 0;
+
 }

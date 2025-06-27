@@ -1,18 +1,16 @@
 /***************************************************************************//**
-  @game.h
-  @Game structs and functions
-  @Grupo_5
+  @file     +Nombre del archivo (ej: template.h)+
+  @brief    +Descripcion del archivo+
+  @author   +Nombre del autor (ej: Salvador Allende)+
  ******************************************************************************/
 
-#ifndef GAME_H
-#define GAME_H
+#ifndef RENDER_H
+#define RENDER_H
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
-#include "entities.h"
-#include "config.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -23,27 +21,6 @@
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
-
-typedef enum {STILL, MOVE_RIGHT, MOVE_LEFT, SHOOT, QUIT, MOVE_UP, MOVE_DOWN} input_t;
-
-typedef enum {GAME_ERROR = -1, GAME_MENU, GAME_RUNNING, GAME_PAUSED, GAME_END} gameStatus_t;
-
-typedef struct 
-{
-	  ship_t ship;
-    alienFormation_t aliens;
-    bullet_t alienBullet;
-    bullet_t shipBullet;
-    barrier_t barriers[BARRIERS];
-    mothership_t mothership;
-
-    gameStatus_t status;
-    int score;
-    int currentLevel;
-    int tickCounter;
-	int aliensRemaining;
-
-} game_t;
 
 
 /*******************************************************************************
@@ -65,41 +42,17 @@ typedef struct
 */
 // +ej: char lcd_goto (int fil, int col);+
 
-/**
- * @brief functions to modify the state of the game
- * @param game pointer to the game information
-*/
-void gameInit(game_t * game);
-void gameReset(game_t * game);
-void gamePause(game_t * game);
-void gameResume(game_t * game);
-void gameEnd(game_t * game);
+void render_game(game_t *game);  // Dibuja todo
+void draw_ship(ship_t *ship);
+void draw_aliens(alienFormation_t *aliens);
+void draw_bullets(bullet_t bullets[]);
+void draw_barriers(barrier_t barriers[]);
+void draw_score(int score);
+void init_graphics();
+void cleanup_graphics();
 
-/**
- * @brief function to update the score
- * @param game pointer to the game information, points the number of points to add
-*/
-void incrementScore(game_t * game, int points);
-
-/**
- * @brief function to reset level information when a level is completed
- * @param game pointer to the game information
-*/
-void resetLevel(game_t * game);
-
-/**
- * @brief function to increment the actual level
- * @param game pointer to the game information
-*/
-void nextLevel(game_t * game);
-
-/**
- * @brief general function to update the game's objects information
- * @param game pointer to the game information
-*/
-void gameUpdate(game_t * game, input_t input);
 
 /*******************************************************************************
  ******************************************************************************/
 
-#endif // GAME_H
+#endif // RENDER_H

@@ -191,9 +191,9 @@ void moveBullet(bullet_t * bullet, int moveRate, int direction)
 	bullet->entity.y += direction * moveRate;
 }
 
-int getAlienPoints(alien_t *alien)
+int getAlienPoints(alien_t alien)
 {
-    switch(alien->alienType)
+    switch(alien.alienType)
     {
     case 0:
         return ALIEN_TYPE_0_POINTS;
