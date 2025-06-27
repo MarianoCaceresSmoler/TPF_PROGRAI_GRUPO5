@@ -188,8 +188,8 @@ static void checkBulletHitsMothership(game_t *game)
             game->mothership.entity.isAlive = 0;
 
             // allows the ship to shoot
-            game->ship.canShoot
-// METER FUNCIONES DE SCORE = 1;
+            game->ship.canShoot = 1;
+// METER FUNCIONES DE SCORE;
         }
     }
 }
