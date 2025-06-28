@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include "../backend/game.h"
 #include "../backend/config.h"
+#include "render_pc.h"
+#include "input_pc.h"
+#include "audio_pc.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE

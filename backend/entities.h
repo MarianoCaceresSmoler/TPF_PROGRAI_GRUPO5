@@ -30,6 +30,8 @@ typedef struct
 	unsigned short int height;
 	unsigned short int width;
 	unsigned char isAlive;
+	unsigned short int explosionTimer;  // > 0 if explosion is active
+
 } entity_t;
 
 typedef struct 

@@ -75,7 +75,7 @@ alienFormation_t createEnemies(int x, int y)
 	{
 		for(j = 0; j < ALIENS_COLS; j++)
 		{
-			(enemies.alien[i][j]) = createAlien(x + j * 2 * ALIEN_WIDTH, y + i * 2 * ALIEN_HEIGTH, i);
+			(enemies.alien[i][j]) = createAlien(x + j * 2 * ALIEN_WIDTH, y + i * 2 * ALIEN_HEIGHT, i);
 		}
 	}
 	enemies.tickRate = ALIEN_MAX_MOVE_TICKRATE; 
@@ -217,7 +217,7 @@ int getAlienPoints(alien_t alien)
 
 static alien_t createAlien(int x, int y, int type)
 {
-	alien_t alien = {{x, y, ALIEN_HEIGTH, ALIEN_WIDTH, 1}, type};
+	alien_t alien = {{x, y, ALIEN_HEIGHT, ALIEN_WIDTH, 1}, type};
 	return alien;
 }
 

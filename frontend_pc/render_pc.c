@@ -11,10 +11,12 @@
 // +Incluir el header propio (ej: #include "template.h")+
 
 #include "../backend/config.h"
+#include "../backend/entities.h"
 #include "render_pc.h"
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 
@@ -46,9 +48,15 @@
  */
 static void drawShip(ship_t ship);
 static void drawAliens(alienFormation_t alienFormation);
-static void drawBullet(bullet_t bullet);
-static void drawBarriers(barrier_t barriers[]);
+static void drawMothership(mothership_t mothership);
+static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
+static void drawBarriers(barrier_t barriers[BARRIERS]);
 static void drawScore(int score);
+
+/**
+ * @brief private function to load sprites
+ */
+static void loadImages();
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -78,6 +86,7 @@ static ALLEGRO_BITMAP *shipBitMap = NULL;
 static ALLEGRO_BITMAP *barrierPixelBitmap = NULL;
 static ALLEGRO_BITMAP *bulletBitmap = NULL;
 static ALLEGRO_BITMAP *mothershipBitmap = NULL;
+static ALLEGRO_BITMAP *explosionBitmap = NULL;
 
 /*******************************************************************************
  *******************************************************************************
@@ -87,39 +96,53 @@ static ALLEGRO_BITMAP *mothershipBitmap = NULL;
 
 void initGraphics()
 {
+    // Initialize Allegro
     if (!al_init())
     {
-        fprintf(stderr, "failed to initialize allegro!\n");
+        fprintf(stderr, "Failed to initialize allegro!\n");
         return -1;
     }
 
+    // Create the display
     if (!al_install_keyboard())
     {
-        fprintf(stderr, "failed to initialize the keyboard!\n");
+        fprintf(stderr, "Failed to initialize the keyboard!\n");
         return -1;
     }
 
     display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
-    timer = al_create_timer(1.0 / FPS);
+    timer = al_create_timer(1.0 / FPS); // 1 frame per second timer
 
-    alien0BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGTH);
-    alien1BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGTH);
-    alien2BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGTH);
-    alien3BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGTH);
-    alien4BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGTH);
+    // Initialize allegro images controller
+    if (!al_init_image_addon())
+    {
+        fprintf(stderr, "Unable to start image addon \n");
+        return -1;
+    }
+
+    // Create bitmaps for objects
+    alien0BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
+    alien1BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
+    alien2BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
+    alien3BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
+    alien4BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
 
     shipBitMap = al_create_bitmap(SHIP_WIDTH, SHIP_HEIGHT);
     barrierPixelBitmap = al_create_bitmap(BARRIER_PIXEL_WIDTH, BARRIER_PIXEL_HEIGHT);
     bulletBitmap = al_create_bitmap(BULLET_WIDTH, BULLET_HEIGHT);
     mothershipBitmap = al_create_bitmap(MOTHERSHIP_WIDTH, MOTHERSHIP_HEIGHT);
+    explosionBitmap = al_create_bitmap(EXPLOSION_WIDTH, EXPLOSION_HEIGHT);
 
+    // Create event qeue
     event_queue = al_create_event_queue();
 
+    // REgister fonts
     al_init_font_addon();
     al_init_ttf_addon();
     fontGameplay = al_load_ttf_font("assets/fonts/font_gameplay.ttf", 36, 0);
     fontRetro = al_load_ttf_font("assets/fonts/font_retro.ttf.ttf", 36, 0);
 
+    // Error managing for elements created
     if (!(display && timer && alien0BitMap && alien1BitMap && alien2BitMap && alien3BitMap && alien4BitMap && shipBitMap && barrierPixelBitmap && bulletBitmap && mothershipBitmap && event_queue))
     {
         fprintf(stderr, "Failed to load assets.\n");
@@ -145,49 +168,64 @@ void initGraphics()
             al_destroy_bitmap(bulletBitmap);
         if (mothershipBitmap)
             al_destroy_bitmap(mothershipBitmap);
+        if (explosionBitmap)
+            al_destroy_bitmap(explosionBitmap);
         if (event_queue)
             al_destroy_event_queue(event_queue);
+        if (fontGameplay)
+            al_destroy_font(fontGameplay);
+        if (fontRetro)
+            al_destroy_font(fontRetro);
         return -1;
     }
 
+    // Calls private function to load sprites
+    loadImages();
+
+    // Registers the event sources
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
-    al_register_event_source(event_queue, al_get_keyboard_event_source()); 
+    al_register_event_source(event_queue, al_get_keyboard_event_source());
 
     al_clear_to_color(al_map_rgb(0, 0, 0));
     al_flip_display();
     al_start_timer(timer);
-
-
-    // FALTARIA INICIALIZAR Y DESTRUIR IMAGENES
 }
 
 void cleanupGraphics()
 {
-        al_destroy_display(display);
-        al_destroy_timer(timer);
-        al_destroy_bitmap(alien0BitMap);
-        al_destroy_bitmap(alien1BitMap);
-        al_destroy_bitmap(alien2BitMap);
-        al_destroy_bitmap(alien3BitMap);
-        al_destroy_bitmap(alien4BitMap);
-        al_destroy_bitmap(shipBitMap);
-        al_destroy_bitmap(barrierPixelBitmap);
-        al_destroy_bitmap(bulletBitmap);
-        al_destroy_bitmap(mothershipBitmap);
-        al_destroy_event_queue(event_queue);
+    // Destroys all elements at the end of the program
+    al_destroy_display(display);
+    al_destroy_timer(timer);
+    al_destroy_bitmap(alien0BitMap);
+    al_destroy_bitmap(alien1BitMap);
+    al_destroy_bitmap(alien2BitMap);
+    al_destroy_bitmap(alien3BitMap);
+    al_destroy_bitmap(alien4BitMap);
+    al_destroy_bitmap(shipBitMap);
+    al_destroy_bitmap(barrierPixelBitmap);
+    al_destroy_bitmap(bulletBitmap);
+    al_destroy_bitmap(mothershipBitmap);
+    al_destroy_bitmap(explosionBitmap);
+    al_destroy_event_queue(event_queue);
+    al_destroy_font(fontGameplay);
+    al_destroy_font(fontRetro);
 }
 
-/**
- * @brief function to render the game state
- * @param game copy of the game object
- */
-void renderGame(game_t game);
+void renderGame(game_t game)
+{
+    al_clear_to_color(al_map_rgb(0, 0, 0));
 
-/**
- * @brief function to render the menu
- * @param game copy of the game object
- */
+    drawShip(game.ship);
+    drawAliens(game.aliens);
+    drawBullets(game.shipBullet, game.alienBullet);
+    drawBarriers(game.barriers);
+    drawMothership(game.mothership);
+    drawScore(game.score);
+
+    al_flip_display();
+}
+
 void renderMenu(game_t game);
 
 /*******************************************************************************
@@ -196,38 +234,270 @@ void renderMenu(game_t game);
  *******************************************************************************
  ******************************************************************************/
 
-/**
- * @brief private functions to draw objects in display
- */
-static void drawShip(ship_t ship);
-static void drawAliens(alienFormation_t alienFormation);
-static void drawBullet(bullet_t bullet);
-static void drawBarriers(barrier_t barriers[]);
-static void drawScore(int score);
-
-#define SCREEN_WIDTH 1920
-#define SCREEN_HEIGHT 1080
-
-int scale_x(int logic_x)
+static void loadImages()
 {
-    return logic_x * SCREEN_WIDTH / LOGICAL_WIDTH;
+    // Load the images
+
+    alien0BitMap = al_load_bitmap("assets/img/alien0.png");
+    if (!alien0BitMap)
+    {
+        fprintf(stderr, "Failed to load alien0.png\n");
+        exit(1);
+    }
+
+    alien1BitMap = al_load_bitmap("assets/img/alien1.png");
+    if (!alien1BitMap)
+    {
+        fprintf(stderr, "Failed to load alien1.png\n");
+        exit(1);
+    }
+
+    alien2BitMap = al_load_bitmap("assets/img/alien2.png");
+    if (!alien2BitMap)
+    {
+        fprintf(stderr, "Failed to load alien2.png\n");
+        exit(1);
+    }
+
+    alien3BitMap = al_load_bitmap("assets/img/alien3.png");
+    if (!alien3BitMap)
+    {
+        fprintf(stderr, "Failed to load alien3.png\n");
+        exit(1);
+    }
+
+    alien4BitMap = al_load_bitmap("assets/img/alien4.png");
+    if (!alien4BitMap)
+    {
+        fprintf(stderr, "Failed to load alien4.png\n");
+        exit(1);
+    }
+
+    shipBitMap = al_load_bitmap("assets/img/ship.png");
+    if (!shipBitMap)
+    {
+        fprintf(stderr, "Failed to load ship.png\n");
+        exit(1);
+    }
+
+    bulletBitmap = al_load_bitmap("assets/img/bullet.png");
+    if (!bulletBitmap)
+    {
+        fprintf(stderr, "Failed to load bullet.png\n");
+        exit(1);
+    }
+
+    mothershipBitmap = al_load_bitmap("assets/img/mothership.png");
+    if (!mothershipBitmap)
+    {
+        fprintf(stderr, "Failed to load mothership.png\n");
+        exit(1);
+    }
+
+    explosionBitmap = al_load_bitmap("assets/img/explosion.png");
+    if (!explosionBitmap)
+    {
+        fprintf(stderr, "Failed to load explosion.png\n");
+        exit(1);
+    }
 }
 
-int scale_y(int logic_y)
+static void drawShip(ship_t ship)
 {
-    return logic_y * SCREEN_HEIGHT / LOGICAL_HEIGHT;
+    // Draws the ship if the explosion timer is not set. Otherwise, draws the explosion.
+    if (ship.entity.explosionTimer > 0)
+    {
+        al_draw_scaled_bitmap(
+            explosionBitmap,
+            0, 0,
+            al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+            ship.entity.x, ship.entity.y,
+            al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+            0);
+    }
+    else
+    {
+        al_draw_scaled_bitmap(
+            shipBitMap,
+            0, 0,
+            al_get_bitmap_width(shipBitMap), al_get_bitmap_height(shipBitMap),
+            ship.entity.x, ship.entity.y,
+            al_get_bitmap_width(shipBitMap), al_get_bitmap_height(shipBitMap),
+            0);
+    }
 }
 
-// Demo
-int main()
+static void drawAliens(alienFormation_t aliens)
 {
-    int logic_x = 10;
-    int logic_y = 5;
+    int i, j;
 
-    int px = scale_x(logic_x);
-    int py = scale_y(logic_y);
+    for (i = 0; i < ALIENS_ROWS; i++)
+    {
+        for (j = 0; j < ALIENS_COLS; j++)
+        {
+            entity_t alienEntity = aliens.alien[i][j].entity;
+            unsigned char alienType = aliens.alien[i][j].alienType;
 
-    printf("Allegro: lógica (%d, %d) → píxel (%d, %d)\n", logic_x, logic_y, px, py);
+            // Only draws if the alien is alive
+            if (alienEntity.isAlive)
+            {
+                // Draws the alien if the explosion timer is not set. Otherwise, draws the explosion.
+                if (alienEntity.explosionTimer > 0)
+                {
+                    al_draw_scaled_bitmap(
+                        explosionBitmap,
+                        0, 0,
+                        al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+                        alienEntity.x, alienEntity.y,
+                        al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+                        0);
+                }
+                else
+                {
+                    switch (alienType)
+                    {
+                    case 0:
+                        al_draw_scaled_bitmap(
+                            alien0BitMap,
+                            0, 0,
+                            al_get_bitmap_width(alien0BitMap), al_get_bitmap_height(alien0BitMap),
+                            alienEntity.x, alienEntity.y,
+                            al_get_bitmap_width(alien0BitMap), al_get_bitmap_height(alien0BitMap),
+                            0);
+                        break;
+                    case 1:
+                        al_draw_scaled_bitmap(
+                            alien1BitMap,
+                            0, 0,
+                            al_get_bitmap_width(alien1BitMap), al_get_bitmap_height(alien1BitMap),
+                            alienEntity.x, alienEntity.y,
+                            al_get_bitmap_width(alien1BitMap), al_get_bitmap_height(alien1BitMap),
+                            0);
+                        break;
+                    case 2:
+                        al_draw_scaled_bitmap(
+                            alien2BitMap,
+                            0, 0,
+                            al_get_bitmap_width(alien2BitMap), al_get_bitmap_height(alien2BitMap),
+                            alienEntity.x, alienEntity.y,
+                            al_get_bitmap_width(alien2BitMap), al_get_bitmap_height(alien2BitMap),
+                            0);
+                        break;
+                    case 3:
+                        al_draw_scaled_bitmap(
+                            alien3BitMap,
+                            0, 0,
+                            al_get_bitmap_width(alien3BitMap), al_get_bitmap_height(alien3BitMap),
+                            alienEntity.x, alienEntity.y,
+                            al_get_bitmap_width(alien3BitMap), al_get_bitmap_height(alien3BitMap),
+                            0);
+                        break;
+                    case 4:
+                        al_draw_scaled_bitmap(
+                            alien4BitMap,
+                            0, 0,
+                            al_get_bitmap_width(alien4BitMap), al_get_bitmap_height(alien4BitMap),
+                            alienEntity.x, alienEntity.y,
+                            al_get_bitmap_width(alien4BitMap), al_get_bitmap_height(alien4BitMap),
+                            0);
+                        break;
 
-    return 0;
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+static void drawMothership(mothership_t mothership)
+{
+    // Only draws if the mothership is alive
+    if (mothership.entity.isAlive)
+    {
+        // Draws the mothership if the explosion timer is not set. Otherwise, draws the explosion.
+        if (mothership.entity.explosionTimer > 0)
+        {
+            al_draw_scaled_bitmap(
+                explosionBitmap,
+                0, 0,
+                al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+                mothership.entity.x, mothership.entity.y,
+                al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+                0);
+        }
+        else
+        {
+            al_draw_scaled_bitmap(
+                mothershipBitmap,
+                0, 0,
+                al_get_bitmap_width(mothershipBitmap), al_get_bitmap_height(mothershipBitmap),
+                mothership.entity.x, mothership.entity.y,
+                al_get_bitmap_width(mothershipBitmap), al_get_bitmap_height(mothershipBitmap),
+                0);
+        }
+    }
+}
+
+static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
+{
+    // Ship bullet
+    // Only draws if the ship bullet is alive
+    if (shipBullet.entity.isAlive)
+    {
+        al_draw_scaled_bitmap(
+            bulletBitmap,
+            0, 0,
+            al_get_bitmap_width(bulletBitmap), al_get_bitmap_height(bulletBitmap),
+            shipBullet.entity.x, shipBullet.entity.y,
+            al_get_bitmap_width(bulletBitmap), al_get_bitmap_height(bulletBitmap),
+            0);
+    }
+
+    // Alien bullet
+    // Only draws if the alien bullet is alive
+    if (shipBullet.entity.isAlive)
+    {
+        al_draw_scaled_bitmap(
+            bulletBitmap,
+            0, 0,
+            al_get_bitmap_width(bulletBitmap), al_get_bitmap_height(bulletBitmap),
+            alienBullet.entity.x, alienBullet.entity.y,
+            al_get_bitmap_width(bulletBitmap), al_get_bitmap_height(bulletBitmap),
+            0);
+    }
+}
+
+static void drawBarriers(barrier_t barriers[BARRIERS])
+{
+    int i, x, y;
+
+    for (i = 0; i < BARRIERS; i++)
+    {
+        for (x = 0; x < BARRIER_HEIGHT; x++)
+        {
+            for (y = 0; y < BARRIER_WIDTH; y++)
+            {
+                entity_t pixel = barriers[i].pixel[x][y].entity;
+
+                // Only draws if the pixel is alive
+                if (pixel.isAlive) {
+                    al_draw_filled_rectangle(
+                        pixel.x,
+                        pixel.y,
+                        pixel.x + BARRIER_PIXEL_WIDTH,
+                        pixel.y + BARRIER_PIXEL_HEIGHT,
+                        al_map_rgb(0, 128, 255)
+                    );
+                }
+
+            }
+        }
+    }
+}
+
+static void drawScore(int score)
+{
+    // HACER
 }
