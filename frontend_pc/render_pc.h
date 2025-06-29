@@ -51,16 +51,12 @@ void initGraphics();
 void cleanupGraphics();
 
 /**
- * @brief function to render the game state
+ * @brief functions to render the game screens
  * @param game copy of the game object
 */
 void renderGame(game_t game);
-
-/**
- * @brief function to render the menu
- * @param game copy of the game object
-*/
 void renderMenu(game_t game);
+void renderGameOver(game_t game);
 
 
 /*******************************************************************************

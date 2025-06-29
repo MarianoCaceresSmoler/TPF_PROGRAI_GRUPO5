@@ -87,6 +87,7 @@ static ALLEGRO_BITMAP *barrierPixelBitmap = NULL;
 static ALLEGRO_BITMAP *bulletBitmap = NULL;
 static ALLEGRO_BITMAP *mothershipBitmap = NULL;
 static ALLEGRO_BITMAP *explosionBitmap = NULL;
+static ALLEGRO_BITMAP *titleBitmap = NULL;
 
 /*******************************************************************************
  *******************************************************************************
@@ -132,6 +133,7 @@ void initGraphics()
     bulletBitmap = al_create_bitmap(BULLET_WIDTH, BULLET_HEIGHT);
     mothershipBitmap = al_create_bitmap(MOTHERSHIP_WIDTH, MOTHERSHIP_HEIGHT);
     explosionBitmap = al_create_bitmap(EXPLOSION_WIDTH, EXPLOSION_HEIGHT);
+    titleBitmap = al_create_bitmap(TITLE_WIDTH, TITLE_HEIGHT);
 
     // Create event qeue
     event_queue = al_create_event_queue();
@@ -170,6 +172,8 @@ void initGraphics()
             al_destroy_bitmap(mothershipBitmap);
         if (explosionBitmap)
             al_destroy_bitmap(explosionBitmap);
+        if (titleBitmap)
+            al_destroy_bitmap(titleBitmap);
         if (event_queue)
             al_destroy_event_queue(event_queue);
         if (fontGameplay)
@@ -207,6 +211,7 @@ void cleanupGraphics()
     al_destroy_bitmap(bulletBitmap);
     al_destroy_bitmap(mothershipBitmap);
     al_destroy_bitmap(explosionBitmap);
+    al_destroy_bitmap(titleBitmap);
     al_destroy_event_queue(event_queue);
     al_destroy_font(fontGameplay);
     al_destroy_font(fontRetro);
@@ -226,7 +231,68 @@ void renderGame(game_t game)
     al_flip_display();
 }
 
-void renderMenu(game_t game);
+void renderMenu(game_t game)
+{
+    gameStatus_t status = game.status;
+
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+
+    if (status == GAME_MENU) // If player is at menu
+    {
+        int titleWidth = al_get_bitmap_width(titleBitmap);
+        int titleHeight = al_get_bitmap_height(titleBitmap);
+
+        float destX = (SCREEN_WIDTH - titleWidth) / 2;
+        float destY = SCREEN_HEIGHT / 4; // Relative height
+
+        // Draws title
+        al_draw_scaled_bitmap(
+            titleBitmap,
+            0, 0,
+            titleWidth, titleHeight,
+            destX, destY,
+            titleWidth, titleHeight,
+            0);
+
+        // Draws secondary text
+        al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, ALLEGRO_ALIGN_CENTER, "Press any key to play");
+    }
+    else if (status == GAME_PAUSED) // if game was paused
+    {
+        al_draw_text(fontRetro, al_map_rgb(255, 255, 0),
+                     SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3,
+                     ALLEGRO_ALIGN_CENTER, "GAME PAUSED");
+
+        al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+                     SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+                     ALLEGRO_ALIGN_CENTER, "Enter ESC to resume, Q to quit, R to reload the game");
+    }
+
+    al_flip_display();
+}
+
+void renderGameOver(game_t game)
+{
+    int score = game.score;
+
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+
+    al_draw_text(fontRetro, al_map_rgb(255, 0, 0),
+                 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3,
+                 ALLEGRO_ALIGN_CENTER, "GAME OVER");
+
+    char scoreText[64];
+    snprintf(scoreText, sizeof(scoreText), "Final Score: %d", score);
+    al_draw_text(fontRetro, al_map_rgb(255, 255, 255),
+                 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+                 ALLEGRO_ALIGN_CENTER, scoreText);
+
+    al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+                 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 40,
+                 ALLEGRO_ALIGN_CENTER, "Enter Q to quit, R to reload the game");
+
+    al_flip_display();
+}
 
 /*******************************************************************************
  *******************************************************************************
@@ -298,6 +364,13 @@ static void loadImages()
     if (!explosionBitmap)
     {
         fprintf(stderr, "Failed to load explosion.png\n");
+        exit(1);
+    }
+
+    titleBitmap = al_load_bitmap("assets/img/title.png");
+    if (!titleBitmap)
+    {
+        fprintf(stderr, "Failed to load title.png\n");
         exit(1);
     }
 }
@@ -482,16 +555,15 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
                 entity_t pixel = barriers[i].pixel[x][y].entity;
 
                 // Only draws if the pixel is alive
-                if (pixel.isAlive) {
+                if (pixel.isAlive)
+                {
                     al_draw_filled_rectangle(
                         pixel.x,
                         pixel.y,
                         pixel.x + BARRIER_PIXEL_WIDTH,
                         pixel.y + BARRIER_PIXEL_HEIGHT,
-                        al_map_rgb(0, 128, 255)
-                    );
+                        al_map_rgb(0, 128, 255));
                 }
-
             }
         }
     }
@@ -499,5 +571,7 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
 
 static void drawScore(int score)
 {
-    // HACER
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "Score: %d", score);
+    al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCORE_INITIAL_X, SCORE_INITIAL_Y, 0, buffer);
 }

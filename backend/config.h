@@ -44,10 +44,15 @@
   #define BARRIER_WIDTH 6
   #define BARRIERS 4
 
+  #define TITLE_WIDTH 800
+  #define TITLE_HEIGHT 200
+
   #define SHIP_INITIAL_X (SCREEN_WIDTH / 2 - SHIP_HEIGHT / 2)
   #define SHIP_INITIAL_Y (SCREEN_HEIGHT * 0.95 - SHIP_HEIGHT / 2) 
   #define ALIENS_INITIAL_X (SCREEN_WIDTH / ALIENS_COLS - ALIEN_HEIGHT / 2)
   #define ALIENS_INITIAL_Y (ALIEN_HEIGHT)
+  #define SCORE_INITIAL_X 20
+  #define SCORE_INITIAL_Y 20
 
   #define ALIEN_MAX_MOVE_INTERVAL 60
   #define ALIEN_MIN_MOVE_INTERVAL 12 
@@ -56,6 +61,8 @@
   #define MOTHERSHIP_MOVE_RATE 12
   #define BULLET_MOVE_RATE 15
   #define SHIP_MOVE_RATE 12
+
+
 
 #else  // Raspberry Pi
 
@@ -83,11 +90,15 @@
   #define BARRIER_HEIGHT 3
   #define BARRIERS 3
 
+  #define TITLE_WIDTH 8
+  #define TITLE_HEIGHT 2
+
   #define SHIP_INITIAL_X 1
   #define SHIP_INITIAL_Y 14
   #define ALIENS_INITIAL_X 1
   #define ALIENS_INITIAL_Y 1
-
+  #define SCORE_INITIAL_X 0
+  #define SCORE_INITIAL_Y 0
 
   #define ALIEN_MAX_MOVE_INTERVAL 5
   #define ALIEN_MIN_MOVE_INTERVAL 1
@@ -96,6 +107,7 @@
   #define MOTHERSHIP_MOVE_RATE 1
   #define BULLET_MOVE_RATE 1
   #define SHIP_MOVE_RATE 1
+
 
 #endif
 

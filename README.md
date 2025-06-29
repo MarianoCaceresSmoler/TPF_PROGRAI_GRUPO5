@@ -10,8 +10,7 @@ Backend:
 
 Frontend:
 - Audio
-- Animaciones
-- Pantalla con menu
+- Manejo de inputs
 ...
 
 

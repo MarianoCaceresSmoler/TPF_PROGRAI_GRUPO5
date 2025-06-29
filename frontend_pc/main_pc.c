@@ -75,8 +75,8 @@ int getRandomNumber(int min, int max)
 
 int main(void) {
 
-    init_graphics();
-    init_audio();
+    initGraphics();
+    initAudio(); // HACER
 
     game_t game;
     game_init(&game);
