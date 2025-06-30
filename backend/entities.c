@@ -78,7 +78,7 @@ alienFormation_t createEnemies(int x, int y)
 			(enemies.alien[i][j]) = createAlien(x + j * 2 * ALIEN_WIDTH, y + i * 2 * ALIEN_HEIGHT, i);
 		}
 	}
-	enemies.direction = 1;
+	enemies.direction = MOVING_RIGHT;
 	enemies.canShoot = 0;
 	return enemies;
 }
@@ -133,15 +133,13 @@ void alienShoot(alien_t * alien, bullet_t * bullet)
 void moveShipLeft(ship_t * ship)
 {
 	ship->entity.x -= SHIP_MOVE_RATE;
-	ship->movingRight = 0;
-	ship->movingLeft = 1;
+	ship->direction = MOVING_LEFT;
 }
 
 void moveShipRight(ship_t * ship)
 {
 	ship->entity.x += SHIP_MOVE_RATE;
-	ship->movingLeft = 0;
-	ship->movingRight = 1;
+	ship->direction = MOVING_RIGHT;
 }
 
 void moveEnemiesLeft(alienFormation_t * enemies, int moveRate)
@@ -204,6 +202,7 @@ int getAlienPoints(alien_t alien)
         return ALIEN_TYPE_2_POINTS;
         break;
     default:
+		return 0;
         break;
     }
 }

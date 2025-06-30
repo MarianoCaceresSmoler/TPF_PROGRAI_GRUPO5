@@ -39,16 +39,14 @@ typedef struct
 	unsigned short int width;
 	unsigned char isAlive;
 	unsigned short int explosionTimer;  // > 0 if explosion is active
-
 } entity_t;
 
 typedef struct 
 {
 	entity_t entity;
-	unsigned char livesLeft		: 5;
-	unsigned char canShoot 		: 1;
-	unsigned char movingLeft 	: 1;
-	unsigned char movingRight	: 1;
+	movingDirections_t direction;
+	unsigned char livesLeft		: 4;
+	unsigned char canShoot 		: 4;
 } ship_t;
 
 typedef struct
@@ -60,15 +58,15 @@ typedef struct
 typedef struct
 {
 	alien_t alien[ALIENS_ROWS][ALIENS_COLS];
-	unsigned char direction		: 4;
-	unsigned char canShoot		: 4;
+	movingDirections_t direction;
+	unsigned char canShoot;
 } alienFormation_t;
 
 typedef struct
 {
 	entity_t entity;
-	unsigned char direction : 4;
-	unsigned char isMoving : 4;
+	movingDirections_t direction;
+	unsigned char isMoving;
 } mothership_t;
 
 typedef struct
