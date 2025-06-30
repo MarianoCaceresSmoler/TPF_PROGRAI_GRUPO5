@@ -78,7 +78,6 @@ alienFormation_t createEnemies(int x, int y)
 			(enemies.alien[i][j]) = createAlien(x + j * 2 * ALIEN_WIDTH, y + i * 2 * ALIEN_HEIGHT, i);
 		}
 	}
-	enemies.tickRate = ALIEN_MAX_MOVE_TICKRATE; 
 	enemies.direction = 1;
 	enemies.canShoot = 0;
 	return enemies;
@@ -181,14 +180,14 @@ void moveEnemiesDown(alienFormation_t * enemies, int moveRate)
 	}
 }
 
-void moveMothership(mothership_t * mothership, int moveRate,int direction)
+void moveMothership(mothership_t * mothership, int moveRate)
 {
-	mothership->entity.x += direction * moveRate;
+	mothership->entity.x += mothership->direction * moveRate;
 }
 
-void moveBullet(bullet_t * bullet, int moveRate, int direction)
+void moveBullet(bullet_t * bullet, int moveRate)
 {
-	bullet->entity.y += direction * moveRate;
+	bullet->entity.y += bullet->direction * moveRate;
 }
 
 int getAlienPoints(alien_t alien)

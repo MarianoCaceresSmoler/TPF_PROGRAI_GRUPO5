@@ -37,7 +37,15 @@
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
-// +ej: static void falta_envido (int);+
+/* "update" functions update a type of entity
+ * ship/enemies are pointers to the entity to move
+ * moveRate is the amount of units moved
+*/
+static void gameUpdate(game_t * game, input_t input);
+static void updateShip(ship_t * ship, bullet_t * shipBullet, input_t input);
+static void updateBullet(bullet_t * bullet);
+static void updateAliens(alienFormation_t * aliens, bullet_t * alienBullet);
+static void updateMothership(mothership_t * mothership);
 
 
 /*******************************************************************************
@@ -101,41 +109,30 @@ void nextLevel(game_t * game)
 	resetLevel(game);
 }
 
-void gameUpdate(game_t * game, input_t input)
+void manageInput(game_t * game, input_t input)
 {
-	if(game->status == GAME_RUNNING)
+	if (game->status == GAME_RUNNING)
 	{
 		int points;
 
 		game->tickCounter++;
 
-		// HACER FUNCIONES Y VER SI HACE FALTA AGREGAR MAS COSAS
-
-		// Update entities 
-		updateShip(&game->ship);
-		updateBullet(&game->shipBullet);
-		updateBullet(&game->alienBullet);
-		updateAliens(&game->aliens);
-		updateMothership(&game->mothership);
-
-		// Collisions
+		gameUpdate(game, input);
 		points = handleCollisions(game);
-		incrementScore(game, points); // add points to the score if there was a collision with an alien, if not adds 0
+		incrementScore(game, points);
 
-		// Check game state
-
-		if (entityIsDead(game->ship.entity)) {
-			gameEnd(game);
-			return;
-		}
-
-		if (game->aliensRemaining == 0) {
+		if (game->aliensRemaining == 0)
+		{
 			game->currentLevel++;
 			nextLevel(game);
 		}
+		else if(!game->ship.entity.isAlive)
+		{
+			gameEnd(game);
+		}
 
 	}
-
+	
 }
 
 /*******************************************************************************
@@ -144,6 +141,84 @@ void gameUpdate(game_t * game, input_t input)
  *******************************************************************************
  ******************************************************************************/
 
+static void gameUpdate(game_t * game, input_t input)
+{
+	updateShip(&game->ship, &game->shipBullet, input);
+	updateBullet(&game->shipBullet);
+	updateAliens(&game->aliens, &game->alienBullet);
+	updateBullet(&game->alienBullet);
+	updateMothership(&game->mothership);
+}
 
+static void updateShip(ship_t * ship, bullet_t * shipBullet, input_t input)
+{
+	switch (input)
+	{
+	case INPUT_LEFT:
+		moveShipLeft(ship);
+		break;
+	
+	case INPUT_RIGHT:
+		moveShipRight(ship);
+		break;
+
+	case INPUT_SHOOT:
+		shipShoot(ship, shipBullet);
+		break;
+	default:
+		ship->movingLeft = 0;
+		ship->movingRight = 0;
+		break;
+	}
+	
+}
+
+static void updateBullet(bullet_t * bullet)
+{
+	moveBullet(bullet, BULLET_MOVE_RATE);
+}
+
+static void updateAliens(alienFormation_t * aliens, bullet_t * alienBullet)
+{
+	int firstColumn = -1, lastColumn, i, j;
+
+	for (j = 0; j < ALIENS_COLS; j++)
+	{
+		for (i = 0; i < ALIENS_ROWS; i++)
+		{
+			if(aliens->alien[i][j].entity.isAlive)
+			{
+				lastColumn = j;
+				if(firstColumn == -1) firstColumn = j;
+			}
+		}
+	}
+
+	switch (aliens->direction)
+	{
+	case MOVING_RIGHT:
+		moveEnemiesRight(aliens, ALIEN_MIN_MOVE_INTERVAL);
+		break;
+	
+	case MOVING_LEFT:
+		moveEnemiesLeft(aliens, ALIEN_MIN_MOVE_INTERVAL);
+		break;
+
+	case MOVING_DOWN:
+		moveEnemiesDown(aliens, ALIEN_MIN_MOVE_INTERVAL);
+		break;
+
+	default:
+		break;
+	}
+	
+	
+
+}
+
+static void updateMothership(mothership_t * mothership)
+{
+	moveMothership(mothership, MOTHERSHIP_MOVE_RATE);
+}
 
  
