@@ -1,30 +1,27 @@
-/***************************************************************************//**
-  @game.c
-  @Game structs and functions
-  @Grupo_5
- ******************************************************************************/
+/***************************************************************************/ /**
+   @scores.c
+   @Saving and updating scores
+   @Grupo_5
+  ******************************************************************************/
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
-
 // +Incluir el header propio (ej: #include "template.h")+
-#include "game.h"
-#include "entities.h"
-#include "physics.h"
+
+#include <stdio.h>
+#include <string.h>
 #include "scores.h"
+#include "config.h"
+#include "game.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-
-
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
-
-
 
 /*******************************************************************************
  * VARIABLES WITH GLOBAL SCOPE
@@ -32,13 +29,11 @@
 
 // +ej: unsigned int anio_actual;+
 
-
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
 // +ej: static void falta_envido (int);+
-
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -46,13 +41,13 @@
 
 // +ej: static const int temperaturas_medias[4] = {23, 26, 24, 29};+
 
-
 /*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
 // +ej: static int temperaturas_actuales[4];+
 
+static int top_scores[MAX_SCORES];
 
 /*******************************************************************************
  *******************************************************************************
@@ -60,82 +55,67 @@
  *******************************************************************************
  ******************************************************************************/
 
-void gameInit(game_t * game)
+void incrementScore(game_t * game, int points)
 {
-	game->status = GAME_RUNNING;
-	game->score = 0;
-	game->currentLevel = 1;
-	game->tickCounter = 0;
-	game->aliensRemaining = ALIENS_NUMBER;
+	game->score += points;
 }
 
-void gameReset(game_t * game)
+void scores_init()
 {
-	gameInit(game);
+    FILE *f = fopen(SCORE_FILE, "r+");
+    if (!f)
+    {
+        int i;
+        // if file does not exist, initialize with ceros
+        for (i = 0; i < MAX_SCORES; i++)
+        {
+            top_scores[i] = 0;
+        }
+        return;
+    }
+
+    // read scores from file (scores are stored from highest to lowest)
+    fread(top_scores, sizeof(int), MAX_SCORES, f);
+    fclose(f);
 }
 
-void gamePause(game_t * game)
+int * get_top_scores()
 {
-	game->status = GAME_PAUSED;
+    return top_scores;
 }
 
-void gameResume(game_t * game)
+void add_score(int score)
 {
-	game->status = GAME_RUNNING;
+    // if top score does not enter the top, exit
+    if (score <= top_scores[MAX_SCORES - 1])
+        return;
+
+    // insert new score in correct position
+    int i, j, scoreInserted;
+    for (i = 0, scoreInserted = 0; i < MAX_SCORES && !scoreInserted; i++)
+    {
+        if (score > top_scores[i])
+        {
+            // move scores down
+            for (j = MAX_SCORES - 1; j > i; j--)
+            {
+                top_scores[j] = top_scores[j - 1];
+            }
+
+            // insert new score
+            top_scores[i] = score;
+            scoreInserted = 1;
+        }
+    }
 }
 
-void gameEnd(game_t * game)
+void save_scores()
 {
-	game->status = GAME_END;
-}
-
-void resetLevel(game_t * game)
-{
-	game->tickCounter = 0;
-	game->aliensRemaining = ALIENS_NUMBER;
-}
-
-void nextLevel(game_t * game)
-{
-	game->currentLevel += 1;
-	resetLevel(game);
-}
-
-void gameUpdate(game_t * game, input_t input)
-{
-	if(game->status == GAME_RUNNING)
-	{
-		int points;
-
-		game->tickCounter++;
-
-		// HACER FUNCIONES Y VER SI HACE FALTA AGREGAR MAS COSAS
-
-		// Update entities 
-		updateShip(&game->ship);
-		updateBullet(&game->shipBullet);
-		updateBullet(&game->alienBullet);
-		updateAliens(&game->aliens);
-		updateMothership(&game->mothership);
-
-		// Collisions
-		points = handleCollisions(game);
-		incrementScore(game, points); // add points to the score if there was a collision with an alien, if not adds 0
-
-		// Check game state
-
-		if (entityIsDead(game->ship.entity)) {
-			gameEnd(game);
-			return;
-		}
-
-		if (game->aliensRemaining == 0) {
-			game->currentLevel++;
-			nextLevel(game);
-		}
-
-	}
-
+    FILE *f = fopen(SCORE_FILE, "w+"); // if file does not exist, create it
+    if (!f) 
+       return;
+    fwrite(top_scores, sizeof(int), MAX_SCORES, f);
+    fclose(f);
 }
 
 /*******************************************************************************
@@ -143,7 +123,3 @@ void gameUpdate(game_t * game, input_t input)
                         LOCAL FUNCTION DEFINITIONS
  *******************************************************************************
  ******************************************************************************/
-
-
-
- 

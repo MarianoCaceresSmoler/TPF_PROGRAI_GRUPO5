@@ -73,7 +73,6 @@ static void drawScore(int score);
 static ALLEGRO_DISPLAY *display = NULL;
 static ALLEGRO_EVENT_QUEUE *eventQueue = NULL;
 static ALLEGRO_TIMER *timer = NULL;
-static ALLEGRO_DISPLAY *display = NULL;
 
 static ALLEGRO_FONT *fontGameplay = NULL;
 static ALLEGRO_FONT *fontRetro = NULL;

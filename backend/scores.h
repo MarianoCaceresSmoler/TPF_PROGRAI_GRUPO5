@@ -1,11 +1,11 @@
-/***************************************************************************//**
-  @physics.h
-  @Physics ant interactions
-  @Grupo_5
- ******************************************************************************/
+/***************************************************************************/ /**
+   @scores.h
+   @Saving and updating scores
+   @Grupo_5
+  ******************************************************************************/
 
-#ifndef PHYSICS_H
-#define PHYSICS_H
+#ifndef SCORES_H
+#define SCORES_H
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
@@ -17,8 +17,6 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-
-
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
@@ -29,19 +27,40 @@
 
 // +ej: extern unsigned int anio_actual;+
 
-
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
 
 /**
- * @brief general function to handle all colisions
- * @param game pointer to the game information
- * @return the points acumulated if there was a collision with an alien
-*/
-int handleCollisions(game_t *game); 
+ * @brief increment player score
+ * @param game pointer to game object
+ * @param points the number to add to score
+ */
+void incrementScore(game_t *game, int points);
+
+/**
+ * @brief init scores system, load top scores in saved file
+ */
+void scores_init();
+
+/**
+ * @brief get top scores saved
+ * @return array of scores
+ */
+int *get_top_scores();
+
+/**
+ * @brief add new score to ranking if qualifies
+ * @param score the score to add
+ */
+void add_score(int score);
+
+/**
+ * @brief save actual ranking to file
+ */
+void save_scores();
 
 /*******************************************************************************
  ******************************************************************************/
 
-#endif // PHYSICS_H
+#endif // SCORES_H

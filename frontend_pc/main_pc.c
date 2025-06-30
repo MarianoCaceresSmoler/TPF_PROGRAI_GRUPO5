@@ -120,8 +120,7 @@ int main(void)
 			switch (game.status)
 			{
 			case GAME_MENU:
-				if (currentInput == INPUT_ANY)
-					gameReset(pgame);
+				gameReset(pgame);
 				break;
 
 			case GAME_RUNNING:

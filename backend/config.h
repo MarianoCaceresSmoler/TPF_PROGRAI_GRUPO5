@@ -117,6 +117,9 @@
 
 #define MOTHERSHIP_CHANCE 10  // %
 
+#define MAX_SCORES 10
+#define SCORE_FILE "scores.txt"
+
 #define ALIEN_TYPE_0_POINTS 50
 #define ALIEN_TYPE_1_POINTS 40
 #define ALIEN_TYPE_2_POINTS 30
