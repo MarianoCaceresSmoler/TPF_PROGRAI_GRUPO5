@@ -24,7 +24,17 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
-typedef enum {STILL, MOVE_RIGHT, MOVE_LEFT, SHOOT, QUIT, MOVE_UP, MOVE_DOWN} input_t;
+typedef enum {
+    INPUT_NONE,
+    INPUT_RIGHT,
+    INPUT_LEFT,
+    INPUT_SHOOT,
+    INPUT_PAUSE,
+	INPUT_RESUME,
+    INPUT_RESTART,
+    INPUT_EXIT,
+	INPUT_ANY
+} input_t;
 
 typedef enum {GAME_ERROR = -1, GAME_MENU, GAME_RUNNING, GAME_PAUSED, GAME_END} gameStatus_t;
 
