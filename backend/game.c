@@ -70,6 +70,20 @@ static void updateMothership(mothership_t * mothership);
 
 void gameInit(game_t * game)
 {
+	game->ship = createShip(SHIP_INITIAL_X, SHIP_INITIAL_Y);
+	game->aliens = createEnemies(ALIENS_INITIAL_X, ALIENS_INITIAL_Y);
+	game->mothership = createMothership(0, 0); // DEFINIR POSICION
+	
+	int i;
+	for (i = 0; i < BARRIERS; i++)
+	{
+		game->barriers[i] = createBarrier(400 * i, 600); // DEFINIR POSICION
+	}
+
+	game->shipBullet = createBullet(0, 0, -1);
+	game->alienBullet = createBullet(0, 0, 1);
+	// FALTA CREAR POWERUPS
+	
 	game->status = GAME_RUNNING;
 	game->score = 0;
 	game->currentLevel = 1;
@@ -166,8 +180,7 @@ static void updateShip(ship_t * ship, bullet_t * shipBullet, input_t input)
 		shipShoot(ship, shipBullet);
 		break;
 	default:
-		ship->movingLeft = 0;
-		ship->movingRight = 0;
+		ship->direction = STILL;
 		break;
 	}
 	
@@ -197,15 +210,33 @@ static void updateAliens(alienFormation_t * aliens, bullet_t * alienBullet)
 	switch (aliens->direction)
 	{
 	case MOVING_RIGHT:
-		moveEnemiesRight(aliens, ALIEN_MIN_MOVE_INTERVAL);
+		if(aliens->alien[0][lastColumn].entity.x < SCREEN_WIDTH - ALIEN_WIDTH)
+		{
+			moveEnemiesRight(aliens, ALIEN_MIN_MOVE_INTERVAL);
+		}
+		else
+		{
+			aliens->direction = MOVING_DOWN;
+		}
 		break;
 	
 	case MOVING_LEFT:
-		moveEnemiesLeft(aliens, ALIEN_MIN_MOVE_INTERVAL);
+		if(aliens->alien[0][firstColumn].entity.x > 0)
+		{
+			moveEnemiesLeft(aliens, ALIEN_MIN_MOVE_INTERVAL);
+		}
+		else
+		{
+			aliens->direction = MOVING_DOWN;
+		}
 		break;
 
 	case MOVING_DOWN:
 		moveEnemiesDown(aliens, ALIEN_MIN_MOVE_INTERVAL);
+		if(aliens->alien[0][firstColumn].entity.x > 0)
+			aliens->direction = MOVING_LEFT;
+		else
+			aliens->direction = MOVING_RIGHT;
 		break;
 
 	default:
