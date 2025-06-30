@@ -75,7 +75,11 @@ void scores_init()
     }
 
     // read scores from file (scores are stored from highest to lowest)
-    fread(top_scores, sizeof(int), MAX_SCORES, f);
+    if(fread(top_scores, sizeof(int), MAX_SCORES, f) != MAX_SCORES){
+        // error reading file
+        fprintf(stderr, "Error reading scores file\n");
+		return -1;
+    }
     fclose(f);
 }
 

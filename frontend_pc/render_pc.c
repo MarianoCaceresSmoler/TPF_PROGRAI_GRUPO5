@@ -101,14 +101,12 @@ void initGraphics(void)
 	if (!al_init())
 	{
 		fprintf(stderr, "Failed to initialize allegro!\n");
-		return -1;
 	}
 
 	// Create the display
 	if (!al_install_keyboard())
 	{
 		fprintf(stderr, "Failed to initialize the keyboard!\n");
-		return -1;
 	}
 
 	display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -118,7 +116,6 @@ void initGraphics(void)
 	if (!al_init_image_addon())
 	{
 		fprintf(stderr, "Unable to start image addon \n");
-		return -1;
 	}
 
 	// Create bitmaps for objects
@@ -180,7 +177,6 @@ void initGraphics(void)
 			al_destroy_font(fontGameplay);
 		if (fontRetro)
 			al_destroy_font(fontRetro);
-		return -1;
 	}
 
 	// Calls private function to load sprites

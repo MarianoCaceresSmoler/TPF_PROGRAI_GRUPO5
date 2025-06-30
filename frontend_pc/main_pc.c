@@ -98,7 +98,7 @@ int main(void)
 				break;
 
 			case GAME_RUNNING:
-				gameUpdate(pgame, currentInput);
+				manageInput(pgame, currentInput);
 				renderGame(game);
 				break;
 
@@ -108,7 +108,12 @@ int main(void)
 			case GAME_END:
 				renderGameOver(game);
 				break;
+			default:
+				gameEnd(pgame);
+				running = FALSE;
+				break;
 			}
+			
 
 			currentInput = INPUT_NONE; // Reset input after 1 frame
 			
@@ -126,6 +131,7 @@ int main(void)
 			case GAME_RUNNING:
 				if (currentInput == INPUT_PAUSE)
 					gamePause(pgame);
+				manageInput(pgame, currentInput);
 				break;
 
 			case GAME_PAUSED:
@@ -150,7 +156,13 @@ int main(void)
 					running = FALSE;
 				}
 				break;
+
+			default:
+				gameEnd(pgame);
+				running = FALSE;
+				break;
 			}
+			
 		}
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{

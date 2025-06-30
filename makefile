@@ -45,6 +45,5 @@ input_${PLATFORM}.o: ${FRONTEND_DIR}/input_${PLATFORM}.c ${FRONTEND_DIR}/input_$
 	${CC} ${FRONTEND_DIR}/input_${PLATFORM}.c -c ${OPTIONS}
 render_${PLATFORM}.o: ${FRONTEND_DIR}/render_${PLATFORM}.c ${FRONTEND_DIR}/render_${PLATFORM}.h
 	${CC} ${FRONTEND_DIR}/render_${PLATFORM}.c -c ${OPTIONS}
-
 clean:
 	rm *.o ${OUTPUT}
