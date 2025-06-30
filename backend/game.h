@@ -40,7 +40,7 @@ typedef enum {GAME_ERROR = -1, GAME_MENU, GAME_RUNNING, GAME_PAUSED, GAME_END} g
 
 typedef struct 
 {
-	  ship_t ship;
+	ship_t ship;
     alienFormation_t aliens;
     bullet_t alienBullet;
     bullet_t shipBullet;
@@ -107,7 +107,7 @@ void nextLevel(game_t * game);
  * @brief general function to update the game's objects information
  * @param game pointer to the game information
 */
-void gameUpdate(game_t * game, input_t input);
+void manageInput(game_t * game, input_t input);
 
 /*******************************************************************************
  ******************************************************************************/

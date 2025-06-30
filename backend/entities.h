@@ -23,6 +23,14 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
+typedef enum{
+	MOVING_LEFT = -2, 
+	MOVING_UP, 
+	STILL, 
+	MOVING_DOWN, 
+	MOVING_RIGHT} 
+movingDirections_t;
+
 typedef struct
 {
 	unsigned short int x;
@@ -52,9 +60,8 @@ typedef struct
 typedef struct
 {
 	alien_t alien[ALIENS_ROWS][ALIENS_COLS];
-	unsigned char tickRate		: 4;
-	unsigned char direction		: 2;
-	unsigned char canShoot		: 2;
+	unsigned char direction		: 4;
+	unsigned char canShoot		: 4;
 } alienFormation_t;
 
 typedef struct
@@ -108,15 +115,6 @@ barrier_t createBarrier(int x, int y);
 bullet_t createBullet(int x, int y, int direction); // 1 is down, -1 is up
 powerUp_t createPowerUp(int x, int y, int type); // 0 is freeze, 1 is double shot, etc 
 
-/* "update" functions update a type of entity
- * ship/enemies are pointers to the entity to move
- * moveRate is the amount of units moved
-*/
-void updateShip(ship_t * ship);
-void updateAliens(alienFormation_t * enemies);
-void updateMothership(mothership_t * mothership);
-void updateBullet(bullet_t * bullet);
-
 /* "move" functions move an entity
  * ship/enemies are pointers to the entity to move
  * moveRate is the amount of units moved
@@ -126,8 +124,8 @@ void moveShipRight(ship_t * ship);
 void moveEnemiesLeft(alienFormation_t * enemies, int moveRate);
 void moveEnemiesRight(alienFormation_t * enemies, int moveRate);
 void moveEnemiesDown(alienFormation_t * enemies, int moveRate);
-void moveMothership(mothership_t * mothership, int moveRate, int direction);
-void moveBullet(bullet_t * bullet, int moveRate, int direction);
+void moveMothership(mothership_t * mothership, int moveRate);
+void moveBullet(bullet_t * bullet, int moveRate);
 // CAPAZ QUEDAN PRIVADAS Y SOLO SE USAN LAS DE UPDATE
 
 
