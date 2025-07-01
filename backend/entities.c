@@ -63,7 +63,7 @@ static alien_t createAlien(int x, int y, int type);
 
 ship_t createShip(int x, int y)
 {
-	ship_t ship = {{x, y, SHIP_HEIGHT, SHIP_WIDTH, 1}, SHIP_LIVES, 1, 0, 0};
+	ship_t ship = {{x, y, SHIP_HEIGHT, SHIP_WIDTH, 1}, STILL, SHIP_LIVES, 1};
 	return ship;
 }
 
@@ -86,6 +86,7 @@ alienFormation_t createEnemies(int x, int y)
 mothership_t createMothership(int x, int y)
 {
 	mothership_t mothership = {{x, y, SHIP_HEIGHT, SHIP_WIDTH, 0}, 0};
+	return mothership;
 }
 
 barrier_t createBarrier(int x, int y)
@@ -206,6 +207,14 @@ int getAlienPoints(alien_t alien)
         break;
     }
 }
+
+void setEntity(entity_t * entity, int x, int y)
+{
+	entity->isAlive = 1;
+	entity->x = x;
+	entity->y = y;
+}
+
 
 /*******************************************************************************
  *******************************************************************************

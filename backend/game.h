@@ -101,10 +101,10 @@ void incrementScore(game_t *game, int points);
 void resetLevel(game_t *game);
 
 /**
- * @brief function to increment the actual level
+ * @brief function to set the level configuration
  * @param game pointer to the game information
  */
-void nextLevel(game_t *game);
+void startLevel(game_t *game);
 
 /**
  * @brief general function to update the game's objects information

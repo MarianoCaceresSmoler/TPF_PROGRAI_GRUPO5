@@ -75,7 +75,7 @@ int main(void)
 {
 
 	initGraphics();
-	initAudio(); // HACER
+	// initAudio(); // HACER
 
 	game_t game;
 	game_t *pgame = &game; // pointer to game variable

@@ -138,6 +138,15 @@ void alienShoot(alien_t * alien, bullet_t * bullet);
 */
 int getAlienPoints(alien_t alien);
 
+/**
+ * @brief general function to set an entity as alive, and set it in a position
+ * @param entity pointer to the entity
+ * @param x position x
+ * @param y position y
+*/
+void setEntity(entity_t * entity, int x, int y); 
+
+
 // POSIBLES CAMBIOS
 /*
 void update_entities(game_t * game) *******VA EN GAME.C (no esta definido game_t)

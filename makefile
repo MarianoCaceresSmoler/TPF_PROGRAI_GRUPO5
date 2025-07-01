@@ -25,8 +25,10 @@ OBJS := entities.o game.o physics.o  scores.o audio_${PLATFORM}.o input_${PLATFO
 
 # FALTA DEFINIR BIEN LAS DEPENDENCIAS
 
+ALLEGRO_LINKS := -lallegro -lallegro_primitives -lallegro_font -lallegro_ttf -lallegro_image 
+
 program: ${OBJS}
-	${CC} ${OBJS} ${OPTIONS} -o ${OUTPUT}
+	${CC} ${OBJS} ${OPTIONS} -o ${OUTPUT} ${ALLEGRO_LINKS}
 game.o: ${BACKEND_DIR}/game.c ${BACKEND_DIR}/game.h
 	${CC} ${BACKEND_DIR}/game.c -c ${OPTIONS}
 entities.o: ${BACKEND_DIR}/entities.c ${BACKEND_DIR}/entities.h
