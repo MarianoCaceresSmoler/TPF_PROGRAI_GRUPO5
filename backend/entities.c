@@ -14,12 +14,6 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define MOVING_UP -1
-#define MOVING_LEFT -1
-#define STILL 0
-#define MOVING_DOWN 1
-#define MOVING_RIGHT 1
-
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
@@ -37,7 +31,16 @@
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
-static barrierPixel_t createBarrierPixel(int isAlive);
+/**
+ * @brief function to create a barrierPixel type entity
+ * @return returns an initialized barrierPixel in the standby position
+ */
+static barrierPixel_t createBarrierPixel();
+
+/**
+ * @brief function to create an alien type entity
+ * @return returns an initialized alien in the standby position
+ */
 static alien_t createAlien(int type);
 
 
@@ -97,7 +100,7 @@ barrier_t createBarrier()
 	{
 		for(j = 0; j < BARRIER_WIDTH; j++)
 		{
-			(barrier.pixel[i][j]) = createBarrierPixel(!(i != 1 && (i == j || i == 3-j)));
+			barrier.pixel[i][j] = createBarrierPixel();
 		}
 	}
 	return barrier;
@@ -147,13 +150,13 @@ void shootFromEntity(bullet_t *bullet, entity_t *shootingEntity)
 
 static alien_t createAlien(int type)
 {
-	alien_t alien = {{STANDBY_POSITION, STANDBY_POSITION, ALIEN_HEIGHT, ALIEN_WIDTH, 1}, ALIEN_MIN_MOVE_INTERVAL,type};
+	alien_t alien = {{STANDBY_POSITION, STANDBY_POSITION, ALIEN_HEIGHT, ALIEN_WIDTH, 1}, ALIEN_MIN_MOVE_INTERVAL, type};
 	return alien;
 }
 
-static barrierPixel_t createBarrierPixel(int isAlive)
+static barrierPixel_t createBarrierPixel()
 {
-	barrierPixel_t pixel = {{STANDBY_POSITION, STANDBY_POSITION, BARRIER_PIXEL_HEIGHT, BARRIER_PIXEL_WIDTH, isAlive}};
+	barrierPixel_t pixel = {{STANDBY_POSITION, STANDBY_POSITION, BARRIER_PIXEL_HEIGHT, BARRIER_PIXEL_WIDTH, 1}};
 	return pixel;
 }
 

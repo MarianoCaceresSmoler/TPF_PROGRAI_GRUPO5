@@ -52,6 +52,7 @@ typedef struct
     bullet_t shipBullet;
     barrier_t barriers[BARRIERS];
     mothership_t mothership;
+    powerUp_t powerUp[POWERUP_TYPES];
 
     // game variables and info
     gameStatus_t status;
@@ -91,12 +92,6 @@ void gameInit(game_t *game);
  * @param game pointer to the game information
  */
 void levelInit(game_t *game);
-
-/**
- * @brief function to restart the game from level 1
- * @param game pointer to the game information
- */
-void gameReset(game_t *game);
 
 /**
  * @brief function to pause the game, physics and entities

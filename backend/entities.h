@@ -119,7 +119,6 @@ typedef struct
 ship_t createShip();
 
 /**
-/**
  * @brief function to create an alien formation type entity
  * @param rows amount of alien rows
  * @param columns amount of alien columns

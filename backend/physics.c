@@ -50,13 +50,6 @@ static void checkBulletHitsShip(game_t *game);
 static void checkBulletHitsBarriers(game_t *game);
 static void checkBulletHitsMothership(game_t *game);
 
-/**
- * @brief updates the objects explosion/live state
- * @param game pointer to the game information
- * @return the points acumulated if there was a collision with an alien
-*/
-static void updateExplosions(game_t *game); 
-
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -86,7 +79,6 @@ int handleCollisions(game_t *game)
         checkBulletHitsShip(game);
         checkBulletHitsBarriers(game);
         checkBulletHitsMothership(game);
-        updateExplosions(game);
     }
 
     return points;
@@ -205,34 +197,4 @@ static void checkBulletHitsMothership(game_t *game)
             game->ship.canShoot = 1;
         }
     }
-}
-
-static void updateExplosions(game_t *game)
-{
-    // Ship
-    if (game->ship.entity.explosionTimer > 0) {
-        game->ship.entity.explosionTimer--;
-    }
-
-    // Aliens
-    for (int i = 0; i < ALIENS_ROWS; i++) {
-        for (int j = 0; j < ALIENS_COLS; j++) {
-            entity_t *e = &game->aliens.alien[i][j].entity;
-            if (e->explosionTimer > 0) {
-                e->explosionTimer--;
-                if (e->explosionTimer == 0) {
-                    e->isAlive = 0; // when the timer hits 0, the alien needs to be removed
-                }
-            }
-        }
-    }
-
-    // Mothership
-    if (game->mothership.entity.explosionTimer > 0) {
-        game->mothership.entity.explosionTimer--;
-        if (game->mothership.entity.explosionTimer == 0) {
-            game->mothership.entity.isAlive = 0; // when the timer hits 0, the mothership needs to be removed
-        }
-    }
-
 }
