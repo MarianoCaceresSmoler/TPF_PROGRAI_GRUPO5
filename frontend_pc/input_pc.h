@@ -23,6 +23,11 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
+ // To control the movement of the ship
+typedef struct {
+    bool_t leftPressed;
+    bool_t rightPressed;
+} input_state_t;
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
