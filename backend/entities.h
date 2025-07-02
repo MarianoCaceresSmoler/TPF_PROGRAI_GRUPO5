@@ -114,8 +114,7 @@ typedef struct
 // FALTA UN ENUM CON LOS TIPOS DE POWERUP
 //
 // FALTA PONER MOVERATE EN LAS FUNCIONES MOVESHIP
-//
-// MOVER GETALIENPOINTS A SCORE.C
+
 
 /**
  * @brief function to create a ship type entity
@@ -222,16 +221,6 @@ void shipShoot(ship_t * ship, bullet_t * bullet);
  * @param bullet is a pointer to the bullet type entity
  */
 void alienShoot(alien_t * alien, bullet_t * bullet);
-
-/* "getAlienPoints" returns the amount of points given by the type of alien killed
- * alien is a pointer to the structure of the enemy killed
-*/
-/**
- * @brief function to get the amount of points given by the type of alien killed
- * @param alien is the alien killed
- * @return int with the score the alien gives
- */
-int getAlienPoints(alien_t alien);
 
 /**
  * @brief general function to set an entity as alive, and set it in a position

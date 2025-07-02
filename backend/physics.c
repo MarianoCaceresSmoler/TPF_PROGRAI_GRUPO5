@@ -12,6 +12,7 @@
 #include "physics.h"
 #include "config.h"
 #include "entities.h"
+#include "scores.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE

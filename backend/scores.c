@@ -121,6 +121,25 @@ void save_scores()
     fclose(f);
 }
 
+int getAlienPoints(alien_t alien)
+{
+    switch(alien.alienType)
+    {
+    case 0:
+        return ALIEN_TYPE_0_POINTS;
+        break;
+    case 1:
+        return ALIEN_TYPE_1_POINTS;
+        break;
+    case 2:
+        return ALIEN_TYPE_2_POINTS;
+        break;
+    default:
+		return 0;
+        break;
+    }
+}
+
 /*******************************************************************************
  *******************************************************************************
                         LOCAL FUNCTION DEFINITIONS

@@ -60,6 +60,13 @@ void add_score(int score);
  */
 void save_scores();
 
+/**
+ * @brief function to get the amount of points given by the type of alien killed
+ * @param alien is the alien killed
+ * @return int with the score the alien gives
+ */
+int getAlienPoints(alien_t alien);
+
 /*******************************************************************************
  ******************************************************************************/
 
