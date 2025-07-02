@@ -49,7 +49,7 @@ typedef struct
 	unsigned short int height;
 	unsigned short int width;
 	unsigned char isAlive;
-	unsigned short int explosionTimer;  // > 0 if explosion is active
+	unsigned short int explosionTimer;
 } entity_t;
 
 typedef struct 
@@ -93,7 +93,7 @@ typedef struct
 typedef struct
 {
 	entity_t entity;
-	char direction; // -1 goes upwards, 1 goes downwards
+	char direction;
 } bullet_t;
 
 typedef struct
@@ -111,14 +111,6 @@ typedef struct
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
-
-// CAMBIOS QUE FALTAN (02/07/2025)
-//
-// DEFINIR SI HACE FALTA USAR X e Y COMO PARAMETRO O SE PUEDE INICIALIZAR EN
-// UNA UBICACION ESTANDAR QUE NO SE USE PARA NADA (POSICION NULA)
-//
-// FALTA UN ENUM CON LOS TIPOS DE POWERUP
-
 
 /**
  * @brief function to create a ship type entity
