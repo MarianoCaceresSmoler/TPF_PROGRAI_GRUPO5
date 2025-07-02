@@ -66,7 +66,6 @@ typedef struct
 {
 	entity_t entity;
 	movingDirections_t direction;
-	unsigned char isMoving;
 } mothership_t;
 
 typedef struct

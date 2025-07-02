@@ -15,7 +15,7 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define LOGICAL_WIDTH 64
+#define LOGICAL_WIDTH 32
 #define LOGICAL_HEIGHT 32
 
 #ifdef PLATFORM_PC
@@ -107,6 +107,8 @@
 #define SHIP_MOVE_RATE 1
 
 #endif
+
+#define SCREEN_SIZE SCREEN_HEIGHT
 
 #define SHIP_LIVES 3
 

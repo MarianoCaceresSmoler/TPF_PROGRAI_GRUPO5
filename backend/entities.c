@@ -85,7 +85,7 @@ alienFormation_t createEnemies(int x, int y)
 
 mothership_t createMothership(int x, int y)
 {
-	mothership_t mothership = {{x, y, SHIP_HEIGHT, SHIP_WIDTH, 0}, 0};
+	mothership_t mothership = {{x, y, SHIP_HEIGHT, SHIP_WIDTH, 0}, STILL};
 	return mothership;
 }
 

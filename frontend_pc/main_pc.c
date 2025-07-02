@@ -114,9 +114,7 @@ int main(void)
 				break;
 			}
 			
-
 			currentInput = INPUT_NONE; // Reset input after 1 frame
-			
 		}
 		else if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 		{

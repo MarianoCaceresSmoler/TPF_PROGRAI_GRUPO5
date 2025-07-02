@@ -72,16 +72,16 @@ void gameInit(game_t *game)
 {
 	game->ship = createShip(SHIP_INITIAL_X, SHIP_INITIAL_Y);
 	game->aliens = createEnemies(ALIENS_INITIAL_X, ALIENS_INITIAL_Y);
-	game->mothership = createMothership(0, 0); // DEFINIR POSICION
+	game->mothership = createMothership(MOTHERSHIP_INITIAL_X, MOTHERSHIP_INITIAL_Y);
 
 	int i;
 	for (i = 0; i < BARRIERS; i++)
 	{
-		game->barriers[i] = createBarrier(400 * i, 600); // DEFINIR POSICION
+		game->barriers[i] = createBarrier(200 * i, 600); // DEFINIR POSICION DE BARRERAS
 	}
 
-	game->shipBullet = createBullet(0, 0, -1);
-	game->alienBullet = createBullet(0, 0, 1);
+	game->shipBullet = createBullet(0, 0, MOVING_UP);
+	game->alienBullet = createBullet(0, 0, MOVING_DOWN);
 
 	// FALTA CREAR POWERUPS
 
@@ -92,7 +92,28 @@ void gameInit(game_t *game)
 	game->aliensRemaining = ALIENS_NUMBER;
 }
 
-void gameReset(game_t *game)
+levelInit(game_t * game)
+{
+	game->tickCounter = 0;
+	game->aliensRemaining = ALIENS_NUMBER;
+
+	// reset ship
+	setEntity(&game->ship, SHIP_INITIAL_X, SHIP_INITIAL_Y);
+
+	// reset mothersip
+	setEntity(&game->mothership, MOTHERSHIP_INITIAL_X, MOTHERSHIP_INITIAL_Y);
+
+	int i, j;
+	for(i = 0; i < ALIENS_ROWS; i++)
+	{
+		for(j = 0; j < ALIENS_COLS; j++)
+		{
+			setEntity(&game->);
+		}
+	}
+}
+
+void gameReset(game_t *game) // REVISAR SI VA
 {
 	gameInit(game);
 }
@@ -112,37 +133,16 @@ void gameEnd(game_t *game)
 	game->status = GAME_END;
 }
 
-void resetLevel(game_t *game)
-{
-	game->tickCounter = 0;
-	game->aliensRemaining = ALIENS_NUMBER;
-}
-
-void startLevel(game_t *game)
-{
-	// reset ship
-	setEntity(&game->ship, SHIP_INITIAL_X, SHIP_INITIAL_Y);
-
-	// reset mothersip
-	setEntity(&game->mothership, MOTHERSHIP_INITIAL_X, MOTHERSHIP_INITIAL_Y);
-
-
-	// resetLevel(game);
-}
-
 void manageInput(game_t *game, input_t input)
 {
 	if (game->status == GAME_RUNNING)
 	{
 		int points;
-
 		game->tickCounter++;
 
 		gameUpdate(game, input);
 		points = handleCollisions(game);
 		incrementScore(game, points);
-
-
 	}
 }
 
@@ -166,15 +166,22 @@ static void updateShip(ship_t *ship, bullet_t *shipBullet, input_t input)
 	switch (input)
 	{
 	case INPUT_LEFT:
-		moveShipLeft(ship);
+		if(ship->entity.x > 0)
+			moveShipLeft(ship);
+		else
+			ship->direction = STILL;
 		break;
 
 	case INPUT_RIGHT:
-		moveShipRight(ship);
+		if(ship->entity.x < SCREEN_SIZE)
+			moveShipRight(ship);
+		else
+			ship->direction = STILL;
 		break;
 
 	case INPUT_SHOOT:
-		shipShoot(ship, shipBullet);
+		if(ship->canShoot)
+			shipShoot(ship, shipBullet);
 		break;
 	default:
 		ship->direction = STILL;
@@ -184,7 +191,14 @@ static void updateShip(ship_t *ship, bullet_t *shipBullet, input_t input)
 
 static void updateBullet(bullet_t *bullet)
 {
-	moveBullet(bullet, BULLET_MOVE_RATE);
+	if(bullet->entity.x >= 0 && bullet->entity.x <= SCREEN_SIZE && bullet->entity.y >= 0 && bullet->entity.y <= SCREEN_SIZE)
+	{
+		moveBullet(bullet, BULLET_MOVE_RATE);
+	}
+	else
+	{
+		bullet->entity.isAlive = 0;
+	}
 }
 
 static void updateAliens(alienFormation_t *aliens, bullet_t *alienBullet)
@@ -207,7 +221,7 @@ static void updateAliens(alienFormation_t *aliens, bullet_t *alienBullet)
 	switch (aliens->direction)
 	{
 	case MOVING_RIGHT:
-		if (aliens->alien[0][lastColumn].entity.x < SCREEN_WIDTH - ALIEN_WIDTH)
+		if (aliens->alien[0][lastColumn].entity.x < SCREEN_SIZE - ALIEN_WIDTH)
 		{
 			moveEnemiesRight(aliens, ALIEN_MIN_MOVE_INTERVAL);
 		}
@@ -243,7 +257,10 @@ static void updateAliens(alienFormation_t *aliens, bullet_t *alienBullet)
 
 static void updateMothership(mothership_t *mothership)
 {
-	moveMothership(mothership, MOTHERSHIP_MOVE_RATE);
+	if(mothership->entity.x >= -MOTHERSHIP_WIDTH && mothership->entity.x <= SCREEN_SIZE+MOTHERSHIP_WIDTH)
+	{
+		moveMothership(mothership, MOTHERSHIP_MOVE_RATE);
+	}
 }
 
 static int checkGameStatus(game_t * game)
