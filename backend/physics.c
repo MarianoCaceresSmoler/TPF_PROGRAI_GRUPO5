@@ -49,6 +49,8 @@ static int checkBulletHitsAliens(game_t *game);
 static void checkBulletHitsShip(game_t *game);
 static void checkBulletHitsBarriers(game_t *game);
 static void checkBulletHitsMothership(game_t *game);
+static void checkAllienHitsBarrier(game_t *game);
+static void checkAlienHitsShip(game_t *game);
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -79,6 +81,8 @@ int handleCollisions(game_t *game)
         checkBulletHitsShip(game);
         checkBulletHitsBarriers(game);
         checkBulletHitsMothership(game);
+        checkAllienHitsBarrier(game);
+        checkAlienHitsShip(game);
     }
 
     return points;
@@ -195,6 +199,57 @@ static void checkBulletHitsMothership(game_t *game)
 
             // allows the ship to shoot
             game->ship.canShoot = 1;
+        }
+    }
+}
+
+static void checkAllienHitsBarrier(game_t *game)
+{
+    int i, j, k, x, y;
+    for (i = 0; i < BARRIERS; i++)
+    {
+        for (j = 0; j < BARRIER_HEIGHT; j++)
+        {
+            for (k = 0; k < BARRIER_WIDTH; k++)
+            {
+                for (x = 0; x < ALIENS_ROWS; x++)
+                {
+                    for (y = 0; y < ALIENS_COLS; y++)
+                    {
+                        if (game->barriers[i].pixel[j][k].entity.isAlive && game->aliens.alien[x][y].entity.isAlive) // check collision only if the entitys are alive
+                        {
+                            if (checkEntitiesCollision(game->aliens.alien[x][y].entity, game->barriers[i].pixel[j][k].entity))
+                            {
+                                // if collision detected, kill the barrier pixel
+                                game->barriers[i].pixel[j][k].entity.isAlive = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+static void checkAlienHitsShip(game_t *game)
+{
+    int i, j;
+
+    if (game->ship.entity.isAlive) // check collision only if the ship is alive
+    {
+        for (i = 0; i < ALIENS_ROWS; i++)
+        {
+            for (j = 0; j < ALIENS_COLS; j++)
+            {
+                if (game->aliens.alien[i][j].entity.isAlive && checkEntitiesCollision(game->aliens.alien[i][j].entity, game->ship.entity))
+                {
+                    // if collision detected, kills the ship and ends the game
+                    game->ship.entity.explosionTimer = 15;
+                    game->ship.livesLeft = 0;
+
+                    return getAlienPoints(game->aliens.alien[i][j]);
+                }
+            }
         }
     }
 }
