@@ -164,22 +164,38 @@ void initGraphics(void)
 void cleanupGraphics(void)
 {
 	// Destroys all elements at the end of the program
-	al_destroy_display(display);
-	al_destroy_timer(timer);
-	al_destroy_bitmap(alien0BitMap);
-	al_destroy_bitmap(alien1BitMap);
-	al_destroy_bitmap(alien2BitMap);
-	al_destroy_bitmap(alien3BitMap);
-	al_destroy_bitmap(alien4BitMap);
-	al_destroy_bitmap(shipBitMap);
-	al_destroy_bitmap(barrierPixelBitmap);
-	al_destroy_bitmap(bulletBitmap);
-	al_destroy_bitmap(mothershipBitmap);
-	al_destroy_bitmap(explosionBitmap);
-	al_destroy_bitmap(titleBitmap);
-	al_destroy_event_queue(eventQueue);
-	al_destroy_font(fontGameplay);
-	al_destroy_font(fontRetro);
+	if (display)
+		al_destroy_display(display);
+	if (timer)
+		al_destroy_timer(timer);
+	if (alien0BitMap)
+		al_destroy_bitmap(alien0BitMap);
+	if (alien1BitMap)
+		al_destroy_bitmap(alien1BitMap);
+	if (alien2BitMap)
+		al_destroy_bitmap(alien2BitMap);
+	if (alien3BitMap)
+		al_destroy_bitmap(alien3BitMap);
+	if (alien4BitMap)
+		al_destroy_bitmap(alien4BitMap);
+	if (shipBitMap)
+		al_destroy_bitmap(shipBitMap);
+	if (barrierPixelBitmap)
+		al_destroy_bitmap(barrierPixelBitmap);
+	if (bulletBitmap)
+		al_destroy_bitmap(bulletBitmap);
+	if (mothershipBitmap)
+		al_destroy_bitmap(mothershipBitmap);
+	if (explosionBitmap)
+		al_destroy_bitmap(explosionBitmap);
+	if (titleBitmap)
+		al_destroy_bitmap(titleBitmap);
+	if (eventQueue)
+		al_destroy_event_queue(eventQueue);
+	if (fontGameplay)
+		al_destroy_font(fontGameplay);
+	if (fontRetro)
+		al_destroy_font(fontRetro);
 }
 
 void renderGame(game_t game)
@@ -278,70 +294,60 @@ static void loadImages(void)
 	if (!alien0BitMap)
 	{
 		fprintf(stderr, "Failed to load alien0.png\n");
-		exit(1);
 	}
 
 	alien1BitMap = al_load_bitmap("assets/img/alien1.png");
 	if (!alien1BitMap)
 	{
 		fprintf(stderr, "Failed to load alien1.png\n");
-		exit(1);
 	}
 
 	alien2BitMap = al_load_bitmap("assets/img/alien2.png");
 	if (!alien2BitMap)
 	{
 		fprintf(stderr, "Failed to load alien2.png\n");
-		exit(1);
 	}
 
 	alien3BitMap = al_load_bitmap("assets/img/alien3.png");
 	if (!alien3BitMap)
 	{
 		fprintf(stderr, "Failed to load alien3.png\n");
-		exit(1);
 	}
 
 	alien4BitMap = al_load_bitmap("assets/img/alien4.png");
 	if (!alien4BitMap)
 	{
 		fprintf(stderr, "Failed to load alien4.png\n");
-		exit(1);
 	}
 
 	shipBitMap = al_load_bitmap("assets/img/ship.png");
 	if (!shipBitMap)
 	{
 		fprintf(stderr, "Failed to load ship.png\n");
-		exit(1);
 	}
 
 	bulletBitmap = al_load_bitmap("assets/img/bullet.png");
 	if (!bulletBitmap)
 	{
 		fprintf(stderr, "Failed to load bullet.png\n");
-		exit(1);
 	}
 
 	mothershipBitmap = al_load_bitmap("assets/img/mothership.png");
 	if (!mothershipBitmap)
 	{
 		fprintf(stderr, "Failed to load mothership.png\n");
-		exit(1);
 	}
 
 	explosionBitmap = al_load_bitmap("assets/img/explosion.png");
 	if (!explosionBitmap)
 	{
 		fprintf(stderr, "Failed to load explosion.png\n");
-		exit(1);
 	}
 
 	titleBitmap = al_load_bitmap("assets/img/title.png");
 	if (!titleBitmap)
 	{
 		fprintf(stderr, "Failed to load title.png\n");
-		exit(1);
 	}
 }
 
