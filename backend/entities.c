@@ -37,8 +37,8 @@
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
-static barrierPixel_t createBarrierPixel(int x, int y, int isAlive);
-static alien_t createAlien(int x, int y, int type);
+static barrierPixel_t createBarrierPixel(int isAlive);
+static alien_t createAlien(int type);
 
 
 /*******************************************************************************
@@ -61,21 +61,21 @@ static alien_t createAlien(int x, int y, int type);
  *******************************************************************************
  ******************************************************************************/
 
-ship_t createShip(int x, int y)
+ship_t createShip()
 {
-	ship_t ship = {{x, y, SHIP_HEIGHT, SHIP_WIDTH, 1}, STILL, SHIP_LIVES, 1};
+	ship_t ship = {{STANDBY_POSITION, STANDBY_POSITION, SHIP_HEIGHT, SHIP_WIDTH, 1}, STILL, SHIP_LIVES, 1};
 	return ship;
 }
 
-alienFormation_t createEnemies(int x, int y)
+alienFormation_t createAlienFormation(int rows, int columns)
 {
 	alienFormation_t enemies;
 	int i, j;
-	for(i = 0; i < ALIENS_ROWS; i++)
+	for(i = 0; i < rows; i++)
 	{
-		for(j = 0; j < ALIENS_COLS; j++)
+		for(j = 0; j < columns; j++)
 		{
-			(enemies.alien[i][j]) = createAlien(x + j * 2 * ALIEN_WIDTH, y + i * 2 * ALIEN_HEIGHT, i);
+			(enemies.alien[i][j]) = createAlien(i);
 		}
 	}
 	enemies.direction = MOVING_RIGHT;
@@ -83,13 +83,13 @@ alienFormation_t createEnemies(int x, int y)
 	return enemies;
 }
 
-mothership_t createMothership(int x, int y)
+mothership_t createMothership()
 {
-	mothership_t mothership = {{x, y, SHIP_HEIGHT, SHIP_WIDTH, 0}, STILL};
+	mothership_t mothership = {{STANDBY_POSITION, STANDBY_POSITION, MOTHERSHIP_HEIGHT, MOTHERSHIP_WIDTH, 0}, STILL};
 	return mothership;
 }
 
-barrier_t createBarrier(int x, int y)
+barrier_t createBarrier()
 {
 	barrier_t barrier;
 	int i, j;
@@ -97,96 +97,32 @@ barrier_t createBarrier(int x, int y)
 	{
 		for(j = 0; j < BARRIER_WIDTH; j++)
 		{
-			(barrier.pixel[i][j]) = createBarrierPixel(x + j * BARRIER_PIXEL_WIDTH, y + i * BARRIER_PIXEL_HEIGHT, (i != 1 && (i == j || i == 3-j)) ? 0: 1);
+			(barrier.pixel[i][j]) = createBarrierPixel(!(i != 1 && (i == j || i == 3-j)));
 		}
 	}
 	return barrier;
 }
 
-bullet_t createBullet(int x, int y, int direction)
+bullet_t createBullet(movingDirections_t direction)
 {
-	bullet_t bullet = {{x, y, BULLET_HEIGHT, BULLET_WIDTH, 0}, direction};
+	bullet_t bullet = {{STANDBY_POSITION, STANDBY_POSITION, BULLET_HEIGHT, BULLET_WIDTH, 0}, (direction > 0? 1: -1)};
 	return bullet;
 }
 
-powerUp_t createPowerUp(int x, int y, int type)
+powerUp_t createPowerUp(int type)
 {
-	powerUp_t powerUp = {{x, y, POWERUP_HEIGHT, POWERUP_WIDTH, 0}, type};
+	powerUp_t powerUp = {{STANDBY_POSITION, STANDBY_POSITION, POWERUP_HEIGHT, POWERUP_WIDTH, 0}, type};
 	return powerUp;
 }
 
-void shipShoot(ship_t * ship, bullet_t * bullet)
+void moveEntityX(entity_t *entity, int moveRate)
 {
-	bullet->entity.x = ship->entity.x + SHIP_WIDTH / 2;
-	bullet->entity.y = ship->entity.y - BULLET_HEIGHT / 2;
-	bullet->direction = MOVING_UP;
-	bullet->entity.isAlive = 1;
+	entity->x += moveRate;
 }
 
-void alienShoot(alien_t * alien, bullet_t * bullet)
+void moveEntityY(entity_t *entity, int moveRate)
 {
-	bullet->entity.x = alien->entity.x + ALIEN_WIDTH / 2;
-	bullet->entity.y = alien->entity.y + BULLET_HEIGHT / 2;
-	bullet->direction = MOVING_DOWN;
-	bullet->entity.isAlive = 1;
-}
-
-void moveShipLeft(ship_t * ship)
-{
-	ship->entity.x -= SHIP_MOVE_RATE;
-	ship->direction = MOVING_LEFT;
-}
-
-void moveShipRight(ship_t * ship)
-{
-	ship->entity.x += SHIP_MOVE_RATE;
-	ship->direction = MOVING_RIGHT;
-}
-
-void moveEnemiesLeft(alienFormation_t * enemies, int moveRate)
-{
-	int i, j;
-	for (i = 0; i < ALIENS_ROWS; i++)
-	{
-		for (j = 0; j < ALIENS_COLS; j++)
-		{
-			enemies->alien[i][j].entity.x -= moveRate;
-		}
-	}
-}
-
-void moveEnemiesRight(alienFormation_t * enemies, int moveRate)
-{
-	int i, j;
-	for (i = 0; i < ALIENS_ROWS; i++)
-	{
-		for (j = 0; j < ALIENS_COLS; j++)
-		{
-			enemies->alien[i][j].entity.x += moveRate;
-		}
-	}
-}
-
-void moveEnemiesDown(alienFormation_t * enemies, int moveRate)
-{
-	int i, j;
-	for (i = 0; i < ALIENS_ROWS; i++)
-	{
-		for (j = 0; j < ALIENS_COLS; j++)
-		{
-			enemies->alien[i][j].entity.y -= moveRate;
-		}
-	}
-}
-
-void moveMothership(mothership_t * mothership, int moveRate)
-{
-	mothership->entity.x += mothership->direction * moveRate;
-}
-
-void moveBullet(bullet_t * bullet, int moveRate)
-{
-	bullet->entity.y += bullet->direction * moveRate;
+	entity->y += moveRate;
 }
 
 void setEntity(entity_t * entity, int x, int y)
@@ -196,6 +132,12 @@ void setEntity(entity_t * entity, int x, int y)
 	entity->y = y;
 }
 
+void shootFromEntity(bullet_t *bullet, entity_t *shootingEntity)
+{
+	bullet->entity.x = shootingEntity->x + shootingEntity->width / 2;
+	bullet->entity.y = shootingEntity->y + (bullet->direction > 0? shootingEntity->height + bullet->entity.height/2: -bullet->entity.height/2);
+	bullet->entity.isAlive = 1;
+}
 
 /*******************************************************************************
  *******************************************************************************
@@ -203,15 +145,15 @@ void setEntity(entity_t * entity, int x, int y)
  *******************************************************************************
  ******************************************************************************/
 
-static alien_t createAlien(int x, int y, int type)
+static alien_t createAlien(int type)
 {
-	alien_t alien = {{x, y, ALIEN_HEIGHT, ALIEN_WIDTH, 1}, type};
+	alien_t alien = {{STANDBY_POSITION, STANDBY_POSITION, ALIEN_HEIGHT, ALIEN_WIDTH, 1}, ALIEN_MIN_MOVE_INTERVAL,type};
 	return alien;
 }
 
-static barrierPixel_t createBarrierPixel(int x, int y, int isAlive)
+static barrierPixel_t createBarrierPixel(int isAlive)
 {
-	barrierPixel_t pixel = {{x, y, BARRIER_PIXEL_HEIGHT, BARRIER_PIXEL_WIDTH, isAlive}};
+	barrierPixel_t pixel = {{STANDBY_POSITION, STANDBY_POSITION, BARRIER_PIXEL_HEIGHT, BARRIER_PIXEL_WIDTH, isAlive}};
 	return pixel;
 }
 
