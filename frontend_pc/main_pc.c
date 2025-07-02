@@ -75,6 +75,12 @@ int getRandomNumber(int min, int max)
 int main(void)
 {
 
+	char cwd[1024];
+	if (getcwd(cwd, sizeof(cwd)) != NULL)
+		printf("Current working directory: %s\n", cwd);
+	else
+		printf("getcwd() error");
+
 	// Init allegro
 	initGraphics();
 	initAudio();
@@ -92,7 +98,7 @@ int main(void)
 
 	while (programRunning)
 	{
-		al_wait_for_event(getEventQueue(), &ev);		
+		al_wait_for_event(getEventQueue(), &ev);
 		if (ev.type == ALLEGRO_EVENT_TIMER) // Draws updated game frame to frame
 		{
 			if (currentPoints != game.score) // Check if the score has changed to reproduce explosion sound
@@ -102,21 +108,21 @@ int main(void)
 			}
 
 			// Check if the mothership has appeared to reproduce mothership sound
-			if(game.mothership.entity.isAlive && !mothershipFlag)
-			{	
+			if (game.mothership.entity.isAlive && !mothershipFlag)
+			{
 				playMothershipSound();
 				mothershipFlag = TRUE;
 			}
-			else if(!game.mothership.entity.isAlive && mothershipFlag)
+			else if (!game.mothership.entity.isAlive && mothershipFlag)
 				mothershipFlag = 0;
 
 			// Check if the ship has died to reproduce larger explosion sound
-			if(game.ship.entity.explosionTimer > 0 && !shipDiedFlag)
+			if (game.ship.entity.explosionTimer > 0 && !shipDiedFlag)
 			{
 				playShipDiedSound();
 				shipDiedFlag = TRUE;
 			}
-			else if(!game.ship.entity.isAlive && shipDiedFlag)
+			else if (!game.ship.entity.isAlive && shipDiedFlag)
 				shipDiedFlag = FALSE;
 
 			switch (game.status)
@@ -130,18 +136,18 @@ int main(void)
 					playGameplayMusic();
 					levelInit(&game);
 				}
-				
+
 				break;
 
-			case GAME_RUNNING:				
-				if(inputState.leftPressed)
+			case GAME_RUNNING:
+				if (inputState.leftPressed)
 					gameUpdate(&game, INPUT_LEFT);
-				else if(inputState.rightPressed)
+				else if (inputState.rightPressed)
 					gameUpdate(&game, INPUT_RIGHT);
-				
-				if(currentInput == INPUT_PAUSE)
+
+				if (currentInput == INPUT_PAUSE)
 					gamePause(&game);
-				else if(currentInput == INPUT_SHOOT)
+				else if (currentInput == INPUT_SHOOT)
 					playShootSound(); // Play the shoot sound when the player shoots
 
 				gameUpdate(&game, currentInput);
@@ -149,7 +155,7 @@ int main(void)
 				renderGame(game);
 				break;
 
-			case GAME_PAUSED:				
+			case GAME_PAUSED:
 				stopGameplayMusic(); // Stop the music when the game is paused
 				renderMenu(game);
 				if (currentInput == INPUT_RESUME)
@@ -160,7 +166,7 @@ int main(void)
 				else if (currentInput == INPUT_RESTART)
 				{
 					playGameplayMusic(); // Play the gameplay music when game restarts
-					levelInit(&game); // CAMBIAR A GAMERESET (RESET VIDAS, ETC)
+					levelInit(&game);	 // CAMBIAR A GAMERESET (RESET VIDAS, ETC)
 				}
 				else if (currentInput == INPUT_EXIT)
 				{
@@ -176,7 +182,7 @@ int main(void)
 				if (currentInput == INPUT_RESTART)
 				{
 					playGameplayMusic(); // Play the gameplay music when game restarts
-					levelInit(&game); // CAMBIAR A GAMERESET (RESET VIDAS, ETC)
+					levelInit(&game);	 // CAMBIAR A GAMERESET (RESET VIDAS, ETC)
 				}
 				else if (currentInput == INPUT_EXIT)
 				{

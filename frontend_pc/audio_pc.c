@@ -77,7 +77,7 @@ void initAudio(void)
     }
 
     if (!al_reserve_samples(6))
-    { // 16 samples (shoot, explosion, music, etc.)
+    { // 66 samples (shoot, explosion, music, etc.)
         fprintf(stderr, "Error reserving audio samples.\n");
     }
 
@@ -161,14 +161,14 @@ void cleanupAudio(void)
 static void loadAudioAssets(void)
 {
     // Sound effects
-    sndShoot = al_load_sample("frontend_pc/assets/audio/shoot.mp3");
-    sndExplosion = al_load_sample("frontend_pc/assets/audio/explosion.mp3");
-    sndMothership = al_load_sample("frontend_pc/assets/audio/mothership.mp3");
-    sndGameOver = al_load_sample("frontend_pc/assets/audio/gameover.mp3");
+    sndShoot = al_load_sample("frontend_pc/assets/audio/shoot.wav");
+    sndExplosion = al_load_sample("frontend_pc/assets/audio/explosion.wav");
+    sndMothership = al_load_sample("frontend_pc/assets/audio/mothership.wav");
+    sndGameOver = al_load_sample("frontend_pc/assets/audio/gameover.wav");
 
     // Background music
-    bgGameMusic = al_load_sample("frontend_pc/assets/audio/gamemusic.mp3");
-    bgMenuMusic = al_load_sample("frontend_pc/assets/audio/menumusic.mp3");
+    bgGameMusic = al_load_sample("frontend_pc/assets/audio/gamemusic.wav");
+    bgMenuMusic = al_load_sample("frontend_pc/assets/audio/menumusic.wav");
 
     // Error managing for samples loaded
     if (!sndShoot || !sndExplosion || !sndMothership || !sndGameOver || !bgGameMusic || !bgMenuMusic)

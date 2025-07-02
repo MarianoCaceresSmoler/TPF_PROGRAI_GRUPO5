@@ -14,7 +14,7 @@
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
-#define PLATFORM_PC
+
 #ifdef PLATFORM_PC
 
 #define SCREEN_WIDTH 1920
