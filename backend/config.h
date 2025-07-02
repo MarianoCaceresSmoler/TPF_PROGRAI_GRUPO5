@@ -152,14 +152,6 @@
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
 
-/**
- * @brief function to get a random number using rand from stdlib
- * @param min min value
- * @param max max value
- * @return a random number between min and max
- */
-int get_random_number(int min, int max);
-
 /*******************************************************************************
  ******************************************************************************/
 
