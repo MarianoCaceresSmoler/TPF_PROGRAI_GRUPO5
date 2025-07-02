@@ -159,52 +159,23 @@ bullet_t createBullet(int x, int y, movingDirections_t direction); // 1 is down,
  * @param y int position in y axis
  * @param type powerUp type 
  */
-powerUp_t createPowerUp(int x, int y, int type); // 0 is freeze, 1 is double shot, etc 
-
-
-/**
- * @brief function to move a ship to the left
- * @param ship is a pointer to the ship type entity
- */
-void moveShipLeft(ship_t * ship);
+powerUp_t createPowerUp(int x, int y, int type); // 0 is freeze, 1 is double shot, 2 is , etc 
 
 /**
- * @brief function to move a ship to the right
- * @param ship is a pointer to the ship type entity
+ * @brief function to move an entity in the X axis
+ * @param entity is a pointer to the entity
+ * @param moveRate int with the amount of pixels to move
  */
-void moveShipRight(ship_t * ship);
+void moveEntityX(entity_t *entity, int moveRate);
 
 /**
- * @brief function to move aliens to the left
- * @param enemies is a pointer to the alienformation type entity
- * @param moveRate is the amount of pixels to move
+ * @brief function to move an entity in the Y axis
+ * @param entity is a pointer to the entity
+ * @param moveRate int with the amount of pixels to move
  */
-void moveEnemiesLeft(alienFormation_t * enemies, int moveRate);
+void moveEntityY(entity_t *entity, int moveRate);
 
-/**
- * @brief function to move aliens to the right
- * @param enemies is a pointer to the alienformation type entity
- * @param moveRate is the amount of pixels to move
- */
-void moveEnemiesRight(alienFormation_t * enemies, int moveRate);
-
-/**
- * @brief function to move aliens downwards
- * @param enemies is a pointer to the alienformation type entity
- * @param moveRate is the amount of pixels to move
- */
-void moveEnemiesDown(alienFormation_t * enemies, int moveRate);
-
-/**
- * @brief function to move mothership to the left
- * @param enemies is a pointer to the mothership type entity
- * @param moveRate is the amount of pixels to move
- */
-void moveMothershipLeft(mothership_t *mothership, int moveRate);
-void moveMothershipRight(mothership_t *mothership, int moveRate); // FALTA DEFINIRLA
-void moveBullet(bullet_t * bullet, int moveRate);
-
-
+void shootFromEntity(bullet_t *bullet, entity_t *entity);
 /* "shoot" functions make a bullet go out in front of an entity
  * bullet is a pointer to the bullet_t entity to shoot
 */
