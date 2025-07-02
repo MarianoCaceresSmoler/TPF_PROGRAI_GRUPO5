@@ -33,14 +33,38 @@
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
-/* "update" functions update a type of entity
- * ship/enemies are pointers to the entity to move
- * moveRate is the amount of units moved
+/**
+ * @brief function to update game entities
+ * @param game pointer to the game information
+ * @param input input in the last game tick
  */
 static void gameUpdate(game_t *game, input_t input);
+
+/**
+ * @brief function to update a ship type entity
+ * @param ship pointer to the ship type entity
+ * @param shipBullet bullet associated to the ship
+ * @param input input in the last game tick
+ */
 static void updateShip(ship_t *ship, bullet_t *shipBullet, input_t input);
+
+/**
+ * @brief function to update a bullet type entity
+ * @param bullet pointer to the bullet type entity
+ */
 static void updateBullet(bullet_t *bullet);
+
+/**
+ * @brief function to update an alienformation type entity
+ * @param aliens pointer to the alienformation type entity
+ * @param alienBullet bullet associated to aliens
+ */
 static void updateAliens(alienFormation_t *aliens, bullet_t *alienBullet);
+
+/**
+ * @brief function to update a mothership type entity
+ * @param bullet pointer to the mothership type entity
+ */
 static void updateMothership(mothership_t *mothership);
 
 /**
@@ -92,25 +116,46 @@ void gameInit(game_t *game)
 	game->aliensRemaining = ALIENS_NUMBER;
 }
 
-levelInit(game_t * game)
+void levelInit(game_t * game)
 {
 	game->tickCounter = 0;
 	game->aliensRemaining = ALIENS_NUMBER;
 
-	// reset ship
-	setEntity(&game->ship, SHIP_INITIAL_X, SHIP_INITIAL_Y);
+	// reset ship to initial position
+	setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
 
-	// reset mothersip
-	setEntity(&game->mothership, MOTHERSHIP_INITIAL_X, MOTHERSHIP_INITIAL_Y);
+	// reset mothersip to initial position
+	setEntity(&game->mothership.entity, MOTHERSHIP_INITIAL_X, MOTHERSHIP_INITIAL_Y);
 
-	int i, j;
+	// reset aliens to initial positions
+	int i, j, k;
 	for(i = 0; i < ALIENS_ROWS; i++)
 	{
 		for(j = 0; j < ALIENS_COLS; j++)
 		{
-			setEntity(&game->);
+			setEntity(&game->aliens.alien[i][j].entity, ALIENS_INITIAL_X + i, ALIENS_INITIAL_Y + j); // DEFINIR POSICION
 		}
 	}
+	// set barriers to initial positions
+
+	for (k = 0; k < BARRIERS; k++)
+	{
+		for(i = 0; i < BARRIER_HEIGHT; i++)
+		{
+			for(j = 0; j < BARRIER_WIDTH; j++)
+			{
+				setEntity(&game->barriers[k].pixel[i][j].entity, k+i, j); // DEFINIR POSICION
+				if(i != 1 && (i == j || i == 3-j)) // determines barrier shape 
+					game->barriers[k].pixel[i][j].entity.isAlive = 0;
+			}
+		}
+	}
+	
+	// reset bullets to initial position
+	setEntity(&game->shipBullet.entity, SCREEN_SIZE, SCREEN_SIZE); // DEFINIR DONDE INICIAN
+	setEntity(&game->alienBullet.entity, SCREEN_SIZE, SCREEN_SIZE);
+
+
 }
 
 void gameReset(game_t *game) // REVISAR SI VA

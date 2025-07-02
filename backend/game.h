@@ -45,13 +45,15 @@ typedef enum
 
 typedef struct 
 {
-	ship_t ship;
+	// game entities
+    ship_t ship;
     alienFormation_t aliens;
     bullet_t alienBullet;
     bullet_t shipBullet;
     barrier_t barriers[BARRIERS];
     mothership_t mothership;
 
+    // game variables and info
     gameStatus_t status;
     int score;
     int currentLevel;
@@ -79,13 +81,39 @@ typedef struct
 // +ej: char lcd_goto (int fil, int col);+
 
 /**
- * @brief functions to modify the state of the game
+ * @brief function to set the state of the game before running it
  * @param game pointer to the game information
  */
 void gameInit(game_t *game);
+
+/**
+ * @brief function to set the entities before a level starts
+ * @param game pointer to the game information
+ */
+void levelInit(game_t *game);
+
+/**
+ * @brief function to restart the game from level 1
+ * @param game pointer to the game information
+ */
 void gameReset(game_t *game);
+
+/**
+ * @brief function to pause the game, physics and entities
+ * @param game pointer to the game information
+ */
 void gamePause(game_t *game);
+
+/**
+ * @brief function to resume a paused game
+ * @param game pointer to the game information
+ */
 void gameResume(game_t *game);
+
+/**
+ * @brief function to finish the game
+ * @param game pointer to the game information
+ */
 void gameEnd(game_t *game);
 
 /**
@@ -93,18 +121,6 @@ void gameEnd(game_t *game);
  * @param game pointer to the game information, points the number of points to add
  */
 void incrementScore(game_t *game, int points);
-
-/**
- * @brief function to reset level information when a level is completed
- * @param game pointer to the game information
- */
-void resetLevel(game_t *game);
-
-/**
- * @brief function to set the level configuration
- * @param game pointer to the game information
- */
-void startLevel(game_t *game);
 
 /**
  * @brief general function to update the game's objects information

@@ -101,40 +101,136 @@ typedef struct
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
 
-/* "create" functions initialize entities in a position
- * x and y are the coordinates of the entity
- * 0, 0 is the top left corner
-*/
+// CAMBIOS QUE FALTAN (02/07/2025)
+//
+// DEFINIR SI HACE FALTA USAR X e Y COMO PARAMETRO O SE PUEDE INICIALIZAR EN
+// UNA UBICACION ESTANDAR QUE NO SE USE PARA NADA (POSICION NULA)
+//
+// CAMBIAR TODAS LAS FUNCIONES MOVE POR UNA FUNCION MOVEENTITY GENERAL
+// (PUEDE SER UNA SOLA O UNA VERTICAL Y UNA HORIZONTAL)
+//
+// CAMBIAR LAS FUNCIONES SHOOT POR UNA GENERAL QUE SIRVA PARA TODAS LAS ENTIDADES
+//
+// FALTA UN ENUM CON LOS TIPOS DE POWERUP
+//
+// FALTA PONER MOVERATE EN LAS FUNCIONES MOVESHIP
+//
+// MOVER GETALIENPOINTS A SCORE.C
+
+/**
+ * @brief function to create a ship type entity
+ * @param x int position in x axis
+ * @param y int position in y axis
+ */
 ship_t createShip(int x, int y);
+
+/**
+ * @brief function to create an alienformation type entity
+ * @param x int position in x axis
+ * @param y int position in y axis
+ */
 alienFormation_t createEnemies(int x, int y);
+
+/**
+ * @brief function to create a mothership type entity
+ * @param x int position in x axis
+ * @param y int position in y axis
+ */
 mothership_t createMothership(int x, int y); 
+
+/**
+ * @brief function to create a barrier type entity
+ * @param x int position in x axis
+ * @param y int position in y axis
+ */
 barrier_t createBarrier(int x, int y);
-bullet_t createBullet(int x, int y, int direction); // 1 is down, -1 is up
+
+/**
+ * @brief function to create a bullet type entity
+ * @param x int position in x axis
+ * @param y int position in y axis
+ * @param direction -1 is upwards, 1 is downwards
+ */
+bullet_t createBullet(int x, int y, movingDirections_t direction); // 1 is down, -1 is up
+
+/**
+ * @brief function to create a powerUp type entity
+ * @param x int position in x axis
+ * @param y int position in y axis
+ * @param type powerUp type 
+ */
 powerUp_t createPowerUp(int x, int y, int type); // 0 is freeze, 1 is double shot, etc 
 
-/* "move" functions move an entity
- * ship/enemies are pointers to the entity to move
- * moveRate is the amount of units moved
-*/
+
+/**
+ * @brief function to move a ship to the left
+ * @param ship is a pointer to the ship type entity
+ */
 void moveShipLeft(ship_t * ship);
+
+/**
+ * @brief function to move a ship to the right
+ * @param ship is a pointer to the ship type entity
+ */
 void moveShipRight(ship_t * ship);
+
+/**
+ * @brief function to move aliens to the left
+ * @param enemies is a pointer to the alienformation type entity
+ * @param moveRate is the amount of pixels to move
+ */
 void moveEnemiesLeft(alienFormation_t * enemies, int moveRate);
+
+/**
+ * @brief function to move aliens to the right
+ * @param enemies is a pointer to the alienformation type entity
+ * @param moveRate is the amount of pixels to move
+ */
 void moveEnemiesRight(alienFormation_t * enemies, int moveRate);
+
+/**
+ * @brief function to move aliens downwards
+ * @param enemies is a pointer to the alienformation type entity
+ * @param moveRate is the amount of pixels to move
+ */
 void moveEnemiesDown(alienFormation_t * enemies, int moveRate);
-void moveMothership(mothership_t * mothership, int moveRate);
+
+/**
+ * @brief function to move mothership to the left
+ * @param enemies is a pointer to the mothership type entity
+ * @param moveRate is the amount of pixels to move
+ */
+void moveMothershipLeft(mothership_t *mothership, int moveRate);
+void moveMothershipRight(mothership_t *mothership, int moveRate); // FALTA DEFINIRLA
 void moveBullet(bullet_t * bullet, int moveRate);
-// CAPAZ QUEDAN PRIVADAS Y SOLO SE USAN LAS DE UPDATE
 
 
 /* "shoot" functions make a bullet go out in front of an entity
  * bullet is a pointer to the bullet_t entity to shoot
 */
+
+/**
+ * @brief function to make a bullet go out in front of an entity
+ * @param ship is a pointer to the ship type entity
+ * @param bullet is a pointer to the bullet type entity
+ */
 void shipShoot(ship_t * ship, bullet_t * bullet);
+
+/**
+ * @brief function to make a bullet go out in front of an entity
+ * @param alien is a pointer to the alien type entity
+ * @param bullet is a pointer to the bullet type entity
+ */
 void alienShoot(alien_t * alien, bullet_t * bullet);
 
 /* "getAlienPoints" returns the amount of points given by the type of alien killed
  * alien is a pointer to the structure of the enemy killed
 */
+/**
+ * @brief function to get the amount of points given by the type of alien killed
+ * @param alien is the alien killed
+ * @return int with the score the alien gives
+ */
 int getAlienPoints(alien_t alien);
 
 /**
@@ -144,26 +240,6 @@ int getAlienPoints(alien_t alien);
  * @param y position y
 */
 void setEntity(entity_t * entity, int x, int y); 
-
-
-// POSIBLES CAMBIOS
-/*
-void update_entities(game_t * game) *******VA EN GAME.C (no esta definido game_t)
-{
-	void update_ship(ship_t *ship, input_t input);
-	void update_aliens(alienFormation_t *aliens, int tick);
-	void update_bullets(bullet_t bullets[MAX_BULLETS]);
-	void update_mothership(mothership_t *mothership, int tick);
-	void update_barriers(barriers_t *barrier); ****FALTA VER SI VA ESTA
-}
-
-void init_entities(game_t * game) *******VA EN GAME.C (no esta definido game_t)
-{
-	void init_aliens(alienFormation_t *aliens);
-	void init_barriers(barrier_t barriers[BARRIERS]);
-	void init_ship(ship_t *ship);
-}
-*/
 
 /*******************************************************************************
  ******************************************************************************/
