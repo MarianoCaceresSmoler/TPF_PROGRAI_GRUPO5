@@ -119,8 +119,9 @@ void incrementScore(game_t *game, int points);
 /**
  * @brief general function to update the game's objects information
  * @param game pointer to the game information
+ * @param input last input provided by user
 */
-void manageInput(game_t * game, input_t input);
+void gameUpdate(game_t * game, input_t input);
 
 /*******************************************************************************
  ******************************************************************************/

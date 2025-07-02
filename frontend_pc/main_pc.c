@@ -28,8 +28,6 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
-typedef unsigned short int bool_t;
-
 /*******************************************************************************
  * VARIABLES WITH GLOBAL SCOPE
  ******************************************************************************/
@@ -85,7 +83,7 @@ int main(void)
 	gameInit(&game);
 
 	// Allegro variables to manage the game loop and the inputs
-	bool_t programRunning = TRUE;
+	int programRunning = TRUE;
 	ALLEGRO_EVENT ev;
 	input_t currentInput = INPUT_NONE, releasedInput = INPUT_NONE;
 
@@ -127,13 +125,27 @@ int main(void)
 			case GAME_MENU:
 				playMenuMusic(); // Play the menu music when program starts
 				renderMenu(game);
+				if (currentInput)
+				{
+					stopMenuMusic();
+					playGameplayMusic();
+					levelInit(&game);
+				}
+				
 				break;
 
-			case GAME_RUNNING:			
-				if (inputState.leftPressed)
-					manageInput(&game, INPUT_LEFT);
-				if (inputState.rightPressed)
-					manageInput(&game, INPUT_RIGHT);
+			case GAME_RUNNING:				
+				if(inputState.leftPressed)
+					gameUpdate(&game, INPUT_LEFT);
+				else if(inputState.rightPressed)
+					gameUpdate(&game, INPUT_RIGHT);
+				
+				if(currentInput == INPUT_PAUSE)
+					gamePause(&game);
+				else if(currentInput == INPUT_SHOOT)
+					playShootSound(); // Play the shoot sound when the player shoots
+
+				gameUpdate(&game, currentInput);
 
 				renderGame(game);
 				break;
@@ -141,12 +153,39 @@ int main(void)
 			case GAME_PAUSED:				
 				stopGameplayMusic(); // Stop the music when the game is paused
 				renderMenu(game);
+				if (currentInput == INPUT_RESUME)
+				{
+					playGameplayMusic(); // Play the gameplay music when game resumes
+					gameResume(&game);
+				}
+				else if (currentInput == INPUT_RESTART)
+				{
+					playGameplayMusic(); // Play the gameplay music when game restarts
+					gameReset(&game);
+				}
+				else if (currentInput == INPUT_EXIT)
+				{
+					gameEnd(&game);
+					programRunning = FALSE;
+				}
 				break;
+
 			case GAME_END:
 				stopGameplayMusic(); // Stop the music when the game ends
 				playGameoverSound();
 				renderGameOver(game);
+				if (currentInput == INPUT_RESTART)
+				{
+					playGameplayMusic(); // Play the gameplay music when game restarts
+					gameReset(&game);
+				}
+				else if (currentInput == INPUT_EXIT)
+				{
+					gameEnd(&game);
+					programRunning = FALSE;
+				}
 				break;
+				
 			default:
 				stopGameplayMusic();
 				gameEnd(&game);
@@ -165,63 +204,6 @@ int main(void)
 				inputState.leftPressed = TRUE;
 			else if (currentInput == INPUT_RIGHT)
 				inputState.rightPressed = TRUE;
-
-			switch (game.status)
-			{
-			case GAME_MENU:
-				stopMenuMusic(); // Stop the menu music when game starts
-				playGameplayMusic(); // Play the gameplay music when game starts
-
-				// VER QUE FUNCIONES LLAMAR DE BACK PARA PASAR A GAME programRUNNING		
-				gameReset(&game);
-				break;
-
-			case GAME_RUNNING:
-				if (currentInput == INPUT_PAUSE)
-					gamePause(&game);
-				else if(currentInput == INPUT_SHOOT)
-					playShootSound(); // Play the shoot sound when the player shoots
-
-				manageInput(&game, currentInput);
-				break;
-
-			case GAME_PAUSED:
-				if (currentInput == INPUT_RESUME)
-				{
-					playGameplayMusic(); // Play the gameplay music when game resumes
-					gameResume(&game);
-				}
-				else if (currentInput == INPUT_RESTART)
-				{
-					playGameplayMusic(); // Play the gameplay music when game restarts
-					gameReset(&game);
-				}
-				else if (currentInput == INPUT_EXIT)
-				{
-					gameEnd(&game);
-					programRunning = FALSE;
-				}
-
-				break;
-
-			case GAME_END:
-				if (currentInput == INPUT_RESTART)
-				{
-					playGameplayMusic(); // Play the gameplay music when game restarts
-					gameReset(&game);
-				}
-				else if (currentInput == INPUT_EXIT)
-				{
-					gameEnd(&game);
-					programRunning = FALSE;
-				}
-				break;
-
-			default:
-				gameEnd(&game);
-				programRunning = FALSE;
-				break;
-			}
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_KEY_UP)

@@ -25,8 +25,8 @@
 
  // To control the movement of the ship
 typedef struct {
-    bool_t leftPressed;
-    bool_t rightPressed;
+    int leftPressed;
+    int rightPressed;
 } input_state_t;
 
 /*******************************************************************************
