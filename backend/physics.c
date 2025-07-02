@@ -118,7 +118,7 @@ static int checkBulletHitsAliens(game_t *game)
                 {
                     // if collision detected, kill the bullet and set the alien explosion timer
                     game->aliens.alien[i][j].entity.isAlive = 0;
-                    game->aliens.alien[i][j].entity.explosionTimer = 15;
+                    game->aliens.alien[i][j].entity.explosionTimer = EXPLOSION_TIMER;
                     game->aliensRemaining--;
                     game->shipBullet.entity.isAlive = 0;
 
@@ -143,7 +143,7 @@ static void checkBulletHitsShip(game_t *game)
             // if collision detected, kill the bullet and decrement ship's lives
             game->alienBullet.entity.isAlive = 0;
             game->ship.livesLeft -= 1;
-            game->ship.entity.explosionTimer = 15;
+            game->ship.entity.explosionTimer = EXPLOSION_TIMER;
 
             // allows the aliens to shoot
             game->aliens.canShoot = 1;
@@ -195,7 +195,7 @@ static void checkBulletHitsMothership(game_t *game)
         {
             // if collision detected, kill the bullet and set the mothership explosion timer
             game->shipBullet.entity.isAlive = 0;
-            game->mothership.entity.explosionTimer = 15;
+            game->mothership.entity.explosionTimer = EXPLOSION_TIMER;
 
             // allows the ship to shoot
             game->ship.canShoot = 1;
@@ -244,7 +244,7 @@ static void checkAlienHitsShip(game_t *game)
                 if (game->aliens.alien[i][j].entity.isAlive && checkEntitiesCollision(game->aliens.alien[i][j].entity, game->ship.entity))
                 {
                     // if collision detected, kills the ship and ends the game
-                    game->ship.entity.explosionTimer = 15;
+                    game->ship.entity.explosionTimer = EXPLOSION_TIMER;
                     game->ship.livesLeft = 0;
                 }
             }
