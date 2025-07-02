@@ -74,13 +74,6 @@ int getRandomNumber(int min, int max)
 
 int main(void)
 {
-
-	char cwd[1024];
-	if (getcwd(cwd, sizeof(cwd)) != NULL)
-		printf("Current working directory: %s\n", cwd);
-	else
-		printf("getcwd() error");
-
 	// Init allegro
 	initGraphics();
 	initAudio();

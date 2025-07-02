@@ -55,8 +55,9 @@ static ALLEGRO_SAMPLE *sndMothership = NULL;
 static ALLEGRO_SAMPLE *sndGameOver = NULL;
 static ALLEGRO_SAMPLE *bgGameMusic = NULL;
 static ALLEGRO_SAMPLE *bgMenuMusic = NULL;
-static ALLEGRO_SAMPLE_ID *idMenuMusic = NULL;
-static ALLEGRO_SAMPLE_ID *idGameMusic = NULL;
+static ALLEGRO_SAMPLE_ID idMenuMusic = { ._id = -1 };
+static ALLEGRO_SAMPLE_ID idGameMusic = { ._id = -1 };
+
 
 /*******************************************************************************
  *******************************************************************************
@@ -114,30 +115,37 @@ void playGameoverSound(void)
     if (sndGameOver)
         al_play_sample(sndGameOver, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 }
+
 void playMenuMusic(void)
 {
     if (bgMenuMusic)
-        al_play_sample(bgMenuMusic, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, idMenuMusic);
+        al_play_sample(bgMenuMusic, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idMenuMusic);
+}
+
+void stopMenuMusic(void)
+{
+    if (idMenuMusic._id != -1)
+    {
+        printf("pare musica de menuuuu\n");
+        al_stop_sample(&idMenuMusic);
+    }
 }
 
 void playGameplayMusic(void)
 {
     if (bgGameMusic)
-        al_play_sample(bgGameMusic, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, idGameMusic);
-}
-
-void stopMenuMusic(void)
-{
-    al_stop_sample(idMenuMusic);
+        al_play_sample(bgGameMusic, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idGameMusic);
 }
 
 void stopGameplayMusic(void)
 {
-    al_stop_sample(idGameMusic);
+    if (idGameMusic._id != -1)
+        al_stop_sample(&idGameMusic);
 }
 
 void cleanupAudio(void)
 {
+    al_uninstall_audio();
     if (sndShoot)
         al_destroy_sample(sndShoot);
     if (sndExplosion)

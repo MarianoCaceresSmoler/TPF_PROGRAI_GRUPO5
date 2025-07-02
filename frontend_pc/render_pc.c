@@ -118,6 +118,12 @@ void initGraphics(void)
 		fprintf(stderr, "Unable to start image addon \n");
 	}
 
+	// Initialize allegro primitives addon
+	if (!al_init_primitives_addon())
+	{
+		fprintf(stderr, "Unable to primitives addon \n");
+	}
+
 	// Create bitmaps for objects
 	alien0BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
 	alien1BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
@@ -326,12 +332,6 @@ static void loadImages(void)
 		fprintf(stderr, "Failed to load ship.png\n");
 	}
 
-	bulletBitmap = al_load_bitmap("frontend_pc/assets/img/bullet.png");
-	if (!bulletBitmap)
-	{
-		fprintf(stderr, "Failed to load bullet.png\n");
-	}
-
 	mothershipBitmap = al_load_bitmap("frontend_pc/assets/img/mothership.png");
 	if (!mothershipBitmap)
 	{
@@ -362,8 +362,8 @@ static void drawShip(ship_t ship)
 				explosionBitmap,
 				0, 0,
 				al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
-				ship.entity.x + al_get_bitmap_width(explosionBitmap) * 0.1, ship.entity.y + al_get_bitmap_height(explosionBitmap) * 0.1,
-				al_get_bitmap_width(explosionBitmap) * 0.6, al_get_bitmap_height(explosionBitmap) * 0.6,
+				ship.entity.x + SHIP_WIDTH * 0.1, ship.entity.y + SHIP_HEIGHT * 0.1,
+				SHIP_WIDTH * 0.6, SHIP_HEIGHT * 0.6,
 				0);
 		}
 		else
@@ -373,7 +373,7 @@ static void drawShip(ship_t ship)
 				0, 0,
 				al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
 				ship.entity.x, ship.entity.y,
-				al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+				SHIP_WIDTH, SHIP_HEIGHT,
 				0);
 		}
 	}
@@ -385,7 +385,7 @@ static void drawShip(ship_t ship)
 			0, 0,
 			al_get_bitmap_width(shipBitMap), al_get_bitmap_height(shipBitMap),
 			ship.entity.x, ship.entity.y,
-			al_get_bitmap_width(shipBitMap), al_get_bitmap_height(shipBitMap),
+			SHIP_WIDTH, SHIP_HEIGHT,
 			0);
 	}
 }
@@ -414,8 +414,8 @@ static void drawAliens(alienFormation_t aliens)
 							explosionBitmap,
 							0, 0,
 							al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
-							alienEntity.x + al_get_bitmap_width(explosionBitmap) * 0.1, alienEntity.y + al_get_bitmap_height(explosionBitmap) * 0.1,
-							al_get_bitmap_width(explosionBitmap) * 0.6, al_get_bitmap_height(explosionBitmap) * 0.6,
+							alienEntity.x + ALIEN_WIDTH * 0.1, alienEntity.y + ALIEN_HEIGHT * 0.1,
+							ALIEN_WIDTH * 0.6, ALIEN_HEIGHT * 0.6,
 							0);
 					}
 					else
@@ -425,7 +425,7 @@ static void drawAliens(alienFormation_t aliens)
 							0, 0,
 							al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
 							alienEntity.x, alienEntity.y,
-							al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+							ALIEN_WIDTH, ALIEN_HEIGHT,
 							0);
 					}
 				}
@@ -439,7 +439,7 @@ static void drawAliens(alienFormation_t aliens)
 							0, 0,
 							al_get_bitmap_width(alien0BitMap), al_get_bitmap_height(alien0BitMap),
 							alienEntity.x, alienEntity.y,
-							al_get_bitmap_width(alien0BitMap), al_get_bitmap_height(alien0BitMap),
+							ALIEN_WIDTH, ALIEN_HEIGHT,
 							0);
 						break;
 					case 1:
@@ -448,7 +448,7 @@ static void drawAliens(alienFormation_t aliens)
 							0, 0,
 							al_get_bitmap_width(alien1BitMap), al_get_bitmap_height(alien1BitMap),
 							alienEntity.x, alienEntity.y,
-							al_get_bitmap_width(alien1BitMap), al_get_bitmap_height(alien1BitMap),
+							ALIEN_WIDTH, ALIEN_HEIGHT,
 							0);
 						break;
 					case 2:
@@ -457,7 +457,7 @@ static void drawAliens(alienFormation_t aliens)
 							0, 0,
 							al_get_bitmap_width(alien2BitMap), al_get_bitmap_height(alien2BitMap),
 							alienEntity.x, alienEntity.y,
-							al_get_bitmap_width(alien2BitMap), al_get_bitmap_height(alien2BitMap),
+							ALIEN_WIDTH, ALIEN_HEIGHT,
 							0);
 						break;
 					case 3:
@@ -466,7 +466,7 @@ static void drawAliens(alienFormation_t aliens)
 							0, 0,
 							al_get_bitmap_width(alien3BitMap), al_get_bitmap_height(alien3BitMap),
 							alienEntity.x, alienEntity.y,
-							al_get_bitmap_width(alien3BitMap), al_get_bitmap_height(alien3BitMap),
+							ALIEN_WIDTH, ALIEN_HEIGHT,
 							0);
 						break;
 					case 4:
@@ -475,7 +475,7 @@ static void drawAliens(alienFormation_t aliens)
 							0, 0,
 							al_get_bitmap_width(alien4BitMap), al_get_bitmap_height(alien4BitMap),
 							alienEntity.x, alienEntity.y,
-							al_get_bitmap_width(alien4BitMap), al_get_bitmap_height(alien4BitMap),
+							ALIEN_WIDTH, ALIEN_HEIGHT,
 							0);
 						break;
 
@@ -502,8 +502,8 @@ static void drawMothership(mothership_t mothership)
 					explosionBitmap,
 					0, 0,
 					al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
-					mothership.entity.x + 0.1 * al_get_bitmap_width(explosionBitmap), mothership.entity.y + 0.1 * al_get_bitmap_height(explosionBitmap),
-					al_get_bitmap_width(explosionBitmap) * 0.6, al_get_bitmap_height(explosionBitmap) * 0.6,
+					mothership.entity.x + 0.1 * MOTHERSHIP_WIDTH, mothership.entity.y + 0.1 * MOTHERSHIP_HEIGHT,
+					MOTHERSHIP_WIDTH * 0.6, MOTHERSHIP_HEIGHT * 0.6,
 					0);
 			}
 			else
@@ -513,7 +513,7 @@ static void drawMothership(mothership_t mothership)
 					0, 0,
 					al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
 					mothership.entity.x, mothership.entity.y,
-					al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+					MOTHERSHIP_WIDTH, MOTHERSHIP_HEIGHT,
 					0);
 			}
 		}
@@ -524,7 +524,7 @@ static void drawMothership(mothership_t mothership)
 				0, 0,
 				al_get_bitmap_width(mothershipBitmap), al_get_bitmap_height(mothershipBitmap),
 				mothership.entity.x, mothership.entity.y,
-				al_get_bitmap_width(mothershipBitmap), al_get_bitmap_height(mothershipBitmap),
+				MOTHERSHIP_WIDTH, MOTHERSHIP_HEIGHT,
 				0);
 		}
 	}
@@ -536,26 +536,25 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
 	// Only draws if the ship bullet is alive
 	if (shipBullet.entity.isAlive)
 	{
-		al_draw_scaled_bitmap(
-			bulletBitmap,
-			0, 0,
-			al_get_bitmap_width(bulletBitmap), al_get_bitmap_height(bulletBitmap),
-			shipBullet.entity.x, shipBullet.entity.y,
-			al_get_bitmap_width(bulletBitmap), al_get_bitmap_height(bulletBitmap),
-			0);
+		al_draw_filled_rectangle(
+			shipBullet.entity.x,
+			shipBullet.entity.y,
+			shipBullet.entity.x + BULLET_WIDTH,
+			shipBullet.entity.y + BULLET_HEIGHT,
+			al_map_rgb(0, 128, 255));
+	
 	}
 
 	// Alien bullet
 	// Only draws if the alien bullet is alive
 	if (shipBullet.entity.isAlive)
 	{
-		al_draw_scaled_bitmap(
-			bulletBitmap,
-			0, 0,
-			al_get_bitmap_width(bulletBitmap), al_get_bitmap_height(bulletBitmap),
-			alienBullet.entity.x, alienBullet.entity.y,
-			al_get_bitmap_width(bulletBitmap), al_get_bitmap_height(bulletBitmap),
-			0);
+		al_draw_filled_rectangle(
+			alienBullet.entity.x,
+			alienBullet.entity.y,
+			alienBullet.entity.x + BULLET_WIDTH,
+			alienBullet.entity.y + BULLET_HEIGHT,
+			al_map_rgb(0, 128, 255));
 	}
 }
 
