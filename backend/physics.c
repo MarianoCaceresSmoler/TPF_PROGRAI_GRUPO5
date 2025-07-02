@@ -246,8 +246,6 @@ static void checkAlienHitsShip(game_t *game)
                     // if collision detected, kills the ship and ends the game
                     game->ship.entity.explosionTimer = 15;
                     game->ship.livesLeft = 0;
-
-                    return getAlienPoints(game->aliens.alien[i][j]);
                 }
             }
         }

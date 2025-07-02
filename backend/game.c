@@ -119,7 +119,7 @@ void gameInit(game_t *game)
 	}
 
 	// initialize game parameters
-	game->status = GAME_RUNNING;
+	game->status = GAME_MENU;
 	game->score = 0;
 	game->currentLevel = 1;
 	game->tickCounter = 0;
@@ -128,6 +128,7 @@ void gameInit(game_t *game)
 
 void levelInit(game_t * game)
 {
+	game->status = GAME_RUNNING;
 	game->tickCounter = 0;
 	game->aliensRemaining = ALIENS_NUMBER;
 
@@ -182,7 +183,7 @@ void gameUpdate(game_t *game, input_t input)
 {
 	if(game->status == GAME_RUNNING)
 	{
-		int points, row, column, alienTickRate;
+		int points = 0, row, column, alienTickRate; // ROW Y COLUMN SON PARA EL ALIEN QUE DISPARA
 		game->tickCounter++;
 
 		// updates entities
@@ -193,7 +194,7 @@ void gameUpdate(game_t *game, input_t input)
 		else if(game->shipBullet.entity.isAlive) 
 			updateBullet(&game->shipBullet);
 
-		if(game->aliens.canShoot) // && funcion que define que alien dispara
+		if(game->aliens.canShoot) // && FUNCION QUE SE FIJA QUE ALIEN DISPARA
 			shootFromEntity(&game->alienBullet, &game->aliens.alien[1][1].entity);
 		else if(game->alienBullet.entity.isAlive)
 			updateBullet(&game->alienBullet);
@@ -213,7 +214,7 @@ void gameUpdate(game_t *game, input_t input)
 		updateMothership(&game->mothership);
 
 		// updates score if an alien is killed
-		if(points = handleCollisions(game))
+		if((points = handleCollisions(game)))
 			incrementScore(game, points);
 	}
 }
@@ -266,7 +267,7 @@ static void updateBullet(bullet_t *bullet)
 {
 	if(bullet->entity.x >= 0 && bullet->entity.x <= SCREEN_SIZE && bullet->entity.y >= 0 && bullet->entity.y <= SCREEN_SIZE)
 	{
-		moveEntityY(bullet, bullet->direction * BULLET_MOVE_RATE);
+		moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
 	}
 	else
 	{
@@ -349,7 +350,7 @@ static void updateMothership(mothership_t *mothership)
 	if (mothership->entity.explosionTimer > 0)
         updateEntityExplosion(&mothership->entity);
 	else if(mothership->entity.x >= -MOTHERSHIP_WIDTH && mothership->entity.x <= SCREEN_SIZE + MOTHERSHIP_WIDTH)
-		moveEntityX(mothership, mothership->direction * MOTHERSHIP_MOVE_RATE);
+		moveEntityX(&mothership->entity, mothership->direction * MOTHERSHIP_MOVE_RATE);
 }
 
 static void updateEntityExplosion(entity_t *entity)
@@ -391,4 +392,6 @@ static int getLastColumnAlive(alienFormation_t aliens)
 			}
 		}
 	}
+
+	return lastColumn;
 }

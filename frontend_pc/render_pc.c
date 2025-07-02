@@ -138,8 +138,8 @@ void initGraphics(void)
 	// Register fonts
 	al_init_font_addon();
 	al_init_ttf_addon();
-	fontGameplay = al_load_ttf_font("assets/fonts/font_gameplay.ttf", 36, 0);
-	fontRetro = al_load_ttf_font("assets/fonts/font_retro.ttf.ttf", 36, 0);
+	fontGameplay = al_load_ttf_font("frontend_pc/assets/fonts/font_gameplay.ttf", 36, 0);
+	fontRetro = al_load_ttf_font("frontend_pc/assets/fonts/font_retro.ttf", 42, 0);
 
 	// Error managing for elements created
 	if (!(display && timer && alien0BitMap && alien1BitMap && alien2BitMap && alien3BitMap && alien4BitMap && shipBitMap && barrierPixelBitmap && bulletBitmap && mothershipBitmap && eventQueue))
@@ -236,7 +236,7 @@ void renderMenu(game_t game)
 			0);
 
 		// Draws secondary text
-		al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, ALLEGRO_ALIGN_CENTER, "Press any key to play");
+		al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 2, SCREEN_HEIGHT * 3 / 4, ALLEGRO_ALIGN_CENTER, "Press any key to play");
 	}
 	else if (status == GAME_PAUSED) // if game was paused
 	{
@@ -290,61 +290,61 @@ static void loadImages(void)
 {
 	// Load the images
 
-	alien0BitMap = al_load_bitmap("assets/img/alien0.png");
+	alien0BitMap = al_load_bitmap("frontend_pc/assets/img/alien0.png");
 	if (!alien0BitMap)
 	{
 		fprintf(stderr, "Failed to load alien0.png\n");
 	}
 
-	alien1BitMap = al_load_bitmap("assets/img/alien1.png");
+	alien1BitMap = al_load_bitmap("frontend_pc/assets/img/alien1.png");
 	if (!alien1BitMap)
 	{
 		fprintf(stderr, "Failed to load alien1.png\n");
 	}
 
-	alien2BitMap = al_load_bitmap("assets/img/alien2.png");
+	alien2BitMap = al_load_bitmap("frontend_pc/assets/img/alien2.png");
 	if (!alien2BitMap)
 	{
 		fprintf(stderr, "Failed to load alien2.png\n");
 	}
 
-	alien3BitMap = al_load_bitmap("assets/img/alien3.png");
+	alien3BitMap = al_load_bitmap("frontend_pc/assets/img/alien3.png");
 	if (!alien3BitMap)
 	{
 		fprintf(stderr, "Failed to load alien3.png\n");
 	}
 
-	alien4BitMap = al_load_bitmap("assets/img/alien4.png");
+	alien4BitMap = al_load_bitmap("frontend_pc/assets/img/alien4.png");
 	if (!alien4BitMap)
 	{
 		fprintf(stderr, "Failed to load alien4.png\n");
 	}
 
-	shipBitMap = al_load_bitmap("assets/img/ship.png");
+	shipBitMap = al_load_bitmap("frontend_pc/assets/img/ship.png");
 	if (!shipBitMap)
 	{
 		fprintf(stderr, "Failed to load ship.png\n");
 	}
 
-	bulletBitmap = al_load_bitmap("assets/img/bullet.png");
+	bulletBitmap = al_load_bitmap("frontend_pc/assets/img/bullet.png");
 	if (!bulletBitmap)
 	{
 		fprintf(stderr, "Failed to load bullet.png\n");
 	}
 
-	mothershipBitmap = al_load_bitmap("assets/img/mothership.png");
+	mothershipBitmap = al_load_bitmap("frontend_pc/assets/img/mothership.png");
 	if (!mothershipBitmap)
 	{
 		fprintf(stderr, "Failed to load mothership.png\n");
 	}
 
-	explosionBitmap = al_load_bitmap("assets/img/explosion.png");
+	explosionBitmap = al_load_bitmap("frontend_pc/assets/img/explosion.png");
 	if (!explosionBitmap)
 	{
 		fprintf(stderr, "Failed to load explosion.png\n");
 	}
 
-	titleBitmap = al_load_bitmap("assets/img/title.png");
+	titleBitmap = al_load_bitmap("frontend_pc/assets/img/title.png");
 	if (!titleBitmap)
 	{
 		fprintf(stderr, "Failed to load title.png\n");

@@ -95,7 +95,6 @@ int main(void)
 		al_wait_for_event(getEventQueue(), &ev);		
 		if (ev.type == ALLEGRO_EVENT_TIMER) // Draws updated game frame to frame
 		{
-
 			if (currentPoints != game.score) // Check if the score has changed to reproduce explosion sound
 			{
 				playExplosionSound();
@@ -161,7 +160,7 @@ int main(void)
 				else if (currentInput == INPUT_RESTART)
 				{
 					playGameplayMusic(); // Play the gameplay music when game restarts
-					gameReset(&game);
+					levelInit(&game); // CAMBIAR A GAMERESET (RESET VIDAS, ETC)
 				}
 				else if (currentInput == INPUT_EXIT)
 				{
@@ -177,7 +176,7 @@ int main(void)
 				if (currentInput == INPUT_RESTART)
 				{
 					playGameplayMusic(); // Play the gameplay music when game restarts
-					gameReset(&game);
+					levelInit(&game); // CAMBIAR A GAMERESET (RESET VIDAS, ETC)
 				}
 				else if (currentInput == INPUT_EXIT)
 				{
@@ -185,7 +184,7 @@ int main(void)
 					programRunning = FALSE;
 				}
 				break;
-				
+
 			default:
 				stopGameplayMusic();
 				gameEnd(&game);
@@ -227,5 +226,6 @@ int main(void)
 	// Cleanup allegro when program ends
 	cleanupGraphics();
 	cleanupAudio();
+	printf("\nProgram finished successfully.\n\n");
 	return 0;
 }
