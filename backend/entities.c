@@ -189,25 +189,6 @@ void moveBullet(bullet_t * bullet, int moveRate)
 	bullet->entity.y += bullet->direction * moveRate;
 }
 
-int getAlienPoints(alien_t alien)
-{
-    switch(alien.alienType)
-    {
-    case 0:
-        return ALIEN_TYPE_0_POINTS;
-        break;
-    case 1:
-        return ALIEN_TYPE_1_POINTS;
-        break;
-    case 2:
-        return ALIEN_TYPE_2_POINTS;
-        break;
-    default:
-		return 0;
-        break;
-    }
-}
-
 void setEntity(entity_t * entity, int x, int y)
 {
 	entity->isAlive = 1;
