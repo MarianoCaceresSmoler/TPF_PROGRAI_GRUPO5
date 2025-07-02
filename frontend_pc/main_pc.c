@@ -82,18 +82,17 @@ int main(void)
 	initAudio();
 
 	game_t game;
-	game_t *pgame = &game; // Pointer to game variable
-	gameInit(pgame);	   // Initialize the game
+	gameInit(&game);
 
 	// Allegro variables to manage the game loop and the inputs
-	bool_t running = TRUE;
+	bool_t programRunning = TRUE;
 	ALLEGRO_EVENT ev;
 	input_t currentInput = INPUT_NONE, releasedInput = INPUT_NONE;
 
 	// Variables to manage sounds
 	int currentPoints = 0, mothershipFlag = FALSE, shipDiedFlag = FALSE;
 
-	while (running)
+	while (programRunning)
 	{
 		al_wait_for_event(getEventQueue(), &ev);		
 		if (ev.type == ALLEGRO_EVENT_TIMER) // Draws updated game frame to frame
@@ -106,7 +105,7 @@ int main(void)
 			}
 
 			// Check if the mothership has appeared to reproduce mothership sound
-			if(game.mothership.entity.explosionTimer > 0 && !mothershipFlag)
+			if(game.mothership.entity.isAlive && !mothershipFlag)
 			{	
 				playMothershipSound();
 				mothershipFlag = TRUE;
@@ -123,7 +122,6 @@ int main(void)
 			else if(!game.ship.entity.isAlive && shipDiedFlag)
 				shipDiedFlag = FALSE;
 
-
 			switch (game.status)
 			{
 			case GAME_MENU:
@@ -133,9 +131,9 @@ int main(void)
 
 			case GAME_RUNNING:			
 				if (inputState.leftPressed)
-					manageInput(pgame, INPUT_LEFT);
+					manageInput(&game, INPUT_LEFT);
 				if (inputState.rightPressed)
-					manageInput(pgame, INPUT_RIGHT);
+					manageInput(&game, INPUT_RIGHT);
 
 				renderGame(game);
 				break;
@@ -151,8 +149,8 @@ int main(void)
 				break;
 			default:
 				stopGameplayMusic();
-				gameEnd(pgame);
-				running = FALSE;
+				gameEnd(&game);
+				programRunning = FALSE;
 				break;
 			}
 
@@ -174,34 +172,34 @@ int main(void)
 				stopMenuMusic(); // Stop the menu music when game starts
 				playGameplayMusic(); // Play the gameplay music when game starts
 
-				// VER QUE FUNCIONES LLAMAR DE BACK PARA PASAR A GAME RUNNING		
-				gameReset(pgame);
+				// VER QUE FUNCIONES LLAMAR DE BACK PARA PASAR A GAME programRUNNING		
+				gameReset(&game);
 				break;
 
 			case GAME_RUNNING:
 				if (currentInput == INPUT_PAUSE)
-					gamePause(pgame);
+					gamePause(&game);
 				else if(currentInput == INPUT_SHOOT)
 					playShootSound(); // Play the shoot sound when the player shoots
 
-				manageInput(pgame, currentInput);
+				manageInput(&game, currentInput);
 				break;
 
 			case GAME_PAUSED:
 				if (currentInput == INPUT_RESUME)
 				{
 					playGameplayMusic(); // Play the gameplay music when game resumes
-					gameResume(pgame);
+					gameResume(&game);
 				}
 				else if (currentInput == INPUT_RESTART)
 				{
 					playGameplayMusic(); // Play the gameplay music when game restarts
-					gameReset(pgame);
+					gameReset(&game);
 				}
 				else if (currentInput == INPUT_EXIT)
 				{
-					gameEnd(pgame);
-					running = FALSE;
+					gameEnd(&game);
+					programRunning = FALSE;
 				}
 
 				break;
@@ -210,18 +208,18 @@ int main(void)
 				if (currentInput == INPUT_RESTART)
 				{
 					playGameplayMusic(); // Play the gameplay music when game restarts
-					gameReset(pgame);
+					gameReset(&game);
 				}
 				else if (currentInput == INPUT_EXIT)
 				{
-					gameEnd(pgame);
-					running = FALSE;
+					gameEnd(&game);
+					programRunning = FALSE;
 				}
 				break;
 
 			default:
-				gameEnd(pgame);
-				running = FALSE;
+				gameEnd(&game);
+				programRunning = FALSE;
 				break;
 			}
 		}
@@ -239,8 +237,8 @@ int main(void)
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
-			gameEnd(pgame);
-			running = FALSE;
+			gameEnd(&game);
+			programRunning = FALSE;
 		}
 	}
 

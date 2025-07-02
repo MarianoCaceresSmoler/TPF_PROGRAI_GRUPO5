@@ -62,11 +62,22 @@ static void updateAliens(alienFormation_t *aliens);
 static void updateMothership(mothership_t *mothership);
 
 /**
- * @brief updates the objects explosion/live state
- * @param game pointer to the game information
- * @return the points acumulated if there was a collision with an alien
+ * @brief updates an entity explosion/live state
+ * @param entity pointer to the entity
 */
-static void updateExplosions(game_t *game); 
+static void updateEntityExplosion(entity_t *entity); 
+
+/**
+ * @brief gets the first column with at least one alien alive
+ * @param aliens pointer to the alien formation
+*/
+static int getFirstColumnAlive(alienFormation_t aliens);
+
+/**
+ * @brief gets the last column with at least one alien alive
+ * @param aliens pointer to the alien formation
+*/
+static int getLastColumnAlive(alienFormation_t aliens);
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -171,11 +182,12 @@ void gameUpdate(game_t *game, input_t input)
 {
 	if(game->status == GAME_RUNNING)
 	{
-		int points, row, column;
+		int points, row, column, alienTickRate;
 		game->tickCounter++;
 
 		// updates entities
 		updateShip(&game->ship, input);
+
 		if(game->ship.canShoot && input == INPUT_SHOOT)
 			shootFromEntity(&game->shipBullet, &game->ship.entity);
 		else if(game->shipBullet.entity.isAlive) 
@@ -183,31 +195,22 @@ void gameUpdate(game_t *game, input_t input)
 
 		if(game->aliens.canShoot) // && funcion que define que alien dispara
 			shootFromEntity(&game->alienBullet, &game->aliens.alien[1][1].entity);
+		else if(game->alienBullet.entity.isAlive)
+			updateBullet(&game->alienBullet);
 
-		static int aliensTicks = 0;
+		static int alienTickCounter = 0;
 
-		if(ALIENS_TICKRATE < ALIEN_MIN_MOVE_TICKRATE)
+		alienTickRate = (ALIENS_TICKRATE >= ALIEN_MIN_MOVE_TICKRATE? ALIENS_TICKRATE: ALIEN_MIN_MOVE_TICKRATE);
+
+		if(alienTickCounter == alienTickRate)
 		{
 			updateAliens(&game->aliens);
-			aliensTicks = 0;
-		}
-
-		if(ALIENS_TICKRATE >= ALIEN_MIN_MOVE_TICKRATE && aliensTicks == ALIENS_TICKRATE)
-		{
-			updateAliens(&game->aliens);
-			aliensTicks = 0;
-		}
-		else if(aliensTicks == ALIEN_MIN_MOVE_TICKRATE)
-		{
-			updateAliens(&game->aliens);
-			aliensTicks = 0;
+			alienTickCounter = 0;
 		}
 		
-			aliensTicks++;
-
-		updateBullet(&game->alienBullet);
+		alienTickCounter++;
+		
 		updateMothership(&game->mothership);
-		updateExplosions(game);
 
 		// updates score if an alien is killed
 		if(points = handleCollisions(game))
@@ -226,9 +229,7 @@ static void updateShip(ship_t *ship, input_t input)
 	if (ship->entity.explosionTimer > 0)
     {
 		ship->canShoot = 0;
-        ship->entity.explosionTimer--;
-        if(!ship->entity.explosionTimer)
-        	ship->entity.isAlive = 0;
+        updateEntityExplosion(&ship->entity);
     }
 	else
 	{
@@ -281,29 +282,13 @@ static void updateAliens(alienFormation_t *aliens)
     {
         for (j = 0; j < ALIENS_COLS; j++) 
         {
-            if (aliens->alien[i][j].entity.explosionTimer > 0) 
-            {
-                aliens->alien[i][j].entity.explosionTimer--;
-                if (!aliens->alien[i][j].entity.explosionTimer)
-                {
-                    aliens->alien[i][j].entity.isAlive = 0; // when the timer hits 0, the alien needs to be removed
-                }
-            }
+            if(aliens->alien[i][j].entity.explosionTimer > 0)
+				updateEntityExplosion(&aliens->alien[i][j].entity); 
         }
     }
 
-	for (j = 0; j < ALIENS_COLS; j++)
-	{
-		for (i = 0; i < ALIENS_ROWS; i++)
-		{
-			if (aliens->alien[i][j].entity.isAlive)
-			{
-				lastColumn = j;
-				if (firstColumn == -1)
-					firstColumn = j;
-			}
-		}
-	}
+	firstColumn = getFirstColumnAlive(*aliens);
+	lastColumn = getLastColumnAlive(*aliens);
 
 	// rowToMove is used to move the alien rows separately
 	static int rowToMove = 5;
@@ -315,7 +300,7 @@ static void updateAliens(alienFormation_t *aliens)
 	switch (aliens->direction)
 	{
 	case MOVING_RIGHT:
-		if (aliens->alien[0][lastColumn].entity.x < SCREEN_SIZE - ALIEN_WIDTH)
+		if (aliens->alien[0][lastColumn].entity.x < SCREEN_SIZE - ALIEN_WIDTH - ALIEN_MOVE_RATE)
 		{
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
@@ -329,7 +314,7 @@ static void updateAliens(alienFormation_t *aliens)
 		break;
 
 	case MOVING_LEFT:
-		if (aliens->alien[0][firstColumn].entity.x > 0)
+		if (aliens->alien[0][firstColumn].entity.x > ALIEN_MOVE_RATE)
 		{
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
@@ -348,7 +333,7 @@ static void updateAliens(alienFormation_t *aliens)
 			moveEntityY(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
 		}
 
-		if (aliens->alien[0][firstColumn].entity.x > 0)
+		if (aliens->alien[0][firstColumn].entity.x > 2 * ALIEN_MOVE_RATE)
 			aliens->direction = MOVING_LEFT;
 		else
 			aliens->direction = MOVING_RIGHT;
@@ -361,16 +346,49 @@ static void updateAliens(alienFormation_t *aliens)
 
 static void updateMothership(mothership_t *mothership)
 {
-	if (mothership->entity.explosionTimer > 0) 
-	{
-        mothership->entity.explosionTimer--;
-        if (!mothership->entity.explosionTimer) 
-		{
-            mothership->entity.isAlive = 0; // when the timer hits 0, the mothership needs to be removed
-        }
-    }
-	else if(mothership->entity.x >= -MOTHERSHIP_WIDTH && mothership->entity.x <= SCREEN_SIZE+MOTHERSHIP_WIDTH)
-	{
+	if (mothership->entity.explosionTimer > 0)
+        updateEntityExplosion(&mothership->entity);
+	else if(mothership->entity.x >= -MOTHERSHIP_WIDTH && mothership->entity.x <= SCREEN_SIZE + MOTHERSHIP_WIDTH)
 		moveEntityX(mothership, mothership->direction * MOTHERSHIP_MOVE_RATE);
+}
+
+static void updateEntityExplosion(entity_t *entity)
+{
+	entity->explosionTimer--;
+	if(!entity->explosionTimer)
+	{
+		entity->isAlive = 0; // when the timer hits 0, the alien needs to be removed
+	}
+}
+
+static int getFirstColumnAlive(alienFormation_t aliens)
+{
+	int i, j, firstColumn = -1;
+	for (j = 0; j < ALIENS_COLS && firstColumn == -1; j++)
+	{
+		for (i = 0; i < ALIENS_ROWS && firstColumn == -1; i++)
+		{
+			if (aliens.alien[i][j].entity.isAlive)
+			{
+				firstColumn = j;
+			}
+		}
+	}
+
+	return firstColumn;
+}
+
+static int getLastColumnAlive(alienFormation_t aliens)
+{
+	int i, j, lastColumn = -1;
+	for (j = ALIENS_COLS - 1; j > 0 && lastColumn == -1; j--)
+	{
+		for (i = 0; i < ALIENS_ROWS && lastColumn == -1; i++)
+		{
+			if (aliens.alien[i][j].entity.isAlive)
+			{
+				lastColumn = j;
+			}
+		}
 	}
 }

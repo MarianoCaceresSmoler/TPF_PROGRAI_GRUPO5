@@ -60,7 +60,6 @@ typedef struct
     int currentLevel;
     int tickCounter;
     int aliensRemaining;
-
 } game_t;
 
 /*******************************************************************************
