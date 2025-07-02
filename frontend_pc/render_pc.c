@@ -135,7 +135,7 @@ void initGraphics(void)
 	// Create event qeue
 	eventQueue = al_create_event_queue();
 
-	// REgister fonts
+	// Register fonts
 	al_init_font_addon();
 	al_init_ttf_addon();
 	fontGameplay = al_load_ttf_font("assets/fonts/font_gameplay.ttf", 36, 0);
@@ -145,38 +145,7 @@ void initGraphics(void)
 	if (!(display && timer && alien0BitMap && alien1BitMap && alien2BitMap && alien3BitMap && alien4BitMap && shipBitMap && barrierPixelBitmap && bulletBitmap && mothershipBitmap && eventQueue))
 	{
 		fprintf(stderr, "Failed to load assets.\n");
-		if (display)
-			al_destroy_display(display);
-		if (timer)
-			al_destroy_timer(timer);
-		if (alien0BitMap)
-			al_destroy_bitmap(alien0BitMap);
-		if (alien1BitMap)
-			al_destroy_bitmap(alien1BitMap);
-		if (alien2BitMap)
-			al_destroy_bitmap(alien2BitMap);
-		if (alien3BitMap)
-			al_destroy_bitmap(alien3BitMap);
-		if (alien4BitMap)
-			al_destroy_bitmap(alien4BitMap);
-		if (shipBitMap)
-			al_destroy_bitmap(shipBitMap);
-		if (barrierPixelBitmap)
-			al_destroy_bitmap(barrierPixelBitmap);
-		if (bulletBitmap)
-			al_destroy_bitmap(bulletBitmap);
-		if (mothershipBitmap)
-			al_destroy_bitmap(mothershipBitmap);
-		if (explosionBitmap)
-			al_destroy_bitmap(explosionBitmap);
-		if (titleBitmap)
-			al_destroy_bitmap(titleBitmap);
-		if (eventQueue)
-			al_destroy_event_queue(eventQueue);
-		if (fontGameplay)
-			al_destroy_font(fontGameplay);
-		if (fontRetro)
-			al_destroy_font(fontRetro);
+		cleanupGraphics();
 	}
 
 	// Calls private function to load sprites
@@ -381,16 +350,30 @@ static void drawShip(ship_t ship)
 	// Draws the ship if the explosion timer is not set. Otherwise, draws the explosion.
 	if (ship.entity.explosionTimer > 0)
 	{
-		al_draw_scaled_bitmap(
-			explosionBitmap,
-			0, 0,
-			al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
-			ship.entity.x, ship.entity.y,
-			al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
-			0);
+		if (ship.entity.explosionTimer % 2) // To animate explosion sprite
+		{
+			al_draw_scaled_bitmap(
+				explosionBitmap,
+				0, 0,
+				al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+				ship.entity.x + al_get_bitmap_width(explosionBitmap) * 0.1, ship.entity.y + al_get_bitmap_height(explosionBitmap) * 0.1,
+				al_get_bitmap_width(explosionBitmap) * 0.6, al_get_bitmap_height(explosionBitmap) * 0.6,
+				0);
+		}
+		else
+		{
+			al_draw_scaled_bitmap(
+				explosionBitmap,
+				0, 0,
+				al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+				ship.entity.x, ship.entity.y,
+				al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+				0);
+		}
 	}
 	else
 	{
+
 		al_draw_scaled_bitmap(
 			shipBitMap,
 			0, 0,
@@ -418,13 +401,27 @@ static void drawAliens(alienFormation_t aliens)
 				// Draws the alien if the explosion timer is not set. Otherwise, draws the explosion.
 				if (alienEntity.explosionTimer > 0)
 				{
-					al_draw_scaled_bitmap(
-						explosionBitmap,
-						0, 0,
-						al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
-						alienEntity.x, alienEntity.y,
-						al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
-						0);
+
+					if (alienEntity.explosionTimer % 2) // To animate explosion sprite
+					{
+						al_draw_scaled_bitmap(
+							explosionBitmap,
+							0, 0,
+							al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+							alienEntity.x + al_get_bitmap_width(explosionBitmap) * 0.1, alienEntity.y + al_get_bitmap_height(explosionBitmap) * 0.1,
+							al_get_bitmap_width(explosionBitmap) * 0.6, al_get_bitmap_height(explosionBitmap) * 0.6,
+							0);
+					}
+					else
+					{
+						al_draw_scaled_bitmap(
+							explosionBitmap,
+							0, 0,
+							al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+							alienEntity.x, alienEntity.y,
+							al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+							0);
+					}
 				}
 				else
 				{
@@ -493,13 +490,26 @@ static void drawMothership(mothership_t mothership)
 		// Draws the mothership if the explosion timer is not set. Otherwise, draws the explosion.
 		if (mothership.entity.explosionTimer > 0)
 		{
-			al_draw_scaled_bitmap(
-				explosionBitmap,
-				0, 0,
-				al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
-				mothership.entity.x, mothership.entity.y,
-				al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
-				0);
+			if (mothership.entity.explosionTimer % 2)
+			{
+				al_draw_scaled_bitmap(
+					explosionBitmap,
+					0, 0,
+					al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+					mothership.entity.x + 0.1 * al_get_bitmap_width(explosionBitmap), mothership.entity.y + 0.1 * al_get_bitmap_height(explosionBitmap),
+					al_get_bitmap_width(explosionBitmap) * 0.6, al_get_bitmap_height(explosionBitmap) * 0.6,
+					0);
+			}
+			else
+			{
+				al_draw_scaled_bitmap(
+					explosionBitmap,
+					0, 0,
+					al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+					mothership.entity.x, mothership.entity.y,
+					al_get_bitmap_width(explosionBitmap), al_get_bitmap_height(explosionBitmap),
+					0);
+			}
 		}
 		else
 		{
