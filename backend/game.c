@@ -8,8 +8,6 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
-// +Incluir el header propio (ej: #include "template.h")+
-
 #include "game.h"
 #include "entities.h"
 #include "physics.h"
@@ -19,6 +17,7 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
+ // defines tickrate of the aliens depending 
 #define ALIENS_TICKRATE (ALIEN_MAX_MOVE_TICKRATE - (game->tickCounter / 3000) - (ALIENS_NUMBER - game->aliensRemaining) / 5)
 
 /*******************************************************************************
@@ -79,6 +78,8 @@ static int getFirstColumnAlive(alienFormation_t aliens);
  */
 static int getLastColumnAlive(alienFormation_t aliens);
 
+static void setBarrierShape(barrier_t *barrier);
+
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -132,11 +133,12 @@ void levelInit(game_t *game)
 	game->tickCounter = 0;
 	game->aliensRemaining = ALIENS_NUMBER;
 
-	// reset entities to initial position
+	// set entities to initial position
 	setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
 
 	setEntity(&game->mothership.entity, MOTHERSHIP_INITIAL_X, MOTHERSHIP_INITIAL_Y);
 
+	// set aliens to initial position
 	int i, j, k;
 	for (i = 0; i < ALIENS_ROWS; i++)
 	{
@@ -146,6 +148,7 @@ void levelInit(game_t *game)
 		}
 	}
 
+	// set barriers to initial position
 	for (k = 0; k < BARRIERS; k++)
 	{
 		for (i = 0; i < BARRIER_HEIGHT; i++)
@@ -153,8 +156,7 @@ void levelInit(game_t *game)
 			for (j = 0; j < BARRIER_WIDTH; j++)
 			{
 				setEntity(&game->barriers[k].pixel[i][j].entity, BARRIERS_INITIAL_X + k * BARRIERS_SEPARATION + j * BARRIER_PIXEL_WIDTH, BARRIERS_INITIAL_Y + i * BARRIER_PIXEL_HEIGHT);
-				if (i != 1 && (i == j || i == 3 - j)) // determines barrier shape
-					game->barriers[k].pixel[i][j].entity.isAlive = 0;
+				setBarrierShape(&game->barriers[k]);
 			}
 		}
 	}
@@ -362,7 +364,7 @@ static void updateEntityExplosion(entity_t *entity)
 	entity->explosionTimer--;
 	if (!entity->explosionTimer)
 	{
-		entity->isAlive = 0; // when the timer hits 0, the alien needs to be removed
+		entity->isAlive = 0; // when the timer hits 0, the entity is no longer alive
 	}
 }
 
@@ -398,4 +400,19 @@ static int getLastColumnAlive(alienFormation_t aliens)
 	}
 
 	return lastColumn;
+}
+
+static void setBarrierShape(barrier_t *barrier)
+{
+	int i, j;
+	for (i = 0; i < BARRIER_HEIGHT; i++)
+	{
+		for (j = 0; j < BARRIER_WIDTH; j++)
+		{
+			if (i == 0 && (j == 0 || j == 5) || i == 3 && (j >= 1 && j <= 4)) // determines barrier shape
+				barrier->pixel[i][j].entity.isAlive = 0;
+			else
+				barrier->pixel[i][j].entity.isAlive = 1;
+		}
+	}
 }

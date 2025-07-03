@@ -3,7 +3,7 @@
 POR HACER:
 
 Backend:
-- Bala que solo se dispare de a una 
+- Bala que solo se dispare de a una
 - Arreglar restart (no anda bien con el explosion timer)
 - Hacer logica de mothership
 - Hacer logica de disparo de aliens
