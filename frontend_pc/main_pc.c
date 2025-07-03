@@ -21,12 +21,21 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define TRUE 1
-#define FALSE 0
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
+
+enum inputKeys{
+	KEY_LEFT,
+	KEY_RIGHT,
+	KEY_UP,
+	KEY_SHOOT,
+	KEY_PAUSE,
+	KEY_RESUME,
+	KEY_RESTART,
+	KEY_EXIT,
+};
 
 /*******************************************************************************
  * VARIABLES WITH GLOBAL SCOPE
@@ -52,7 +61,7 @@
 
 // +ej: static int temperaturas_actuales[4];+
 
-static input_state_t inputState = {FALSE, FALSE};
+static input_state_t inputState = {false, false};
 
 /*******************************************************************************
  *******************************************************************************
@@ -72,6 +81,180 @@ int getRandomNumber(int min, int max)
  *******************************************************************************
  ******************************************************************************/
 
+ // REESCRIBI MAIN PARA HACER MEJOR LA LOGICA DEL MAIN
+int main(void)
+{
+	// Allegro and game initialization
+	initGraphics();
+	//initAudio();
+	game_t game;
+	gameInit(&game);
+
+	// Allegro variables to manage the game loop and the inputs
+	bool programRunning = true;
+	ALLEGRO_EVENT ev;
+	inputStatus_t inputStatus = {false, false, false, false, false, false, false, false};
+	bool anyKeyPressed = false;
+
+	// Variables to manage sounds 
+	int a;
+
+
+	while(programRunning)
+	{
+		if(al_get_next_event(getEventQueue(), &ev))
+		{
+			if(ev.type == ALLEGRO_EVENT_TIMER)
+			{
+				switch (game.status)
+				{
+				case GAME_MENU:
+					//playMenuMusic();
+					renderMenu(game);
+					if(anyKeyPressed)
+					{
+						//stopMenuMusic();
+						//playGameplayMusic();
+						levelInit(&game);
+					}
+					break;
+				
+				case GAME_RUNNING:
+					//if(inputStatus.shootKeyPressed)
+						//playShootSound();
+					gameUpdate(&game, inputStatus);
+					renderGame(game);
+					break;
+				
+				case GAME_PAUSED:
+					//stopGameplayMusic();
+					renderMenu(game);
+					if(inputStatus.resumeKeyPressed)
+					{
+						//playGameplayMusic();
+						gameResume(&game);
+					}
+					else if(inputStatus.restartKeyPressed)
+					{
+						//playGameplayMusic();
+						gameReset(&game);
+					}
+					else if(inputStatus.exitKeyPressed)
+					{
+						gameEnd(&game);
+						programRunning = false;
+					}
+					
+					break;
+
+				case GAME_END:
+					//stopGameplayMusic();
+					//playGameoverSound();
+					renderGameOver(game);
+					if(inputStatus.restartKeyPressed)
+					{
+						//playGameplayMusic(); // Play the gameplay music when game restarts
+						gameReset(&game);
+					}
+					else if(inputStatus.exitKeyPressed)
+					{
+						gameEnd(&game);
+						programRunning = false;
+					}
+					break;
+				default:
+					//stopGameplayMusic();
+					gameEnd(&game);
+					programRunning = false;
+					printf("Error: Invalid game status.\n");
+					break;
+				}
+			}
+			else if(ev.type == ALLEGRO_EVENT_KEY_DOWN)
+			{
+				switch (ev.keyboard.keycode)
+				{
+				case ALLEGRO_KEY_LEFT:
+					inputStatus.leftKeyPressed = true;
+					break;
+				case ALLEGRO_KEY_RIGHT:
+					inputStatus.rightKeyPressed = true;
+					break;
+				case ALLEGRO_KEY_UP:
+					inputStatus.upKeyPressed = true;
+					break;
+				case ALLEGRO_KEY_SPACE:
+					inputStatus.shootKeyPressed = true;
+					break;
+				case ALLEGRO_KEY_P:
+					inputStatus.pauseKeyPressed = true;
+					game.status = GAME_PAUSED;
+					break;
+				case ALLEGRO_KEY_ENTER:
+					inputStatus.resumeKeyPressed = true;
+					break;
+				case ALLEGRO_KEY_R:
+					inputStatus.restartKeyPressed = true;
+					break;
+				case ALLEGRO_KEY_ESCAPE:
+					inputStatus.exitKeyPressed = true;
+					game.status = GAME_END;
+					break;
+				default:
+					anyKeyPressed = true; // Set flag to indicate any key was pressed
+					break;
+				}
+			}
+			else if(ev.type == ALLEGRO_EVENT_KEY_UP)
+			{
+				switch (ev.keyboard.keycode)
+				{
+				case ALLEGRO_KEY_LEFT:
+					inputStatus.leftKeyPressed = false;
+					break;
+				case ALLEGRO_KEY_RIGHT:
+					inputStatus.rightKeyPressed = false;
+					break;
+				case ALLEGRO_KEY_UP:
+					inputStatus.upKeyPressed = false;
+					break;
+				case ALLEGRO_KEY_SPACE:
+					inputStatus.shootKeyPressed = false;
+					break;
+				case ALLEGRO_KEY_P:
+					inputStatus.pauseKeyPressed = false;
+					break;
+				case ALLEGRO_KEY_ENTER:
+					inputStatus.resumeKeyPressed = false;
+					break;
+				case ALLEGRO_KEY_R:
+					inputStatus.restartKeyPressed = false;
+					break;
+				case ALLEGRO_KEY_ESCAPE:
+					inputStatus.exitKeyPressed = false;
+					break;
+				default:
+					anyKeyPressed = false; // Reset flag when a key is released
+					break;
+				}
+			}
+			else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+			{
+				gameEnd(&game);
+				programRunning = false;
+			}
+		}
+	}
+
+	// Cleanup allegro when program ends
+	cleanupGraphics();
+	//cleanupAudio();
+	printf("\nProgram finished successfully.\n\n");
+	return 0;
+}
+
+
+/*
 int main(void)
 {
 	// Init allegro
@@ -82,12 +265,12 @@ int main(void)
 	gameInit(&game);
 
 	// Allegro variables to manage the game loop and the inputs
-	int programRunning = TRUE;
+	int programRunning = true;
 	ALLEGRO_EVENT ev;
 	input_t currentInput = INPUT_NONE, releasedInput = INPUT_NONE;
 
 	// Variables to manage sounds
-	int currentPoints = 0, mothershipFlag = FALSE, shipDiedFlag = FALSE;
+	int currentPoints = 0, mothershipFlag = false, shipDiedFlag = false;
 
 	while (programRunning)
 	{
@@ -104,7 +287,7 @@ int main(void)
 			if (game.mothership.entity.isAlive && !mothershipFlag)
 			{
 				playMothershipSound();
-				mothershipFlag = TRUE;
+				mothershipFlag = true;
 			}
 			else if (!game.mothership.entity.isAlive && mothershipFlag)
 				mothershipFlag = 0;
@@ -113,10 +296,10 @@ int main(void)
 			if (game.ship.entity.explosionTimer > 0 && !shipDiedFlag)
 			{
 				playShipDiedSound();
-				shipDiedFlag = TRUE;
+				shipDiedFlag = true;
 			}
 			else if (!game.ship.entity.isAlive && shipDiedFlag)
-				shipDiedFlag = FALSE;
+				shipDiedFlag = false;
 
 			switch (game.status)
 			{
@@ -164,7 +347,7 @@ int main(void)
 				else if (currentInput == INPUT_EXIT)
 				{
 					gameEnd(&game);
-					programRunning = FALSE;
+					programRunning = false;
 				}
 				break;
 
@@ -180,14 +363,14 @@ int main(void)
 				else if (currentInput == INPUT_EXIT)
 				{
 					gameEnd(&game);
-					programRunning = FALSE;
+					programRunning = false;
 				}
 				break;
 
 			default:
 				stopGameplayMusic();
 				gameEnd(&game);
-				programRunning = FALSE;
+				programRunning = false;
 				break;
 			}
 
@@ -199,9 +382,9 @@ int main(void)
 
 			// Update flags of pressed keys
 			if (currentInput == INPUT_LEFT)
-				inputState.leftPressed = TRUE;
+				inputState.leftPressed = true;
 			else if (currentInput == INPUT_RIGHT)
-				inputState.rightPressed = TRUE;
+				inputState.rightPressed = true;
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_KEY_UP)
@@ -210,15 +393,15 @@ int main(void)
 
 			// Update flags of released keys
 			if (releasedInput == INPUT_LEFT)
-				inputState.leftPressed = FALSE;
+				inputState.leftPressed = false;
 			else if (releasedInput == INPUT_RIGHT)
-				inputState.rightPressed = FALSE;
+				inputState.rightPressed = false;
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
 			gameEnd(&game);
-			programRunning = FALSE;
+			programRunning = false;
 		}
 	}
 
@@ -228,3 +411,4 @@ int main(void)
 	printf("\nProgram finished successfully.\n\n");
 	return 0;
 }
+*/

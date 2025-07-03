@@ -21,10 +21,12 @@ Frontend:
 - Mostrar bien pantalla de menu: titulo del juego, top scores y press para jugar
 - Mostrar bien hud de juego: titulo del juego, nivel actual, vidas, score y si hay algun powerup activo
 - Arreglar logica de explosiones (anda solo cuando haces restart)
-- Arreglar velocidad de la bala (se updatea a mas de un 30fps)
+- Arreglar velocidad de la bala (se updatea a mas de un 30fps) // LISTO
 - Meter linea que separe hud y juego
 
 ADICIONALES:
 - Aumentar dificultad a medida que mueren aliens
-- Potenciadores o powerups (bala que atraviese, bala doble, congelar aliens, etc.)
+- Potenciadores o powerups:
+    (congelar aliens, bala que atraviese, puntos dobles, reconstruir barreras, 
+    subir aliens al principio, bala mas rapida, etc.)
 - Balas limitadas

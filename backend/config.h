@@ -14,7 +14,7 @@
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
-#define PLATFORM_PC
+
 #ifdef PLATFORM_PC
 
 #define SCREEN_WIDTH 1920
@@ -137,6 +137,7 @@
 #define ALIEN_TYPE_4_POINTS 10
 
 #define EXPLOSION_TIMER 4
+#define TOTAL_INPUTS 8
 
 #define FPS 30
 

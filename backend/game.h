@@ -12,6 +12,7 @@
  ******************************************************************************/
 #include "config.h"
 #include "entities.h"
+#include <stdbool.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -33,6 +34,18 @@ typedef enum
     INPUT_EXIT,
     INPUT_ANY
 } input_t;
+
+typedef struct 
+{
+    char leftKeyPressed        : 1;
+    char rightKeyPressed       : 1;
+    char shootKeyPressed       : 1;
+    char upKeyPressed          : 1;
+    char pauseKeyPressed       : 1;
+    char resumeKeyPressed      : 1;
+    char restartKeyPressed     : 1;
+    char exitKeyPressed        : 1;
+} inputStatus_t;
 
 typedef enum
 {
@@ -111,6 +124,12 @@ void gameResume(game_t *game);
 void gameEnd(game_t *game);
 
 /**
+ * @brief function to restart the game
+ * @param game pointer to the game information
+ */
+void gameReset(game_t *game);
+
+/**
  * @brief function to update the score
  * @param game pointer to the game information, points the number of points to add
  */
@@ -121,7 +140,7 @@ void incrementScore(game_t *game, int points);
  * @param game pointer to the game information
  * @param input last input provided by user
 */
-void gameUpdate(game_t * game, input_t input);
+void gameUpdate(game_t * game, inputStatus_t input);
 
 /*******************************************************************************
  ******************************************************************************/

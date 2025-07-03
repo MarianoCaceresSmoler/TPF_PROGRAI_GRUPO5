@@ -17,8 +17,9 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
- // defines tickrate of the aliens depending 
-#define ALIENS_TICKRATE (ALIEN_MAX_MOVE_TICKRATE - (game->tickCounter / 3000) - (ALIENS_NUMBER - game->aliensRemaining) / 5)
+ // defines tickrate of the aliens depending on the game ticks and the number of aliens remaining
+
+ #define TICKS_TO_MOVE_ALIENS(gameTicks, aliensRemaining) (ALIEN_MAX_MOVE_TICKRATE - ((gameTicks) / 3000) - ((aliensRemaining) / 5))
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -37,10 +38,10 @@
 /**
  * @brief function to update a ship type entity
  * @param ship pointer to the ship type entity
- * @param shipBullet bullet associated to the ship
- * @param input input in the last game tick
+ * @param moveLeft true if the left key is pressed, false otherwise
+ * @param moveRight true if the right key is pressed, false otherwise
  */
-static void updateShip(ship_t *ship, input_t input);
+static void updateShip(ship_t *ship, bool moveLeft, bool moveRight);
 
 /**
  * @brief function to update a bullet type entity
@@ -52,7 +53,7 @@ static void updateBullet(bullet_t *bullet);
  * @brief function to update an alienformation type entity
  * @param aliens pointer to the alienformation type entity
  */
-static void updateAliens(alienFormation_t *aliens);
+static void updateAliens(alienFormation_t *aliens, int tickCounter, int aliensRemaining);
 
 /**
  * @brief function to update a mothership type entity
@@ -61,23 +62,27 @@ static void updateAliens(alienFormation_t *aliens);
 static void updateMothership(mothership_t *mothership);
 
 /**
- * @brief updates an entity explosion/live state
+ * @brief function to update an entity explosion/live state
  * @param entity pointer to the entity
  */
 static void updateEntityExplosion(entity_t *entity);
 
 /**
- * @brief gets the first column with at least one alien alive
+ * @brief function to get the first column with at least one alien alive
  * @param aliens pointer to the alien formation
  */
 static int getFirstColumnAlive(alienFormation_t aliens);
 
 /**
- * @brief gets the last column with at least one alien alive
+ * @brief function to get the last column with at least one alien alive
  * @param aliens pointer to the alien formation
  */
 static int getLastColumnAlive(alienFormation_t aliens);
 
+/**
+ * @brief function to set the shape of a barrier
+ * @param barrier pointer to the barrier type entity
+ */
 static void setBarrierShape(barrier_t *barrier);
 
 /*******************************************************************************
@@ -135,6 +140,7 @@ void levelInit(game_t *game)
 
 	// set entities to initial position
 	setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
+	game->ship.canShoot = 1;
 
 	setEntity(&game->mothership.entity, MOTHERSHIP_INITIAL_X, MOTHERSHIP_INITIAL_Y);
 
@@ -181,38 +187,43 @@ void gameEnd(game_t *game)
 	game->status = GAME_END;
 }
 
-void gameUpdate(game_t *game, input_t input)
+void gameReset(game_t *game)
+{
+	levelInit(game);
+	game->ship.livesLeft = SHIP_LIVES;
+	game->ship.entity.explosionTimer = 0;
+	game->aliens.canShoot = 0;
+	game->ship.canShoot = 1;
+}
+
+void gameUpdate(game_t *game, inputStatus_t input)
 {
 	if (game->status == GAME_RUNNING)
 	{
-		int points = 0, row, column, alienTickRate; // ROW Y COLUMN SON PARA EL ALIEN QUE DISPARA
+		int points = 0, row, column; // ROW Y COLUMN SON PARA EL ALIEN QUE DISPARA
 		game->tickCounter++;
 
 		// updates entities
-		updateShip(&game->ship, input);
+		updateShip(&game->ship, input.leftKeyPressed, input.rightKeyPressed);
 
-		if (game->ship.canShoot && input == INPUT_SHOOT)
+		if (game->ship.canShoot && input.shootKeyPressed)
+		{
 			shootFromEntity(&game->shipBullet, &game->ship.entity);
+			game->ship.canShoot = false;
+		}
 		else if (game->shipBullet.entity.isAlive)
 			updateBullet(&game->shipBullet);
 
 		if (game->aliens.canShoot) // && FUNCION QUE SE FIJA QUE ALIEN DISPARA
+		{	
 			shootFromEntity(&game->alienBullet, &game->aliens.alien[1][1].entity);
+			game->aliens.canShoot = false;
+		}
 		else if (game->alienBullet.entity.isAlive)
 			updateBullet(&game->alienBullet);
 
-		static int alienTickCounter = 0;
-
-		alienTickRate = (ALIENS_TICKRATE >= ALIEN_MIN_MOVE_TICKRATE ? ALIENS_TICKRATE : ALIEN_MIN_MOVE_TICKRATE);
-
-		if (alienTickCounter == alienTickRate)
-		{
-			updateAliens(&game->aliens);
-			alienTickCounter = 0;
-		}
-
-		alienTickCounter++;
-
+		updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining);
+			
 		updateMothership(&game->mothership);
 
 		// updates score if an alien is killed
@@ -227,59 +238,54 @@ void gameUpdate(game_t *game, input_t input)
  *******************************************************************************
  ******************************************************************************/
 
-static void updateShip(ship_t *ship, input_t input)
+static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 {
 	if (ship->entity.explosionTimer > 0)
 	{
 		ship->canShoot = 0;
 		updateEntityExplosion(&ship->entity);
 	}
-	else
+	else if(ship->entity.isAlive)
 	{
-		switch (input)
+		if(moveLeft && ship->entity.x > SHIP_MOVE_RATE)
 		{
-		case INPUT_LEFT:
-			if (ship->entity.x > SHIP_MOVE_RATE)
-			{
-				moveEntityX(&ship->entity, -SHIP_MOVE_RATE);
-				ship->direction = MOVING_LEFT;
-			}
-			else
-				ship->direction = STILL;
-			break;
-
-		case INPUT_RIGHT:
-			if (ship->entity.x < SCREEN_SIZE - SHIP_MOVE_RATE)
-			{
-				moveEntityX(&ship->entity, SHIP_MOVE_RATE);
-				ship->direction = MOVING_RIGHT;
-			}
-			else
-				ship->direction = STILL;
-			break;
-
-		default:
-			ship->direction = STILL;
-			break;
+			moveEntityX(&ship->entity, -SHIP_MOVE_RATE);
+			ship->direction = MOVING_LEFT;
 		}
+		else
+			ship->direction = STILL;
+
+		if(moveRight && ship->entity.x < SCREEN_SIZE - SHIP_MOVE_RATE)
+		{
+			moveEntityX(&ship->entity, SHIP_MOVE_RATE);
+			ship->direction = MOVING_RIGHT;
+		}
+		else
+			ship->direction = STILL;
+
+		if(moveLeft && moveRight)
+			ship->direction = STILL;
 	}
 }
 
 static void updateBullet(bullet_t *bullet)
 {
-	if (bullet->entity.x >= 0 && bullet->entity.x <= SCREEN_SIZE && bullet->entity.y >= 0 && bullet->entity.y <= SCREEN_SIZE)
+	if(bullet->entity.isAlive)
 	{
-		moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
-	}
-	else
-	{
-		bullet->entity.isAlive = 0;
+		if(bullet->entity.x >= 0 && bullet->entity.x <= SCREEN_SIZE && bullet->entity.y >= 0 && bullet->entity.y <= SCREEN_SIZE)
+		{
+			moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
+		}
+		else
+		{
+			bullet->entity.isAlive = 0;
+		}
 	}
 }
 
-static void updateAliens(alienFormation_t *aliens)
+static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemaining)
 {
-	int firstColumn = -1, lastColumn = ALIENS_COLS - 1, i, j;
+	int firstColumn = -1, lastColumn = ALIENS_COLS - 1, i, j, ticksToMove;
 
 	for (i = 0; i < ALIENS_ROWS; i++)
 	{
@@ -300,62 +306,77 @@ static void updateAliens(alienFormation_t *aliens)
 	else
 		rowToMove--;
 
-	switch (aliens->direction)
+	static int ticksSinceLastMovement = 0;
+
+	// calculates the tickrate to move aliens depending on the game ticks and the number of aliens remaining
+	ticksToMove = TICKS_TO_MOVE_ALIENS(gameTicks, aliensRemaining);
+	if(ticksToMove < ALIEN_MIN_MOVE_TICKRATE)
+		ticksToMove = ALIEN_MIN_MOVE_TICKRATE;
+
+	if (ticksSinceLastMovement >= ticksToMove)
 	{
-	case MOVING_RIGHT:
-		if (aliens->alien[0][lastColumn].entity.x < SCREEN_SIZE - ALIEN_WIDTH - ALIEN_MOVE_RATE)
+		switch (aliens->direction)
 		{
-			for (i = 0; i < ALIENS_COLS; i++)
+		case MOVING_RIGHT:
+			if (aliens->alien[0][lastColumn].entity.x < SCREEN_SIZE - ALIEN_WIDTH - ALIEN_MOVE_RATE)
 			{
-				moveEntityX(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
+				for (i = 0; i < ALIENS_COLS; i++)
+				{
+					moveEntityX(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
+				}
 			}
-		}
-		else
-		{
-			aliens->direction = MOVING_DOWN;
-			rowToMove++;
-		}
-		break;
-
-	case MOVING_LEFT:
-		if (aliens->alien[0][firstColumn].entity.x > ALIEN_MOVE_RATE)
-		{
-			for (i = 0; i < ALIENS_COLS; i++)
-			{
-				moveEntityX(&aliens->alien[rowToMove][i].entity, -ALIEN_MOVE_RATE);
-			}
-		}
-		else
-		{
-			aliens->direction = MOVING_DOWN;
-			rowToMove++;
-		}
-		break;
-
-	case MOVING_DOWN:
-		for (i = 0; i < ALIENS_COLS; i++)
-		{
-			moveEntityY(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
-		}
-		if (!rowToMove)
-		{
-			if (aliens->alien[0][firstColumn].entity.x > 2 * ALIEN_MOVE_RATE)
-				aliens->direction = MOVING_LEFT;
 			else
-				aliens->direction = MOVING_RIGHT;
-		}
-		break;
+			{
+				aliens->direction = MOVING_DOWN;
+				rowToMove++;
+			}
+			break;
 
-	default:
-		break;
+		case MOVING_LEFT:
+			if (aliens->alien[0][firstColumn].entity.x > ALIEN_MOVE_RATE)
+			{
+				for (i = 0; i < ALIENS_COLS; i++)
+				{
+					moveEntityX(&aliens->alien[rowToMove][i].entity, -ALIEN_MOVE_RATE);
+				}
+			}
+			else
+			{
+				aliens->direction = MOVING_DOWN;
+				rowToMove++;
+			}
+			break;
+
+		case MOVING_DOWN:
+			for (i = 0; i < ALIENS_COLS; i++)
+			{
+				moveEntityY(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
+			}
+			if (!rowToMove)
+			{
+				if (aliens->alien[0][firstColumn].entity.x > 2 * ALIEN_MOVE_RATE)
+					aliens->direction = MOVING_LEFT;
+				else
+					aliens->direction = MOVING_RIGHT;
+			}
+			break;
+
+		default:
+			break;
+		}
+	
+		if(rowToMove == 0)
+			ticksSinceLastMovement = 0; // reset ticks since last movement when all rows have moved
 	}
+	ticksSinceLastMovement++;
+	
 }
 
 static void updateMothership(mothership_t *mothership)
 {
 	if (mothership->entity.explosionTimer > 0)
 		updateEntityExplosion(&mothership->entity);
-	else if (mothership->entity.x >= -MOTHERSHIP_WIDTH && mothership->entity.x <= SCREEN_SIZE + MOTHERSHIP_WIDTH)
+	else if (mothership->entity.isAlive && mothership->entity.x >= -MOTHERSHIP_WIDTH && mothership->entity.x <= SCREEN_SIZE + MOTHERSHIP_WIDTH)
 		moveEntityX(&mothership->entity, mothership->direction * MOTHERSHIP_MOVE_RATE);
 }
 
@@ -409,7 +430,7 @@ static void setBarrierShape(barrier_t *barrier)
 	{
 		for (j = 0; j < BARRIER_WIDTH; j++)
 		{
-			if (i == 0 && (j == 0 || j == 5) || i == 3 && (j >= 1 && j <= 4)) // determines barrier shape
+			if ((i == 0 && (j == 0 || j == 5)) || (i == 3 && (j >= 1 && j <= 4))) // determines barrier shape
 				barrier->pixel[i][j].entity.isAlive = 0;
 			else
 				barrier->pixel[i][j].entity.isAlive = 1;
