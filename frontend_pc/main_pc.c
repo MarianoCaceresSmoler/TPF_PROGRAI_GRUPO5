@@ -21,12 +21,12 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
-enum inputKeys{
+enum inputKeys
+{
 	KEY_LEFT,
 	KEY_RIGHT,
 	KEY_UP,
@@ -61,7 +61,7 @@ enum inputKeys{
 
 // +ej: static int temperaturas_actuales[4];+
 
-static input_state_t inputState = {false, false};
+// static input_state_t inputState = {false, false};
 
 /*******************************************************************************
  *******************************************************************************
@@ -81,12 +81,12 @@ int getRandomNumber(int min, int max)
  *******************************************************************************
  ******************************************************************************/
 
- // REESCRIBI MAIN PARA HACER MEJOR LA LOGICA DEL MAIN
+// REESCRIBI MAIN PARA HACER MEJOR LA LOGICA
 int main(void)
 {
 	// Allegro and game initialization
 	initGraphics();
-	//initAudio();
+	initAudio();
 	game_t game;
 	gameInit(&game);
 
@@ -96,147 +96,124 @@ int main(void)
 	inputStatus_t inputStatus = {false, false, false, false, false, false, false, false};
 	bool anyKeyPressed = false;
 
-	// Variables to manage sounds 
-	int a;
+	// For audio management
+	bool isMenuMusicPlaying = false;
+	bool isGameplayMusicPlaying = false;
+	bool gameoverSoundPlayed = false;
 
-
-	while(programRunning)
+	while (programRunning)
 	{
-		if(al_get_next_event(getEventQueue(), &ev))
+		if (al_get_next_event(getEventQueue(), &ev))
 		{
-			if(ev.type == ALLEGRO_EVENT_TIMER)
+			if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
 				switch (game.status)
 				{
 				case GAME_MENU:
-					//playMenuMusic();
-					renderMenu(game);
-					if(anyKeyPressed)
+					if (!isMenuMusicPlaying) // Inits menu music only when game starts
 					{
-						//stopMenuMusic();
-						//playGameplayMusic();
+						playMenuMusic();
+						isMenuMusicPlaying = true;
+					}
+
+					renderMenu(game);
+					if (anyKeyPressed)
+					{
+						// Changes background music and inits level
+						stopMenuMusic();
+						isMenuMusicPlaying = false;
+						playGameplayMusic();
+						isGameplayMusicPlaying = true;
+
 						levelInit(&game);
 					}
 					break;
-				
+
 				case GAME_RUNNING:
-					//if(inputStatus.shootKeyPressed)
-						//playShootSound();
+					if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
+						playShootSound();
 					gameUpdate(&game, inputStatus);
 					renderGame(game);
 					break;
-				
+
 				case GAME_PAUSED:
-					//stopGameplayMusic();
-					renderMenu(game);
-					if(inputStatus.resumeKeyPressed)
+
+					if(isGameplayMusicPlaying) // Stops gameplay music when paused
 					{
-						//playGameplayMusic();
+						stopGameplayMusic();
+						isGameplayMusicPlaying = false;
+					}
+
+					renderMenu(game);
+					if (inputStatus.resumeKeyPressed)
+					{
+						// Resumes game
+						playGameplayMusic();
+						isGameplayMusicPlaying = true;
 						gameResume(&game);
 					}
-					else if(inputStatus.restartKeyPressed)
+					else if (inputStatus.restartKeyPressed)
 					{
-						//playGameplayMusic();
+						// Restarts game
+						playGameplayMusic();
+						isGameplayMusicPlaying = true;
 						gameReset(&game);
 					}
-					else if(inputStatus.exitKeyPressed)
+					else if (inputStatus.exitKeyPressed)
 					{
 						gameEnd(&game);
 						programRunning = false;
 					}
-					
+
 					break;
 
 				case GAME_END:
-					//stopGameplayMusic();
-					//playGameoverSound();
-					renderGameOver(game);
-					if(inputStatus.restartKeyPressed)
+					
+					stopGameplayMusic(); // Stops gameplay music when game ends
+
+					if (!gameoverSoundPlayed) // Plays gameover sound only when game ends
 					{
-						//playGameplayMusic(); // Play the gameplay music when game restarts
-						gameReset(&game);
+						playGameoverSound();
+						gameoverSoundPlayed = true;
 					}
-					else if(inputStatus.exitKeyPressed)
+					renderGameOver(game);
+
+					if (inputStatus.restartKeyPressed)
+					{
+						playGameplayMusic(); // Play the gameplay music if game restarts
+						gameReset(&game);
+						gameoverSoundPlayed = false;
+					}
+					else if (inputStatus.exitKeyPressed)
 					{
 						gameEnd(&game);
 						programRunning = false;
 					}
 					break;
 				default:
-					//stopGameplayMusic();
+					stopGameplayMusic();
 					gameEnd(&game);
 					programRunning = false;
 					printf("Error: Invalid game status.\n");
 					break;
 				}
 			}
-			else if(ev.type == ALLEGRO_EVENT_KEY_DOWN)
+			else if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
-				switch (ev.keyboard.keycode)
-				{
-				case ALLEGRO_KEY_LEFT:
-					inputStatus.leftKeyPressed = true;
-					break;
-				case ALLEGRO_KEY_RIGHT:
-					inputStatus.rightKeyPressed = true;
-					break;
-				case ALLEGRO_KEY_UP:
-					inputStatus.upKeyPressed = true;
-					break;
-				case ALLEGRO_KEY_SPACE:
-					inputStatus.shootKeyPressed = true;
-					break;
-				case ALLEGRO_KEY_P:
-					inputStatus.pauseKeyPressed = true;
+				anyKeyPressed = true;
+
+				setInput(&inputStatus, ev.keyboard.keycode);
+
+				// Manages if the player pauses or exits the game
+				if (inputStatus.pauseKeyPressed)
 					game.status = GAME_PAUSED;
-					break;
-				case ALLEGRO_KEY_ENTER:
-					inputStatus.resumeKeyPressed = true;
-					break;
-				case ALLEGRO_KEY_R:
-					inputStatus.restartKeyPressed = true;
-					break;
-				case ALLEGRO_KEY_ESCAPE:
-					inputStatus.exitKeyPressed = true;
+				else if (inputStatus.exitKeyPressed)
 					game.status = GAME_END;
-					break;
-				default:
-					anyKeyPressed = true; // Set flag to indicate any key was pressed
-					break;
-				}
+
 			}
-			else if(ev.type == ALLEGRO_EVENT_KEY_UP)
+			else if (ev.type == ALLEGRO_EVENT_KEY_UP)
 			{
-				switch (ev.keyboard.keycode)
-				{
-				case ALLEGRO_KEY_LEFT:
-					inputStatus.leftKeyPressed = false;
-					break;
-				case ALLEGRO_KEY_RIGHT:
-					inputStatus.rightKeyPressed = false;
-					break;
-				case ALLEGRO_KEY_UP:
-					inputStatus.upKeyPressed = false;
-					break;
-				case ALLEGRO_KEY_SPACE:
-					inputStatus.shootKeyPressed = false;
-					break;
-				case ALLEGRO_KEY_P:
-					inputStatus.pauseKeyPressed = false;
-					break;
-				case ALLEGRO_KEY_ENTER:
-					inputStatus.resumeKeyPressed = false;
-					break;
-				case ALLEGRO_KEY_R:
-					inputStatus.restartKeyPressed = false;
-					break;
-				case ALLEGRO_KEY_ESCAPE:
-					inputStatus.exitKeyPressed = false;
-					break;
-				default:
-					anyKeyPressed = false; // Reset flag when a key is released
-					break;
-				}
+				clearInput(&inputStatus, ev.keyboard.keycode);
 			}
 			else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			{
@@ -248,11 +225,10 @@ int main(void)
 
 	// Cleanup allegro when program ends
 	cleanupGraphics();
-	//cleanupAudio();
+	cleanupAudio();
 	printf("\nProgram finished successfully.\n\n");
 	return 0;
 }
-
 
 /*
 int main(void)

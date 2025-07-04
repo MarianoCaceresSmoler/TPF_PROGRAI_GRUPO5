@@ -252,7 +252,7 @@ void renderMenu(game_t game)
 
 		al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
 					 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
-					 ALLEGRO_ALIGN_CENTER, "Enter ESC to resume, Q to quit, R to restart the game");
+					 ALLEGRO_ALIGN_CENTER, "Press ENTER to resume, ESC to quit, R to restart the game");
 	}
 
 	al_flip_display();

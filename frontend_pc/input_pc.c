@@ -52,19 +52,74 @@
  *******************************************************************************
  ******************************************************************************/
 
-input_t getInputFromKeycode(int keycode) {
-    switch (keycode) {
-        case ALLEGRO_KEY_LEFT: return INPUT_LEFT;
-        case ALLEGRO_KEY_RIGHT: return INPUT_RIGHT;
-        case ALLEGRO_KEY_SPACE: return INPUT_SHOOT;
-        case ALLEGRO_KEY_P: return INPUT_PAUSE;
-        case ALLEGRO_KEY_ESCAPE: return INPUT_RESUME;
-        case ALLEGRO_KEY_R: return INPUT_RESTART;
-        case ALLEGRO_KEY_Q: return INPUT_EXIT;
-        default: return INPUT_ANY; 
+void setInput(inputStatus_t *inputStatus, int keycode)
+{
+
+    switch (keycode)
+    {
+    case ALLEGRO_KEY_LEFT:
+        inputStatus->leftKeyPressed = true;
+        break;
+    case ALLEGRO_KEY_RIGHT:
+        inputStatus->rightKeyPressed = true;
+        break;
+    case ALLEGRO_KEY_UP:
+        inputStatus->upKeyPressed = true;
+        break;
+    case ALLEGRO_KEY_SPACE:
+        inputStatus->shootKeyPressed = true;
+        break;
+    case ALLEGRO_KEY_P:
+        inputStatus->pauseKeyPressed = true;
+        break;
+    case ALLEGRO_KEY_ENTER:
+        inputStatus->resumeKeyPressed = true;
+        break;
+    case ALLEGRO_KEY_R:
+        inputStatus->restartKeyPressed = true;
+        break;
+    case ALLEGRO_KEY_ESCAPE:
+        inputStatus->exitKeyPressed = true;
+        break;
+    default:
+        // anyKeyPressed = true; // Set flag to indicate any key was pressed
+        break;
     }
 }
 
+void clearInput(inputStatus_t *inputStatus, int keycode)
+{
+    switch (keycode)
+    {
+    case ALLEGRO_KEY_LEFT:
+        inputStatus->leftKeyPressed = false;
+        break;
+    case ALLEGRO_KEY_RIGHT:
+        inputStatus->rightKeyPressed = false;
+        break;
+    case ALLEGRO_KEY_UP:
+        inputStatus->upKeyPressed = false;
+        break;
+    case ALLEGRO_KEY_SPACE:
+        inputStatus->shootKeyPressed = false;
+        break;
+    case ALLEGRO_KEY_P:
+        inputStatus->pauseKeyPressed = false;
+        break;
+    case ALLEGRO_KEY_ENTER:
+        inputStatus->resumeKeyPressed = false;
+        break;
+    case ALLEGRO_KEY_R:
+        inputStatus->restartKeyPressed = false;
+        break;
+    case ALLEGRO_KEY_ESCAPE:
+        inputStatus->exitKeyPressed = false;
+        break;
+    default:
+        // anyKeyPressed = true; // Set flag to indicate any key was pressed
+        break;
+    }
+}
 
 /*******************************************************************************
  *******************************************************************************

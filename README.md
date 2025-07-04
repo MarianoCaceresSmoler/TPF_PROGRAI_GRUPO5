@@ -3,6 +3,7 @@
 POR HACER:
 
 Backend:
+- La formacion de aliens se mueve mal
 - Bala que solo se dispare de a una
 - Arreglar restart (no anda bien con el explosion timer)
 - Hacer logica de mothership
@@ -12,6 +13,7 @@ Backend:
 - Score suma mal
 - Aliens se quedan congelados en un momento
 - No pasa de nivel cuando mueren todos los aliens
+- Cuando la bala se va de la pantalla se bugea y no aparece mas
 - Programa no termina cuando se acaba el tiempo (cuando la nave se queda sin vidas)
 
 Frontend:

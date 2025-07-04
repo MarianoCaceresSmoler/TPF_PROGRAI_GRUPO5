@@ -24,10 +24,10 @@
  ******************************************************************************/
 
  // To control the movement of the ship
-typedef struct {
-    int leftPressed;
-    int rightPressed;
-} input_state_t;
+// typedef struct {
+//     int leftPressed;
+//     int rightPressed;
+// } input_state_t;
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
@@ -49,11 +49,14 @@ typedef struct {
 // +ej: char lcd_goto (int fil, int col);+
 
 /**
- * @brief function to get user input
- * @param keycode the key pressed
+ * @brief function to updates input status
+ * @param inputStatus pointer to the input status general struct
+ * @param keycode the key to update 
  * @return user input
 */
-input_t getInputFromKeycode(int keycode);
+void setInput(inputStatus_t * inputStatus, int keycode);
+void clearInput(inputStatus_t *inputStatus, int keycode);
+
 
 
 
