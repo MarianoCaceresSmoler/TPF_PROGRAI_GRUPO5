@@ -12,6 +12,8 @@
 #include "entities.h"
 #include "physics.h"
 #include "scores.h"
+#include <stdlib.h>
+#include <time.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -66,6 +68,10 @@ static void updateMothership(mothership_t *mothership);
  * @param entity pointer to the entity
  */
 static void updateEntityExplosion(entity_t *entity);
+
+static int getNearestColumnAlive(alienFormation_t aliens, short int shipX);
+
+static int getNearestRowAlive(alienFormation_t aliens, int column);
 
 /**
  * @brief function to get the first column with at least one alien alive
@@ -198,6 +204,13 @@ void gameReset(game_t *game)
 
 void gameUpdate(game_t *game, inputStatus_t input)
 {
+	static int firstTime = 1;
+	if (firstTime)
+	{
+		srand(time(NULL)); // seed the random number generator
+		firstTime = 0;
+	}
+
 	if (game->status == GAME_RUNNING)
 	{
 		int points = 0, row, column; // ROW Y COLUMN SON PARA EL ALIEN QUE DISPARA
@@ -206,21 +219,34 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		// updates entities
 		updateShip(&game->ship, input.leftKeyPressed, input.rightKeyPressed);
 
-		if (game->ship.canShoot && input.shootKeyPressed)
+		if (game->shipBullet.entity.isAlive)
+		{
+			updateBullet(&game->shipBullet);
+			if(game->shipBullet.entity.isAlive == false)
+				game->ship.canShoot = true;
+		}
+		else if (game->ship.canShoot && input.shootKeyPressed)
 		{
 			shootFromEntity(&game->shipBullet, &game->ship.entity);
 			game->ship.canShoot = false;
 		}
-		else if (game->shipBullet.entity.isAlive)
-			updateBullet(&game->shipBullet);
 
-		if (game->aliens.canShoot) // && FUNCION QUE SE FIJA QUE ALIEN DISPARA
-		{	
-			shootFromEntity(&game->alienBullet, &game->aliens.alien[1][1].entity);
+		if (game->alienBullet.entity.isAlive)
+		{
+			updateBullet(&game->alienBullet);
+			if(game->alienBullet.entity.isAlive == false)
+				game->aliens.canShoot = true;
+		}
+		else if (game->aliens.canShoot && game->tickCounter % ALIENS_SHOOT_RATE == 0)
+		{
+			// int alienColumnToShoot getNearestColumnAlive(game->aliens, game->ship.entity.x
+			// int alienRowToShoot = getNearestRowAlive(game->aliens);
+			int alienColumnToShoot = getNearestColumnAlive(game->aliens, game->ship.entity.x);
+			int alienRowToShoot = getNearestRowAlive(game->aliens, alienColumnToShoot);
+			if(game->aliens.alien[alienColumnToShoot][alienRowToShoot].entity.isAlive)
+				shootFromEntity(&game->alienBullet, &game->aliens.alien[alienColumnToShoot][alienRowToShoot].entity);
 			game->aliens.canShoot = false;
 		}
-		else if (game->alienBullet.entity.isAlive)
-			updateBullet(&game->alienBullet);
 
 		updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining);
 			
@@ -255,7 +281,7 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 		else
 			ship->direction = STILL;
 
-		if(moveRight && ship->entity.x < SCREEN_SIZE - SHIP_MOVE_RATE)
+		if(moveRight && ship->entity.x < SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
 		{
 			moveEntityX(&ship->entity, SHIP_MOVE_RATE);
 			ship->direction = MOVING_RIGHT;
@@ -387,6 +413,36 @@ static void updateEntityExplosion(entity_t *entity)
 	{
 		entity->isAlive = 0; // when the timer hits 0, the entity is no longer alive
 	}
+}
+
+static int getNearestColumnAlive(alienFormation_t aliens, short int shipX)
+{
+	int i, nearestColumn = 0;
+	for (i = 0; i < ALIENS_COLS; i++)
+	{
+		if (aliens.alien[0][i].entity.isAlive)
+		{
+			if (abs(aliens.alien[0][i].entity.x - shipX) < abs(aliens.alien[0][nearestColumn].entity.x - shipX))
+			{
+				nearestColumn = i;
+			}
+		}
+	}
+	return nearestColumn;
+}
+
+static int getNearestRowAlive(alienFormation_t aliens, int column)
+{
+	int i, nearestRow = -1;
+	for (i = ALIENS_ROWS; i > 0; i--)
+	{
+		if (nearestRow == -1 && aliens.alien[i][column].entity.isAlive)
+		{
+			nearestRow = i;
+			break; // we only need the nearest row, so we can break the loop once we
+		}
+	}
+	return nearestRow;
 }
 
 static int getFirstColumnAlive(alienFormation_t aliens)

@@ -547,7 +547,7 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
 
 	// Alien bullet
 	// Only draws if the alien bullet is alive
-	if (shipBullet.entity.isAlive)
+	if (alienBullet.entity.isAlive)
 	{
 		al_draw_filled_rectangle(
 			alienBullet.entity.x,
