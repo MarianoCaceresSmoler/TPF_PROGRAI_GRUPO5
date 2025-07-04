@@ -244,7 +244,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 			int alienColumnToShoot = getNearestColumnAlive(game->aliens, game->ship.entity.x);
 			int alienRowToShoot = getNearestRowAlive(game->aliens, alienColumnToShoot);
 
-			if (alienColumnToShoot >= 0 && alienRowToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
+			if (alienRowToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
 				shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
 			
 			game->aliens.canShoot = false;
@@ -442,7 +442,7 @@ static int getNearestRowAlive(alienFormation_t aliens, int column)
 			nearestRow = row;
 		}
 	}
-	return -1;
+	return nearestRow;
 }
 
 static int getFirstColumnAlive(alienFormation_t aliens)
