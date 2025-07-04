@@ -58,6 +58,12 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
 static void drawBarriers(barrier_t barriers[BARRIERS]);
 static void drawScore(int score);
 
+/**
+ * @brief private function to draw aliens/mothership points in menu
+ */
+static void drawAliensPoints();
+
+
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -230,7 +236,7 @@ void renderMenu(game_t game)
 		int titleHeight = al_get_bitmap_height(titleBitmap);
 
 		float destX = (SCREEN_WIDTH - titleWidth) / 2;
-		float destY = SCREEN_HEIGHT / 4; // Relative height
+		float destY = SCREEN_HEIGHT / 11; // Relative height
 
 		// Draws title
 		al_draw_scaled_bitmap(
@@ -241,8 +247,9 @@ void renderMenu(game_t game)
 			titleWidth, titleHeight,
 			0);
 
-		// Draws secondary text
-		al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 2, SCREEN_HEIGHT * 3 / 4, ALLEGRO_ALIGN_CENTER, "Press any key to play");
+		al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 2, SCREEN_HEIGHT * 0.85, ALLEGRO_ALIGN_CENTER, "Press any key to play");
+
+		drawAliensPoints();
 	}
 	else if (status == GAME_PAUSED) // if game was paused
 	{
@@ -271,11 +278,11 @@ void renderGameOver(game_t game)
 	char scoreText[64];
 	snprintf(scoreText, sizeof(scoreText), "Final Score: %d", score);
 	al_draw_text(fontRetro, al_map_rgb(255, 255, 255),
-				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 50,
 				 ALLEGRO_ALIGN_CENTER, scoreText);
 
 	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
-				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 40,
+				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 150,
 				 ALLEGRO_ALIGN_CENTER, "Enter Q to quit, R to restart the game");
 
 	al_flip_display();
@@ -407,7 +414,6 @@ static void drawAliens(alienFormation_t aliens)
 				// Draws the alien if the explosion timer is not set. Otherwise, draws the explosion.
 				if (alienEntity.explosionTimer > 0)
 				{
-
 					if (alienEntity.explosionTimer % 2) // To animate explosion sprite
 					{
 						al_draw_scaled_bitmap(
@@ -542,7 +548,6 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
 			shipBullet.entity.x + BULLET_WIDTH,
 			shipBullet.entity.y + BULLET_HEIGHT,
 			al_map_rgb(0, 128, 255));
-	
 	}
 
 	// Alien bullet
@@ -590,4 +595,110 @@ static void drawScore(int score)
 	char buffer[64];
 	snprintf(buffer, sizeof(buffer), "Score: %d", score);
 	al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCORE_INITIAL_X, SCORE_INITIAL_Y, 0, buffer);
+}
+
+static void drawAliensPoints()
+{
+	char buffer[64]; // buffer to store points strings
+
+	// Title
+	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+				 SCREEN_WIDTH / 2 + 30, SCREEN_HEIGHT / 2,
+				 ALLEGRO_ALIGN_CENTER, "*SCORE ADVANCE TABLE*");
+
+	// Ubication data
+	const float startY = SCREEN_HEIGHT / 2 + 60;
+	const float rowSpacing = 40;
+	const float spriteX = SCREEN_WIDTH / 2 - 150;
+	const float textX = SCREEN_WIDTH / 2 - 100;
+	const float spriteScale = 0.5;
+
+	// Line 1 - Alien 0
+	al_draw_scaled_bitmap(
+		alien0BitMap,
+		0, 0,
+		al_get_bitmap_width(alien0BitMap), al_get_bitmap_height(alien0BitMap),
+		spriteX, startY,
+		ALIEN_WIDTH * spriteScale, ALIEN_HEIGHT * spriteScale,
+		0);
+
+	sprintf(buffer, "= %d POINTS", ALIEN_TYPE_0_POINTS); // saves alien points in buffer
+
+	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+				 textX, startY,
+				 ALLEGRO_ALIGN_LEFT, buffer);
+
+	// Line 2 - Alien 1
+	al_draw_scaled_bitmap(
+		alien1BitMap,
+		0, 0,
+		al_get_bitmap_width(alien1BitMap), al_get_bitmap_height(alien1BitMap),
+		spriteX, startY + rowSpacing,
+		ALIEN_WIDTH * spriteScale, ALIEN_HEIGHT * spriteScale,
+		0);
+
+	sprintf(buffer, "= %d POINTS", ALIEN_TYPE_1_POINTS); // saves alien points in buffer
+
+	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+				 textX, startY + rowSpacing,
+				 ALLEGRO_ALIGN_LEFT, buffer);
+
+	// Line 3 - Alien 2
+	al_draw_scaled_bitmap(
+		alien2BitMap,
+		0, 0,
+		al_get_bitmap_width(alien2BitMap), al_get_bitmap_height(alien2BitMap),
+		spriteX, startY + 2 * rowSpacing,
+		ALIEN_WIDTH * spriteScale, ALIEN_HEIGHT * spriteScale,
+		0);
+
+	sprintf(buffer, "= %d POINTS", ALIEN_TYPE_2_POINTS); // saves alien points in buffer
+
+	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+				 textX, startY + 2 * rowSpacing,
+				 ALLEGRO_ALIGN_LEFT, buffer);
+
+	// Line 4 - Alien 3
+	al_draw_scaled_bitmap(
+		alien3BitMap,
+		0, 0,
+		al_get_bitmap_width(alien3BitMap), al_get_bitmap_height(alien3BitMap),
+		spriteX, startY + 3 * rowSpacing,
+		ALIEN_WIDTH * spriteScale, ALIEN_HEIGHT * spriteScale,
+		0);
+	
+	sprintf(buffer, "= %d POINTS", ALIEN_TYPE_3_POINTS); // saves alien points in buffer
+
+	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+				 textX, startY + 3 * rowSpacing,
+				 ALLEGRO_ALIGN_LEFT, buffer);
+
+	// Line 5 - Alien 4
+	al_draw_scaled_bitmap(
+		alien4BitMap,
+		0, 0,
+		al_get_bitmap_width(alien4BitMap), al_get_bitmap_height(alien4BitMap),
+		spriteX, startY + 4 * rowSpacing,
+		ALIEN_WIDTH * spriteScale, ALIEN_HEIGHT * spriteScale,
+		0);
+	
+	sprintf(buffer, "= %d POINTS", ALIEN_TYPE_4_POINTS); // saves alien points in buffer
+
+	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+				 textX, startY + 4 * rowSpacing,
+				 ALLEGRO_ALIGN_LEFT, buffer);
+
+	// Line 6 - Mystery mothership
+	al_draw_scaled_bitmap(
+		mothershipBitmap,
+		0, 0,
+		al_get_bitmap_width(mothershipBitmap), al_get_bitmap_height(mothershipBitmap),
+		spriteX - 15, startY + 5 * rowSpacing,
+		MOTHERSHIP_WIDTH * spriteScale, MOTHERSHIP_HEIGHT * spriteScale,
+		0);
+	
+	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+				 textX, startY + 5 * rowSpacing,
+				 ALLEGRO_ALIGN_LEFT, "= ??? MYSTERY");
+
 }

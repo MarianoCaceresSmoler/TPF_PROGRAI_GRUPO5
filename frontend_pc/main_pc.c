@@ -69,11 +69,11 @@ enum inputKeys
  *******************************************************************************
  ******************************************************************************/
 
-int getRandomNumber(int min, int max)
-{
-	srand(time(NULL)); // Seed the random number generator with the current time
-	return rand() % (max - min + 1) + min;
-}
+// int getRandomNumber(int min, int max)
+// {
+// 	srand(time(NULL)); // Seed the random number generator with the current time
+// 	return rand() % (max - min + 1) + min;
+// }
 
 /*******************************************************************************
  *******************************************************************************
@@ -100,6 +100,8 @@ int main(void)
 	bool isMenuMusicPlaying = false;
 	bool isGameplayMusicPlaying = false;
 	bool gameoverSoundPlayed = false;
+	int currentPoints = 0;
+	int currentLives = SHIP_LIVES;
 
 	while (programRunning)
 	{
@@ -107,6 +109,13 @@ int main(void)
 		{
 			if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
+				if (currentPoints != game.score || currentLives != game.ship.livesLeft) // Updates points when score changes and plays explosion sound
+				{
+					playExplosionSound();
+					currentPoints = game.score;
+					currentLives = game.ship.livesLeft;
+				}
+
 				switch (game.status)
 				{
 				case GAME_MENU:
@@ -130,15 +139,17 @@ int main(void)
 					break;
 
 				case GAME_RUNNING:
+
 					if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
 						playShootSound();
+
 					gameUpdate(&game, inputStatus);
 					renderGame(game);
 					break;
 
 				case GAME_PAUSED:
 
-					if(isGameplayMusicPlaying) // Stops gameplay music when paused
+					if (isGameplayMusicPlaying) // Stops gameplay music when paused
 					{
 						stopGameplayMusic();
 						isGameplayMusicPlaying = false;
@@ -148,7 +159,7 @@ int main(void)
 					if (inputStatus.resumeKeyPressed)
 					{
 						// Resumes game
-						playGameplayMusic();
+						resumeGameplayMusic();
 						isGameplayMusicPlaying = true;
 						gameResume(&game);
 					}
@@ -168,8 +179,12 @@ int main(void)
 					break;
 
 				case GAME_END:
-					
-					stopGameplayMusic(); // Stops gameplay music when game ends
+
+					if(isGameplayMusicPlaying)
+					{
+						stopGameplayMusic(); // Stops gameplay music when game ends
+						isGameplayMusicPlaying = false;
+					}
 
 					if (!gameoverSoundPlayed) // Plays gameover sound only when game ends
 					{
@@ -191,7 +206,6 @@ int main(void)
 					}
 					break;
 				default:
-					stopGameplayMusic();
 					gameEnd(&game);
 					programRunning = false;
 					printf("Error: Invalid game status.\n");
@@ -209,7 +223,6 @@ int main(void)
 					game.status = GAME_PAUSED;
 				else if (inputStatus.exitKeyPressed)
 					game.status = GAME_END;
-
 			}
 			else if (ev.type == ALLEGRO_EVENT_KEY_UP)
 			{

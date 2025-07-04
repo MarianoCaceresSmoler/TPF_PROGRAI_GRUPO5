@@ -65,6 +65,7 @@ void playMenuMusic(void);
 void playGameplayMusic(void);
 void stopMenuMusic(void);
 void stopGameplayMusic(void);
+void resumeGameplayMusic(void);
 
 
 /*******************************************************************************

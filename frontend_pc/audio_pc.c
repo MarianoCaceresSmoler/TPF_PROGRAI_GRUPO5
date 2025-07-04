@@ -56,7 +56,8 @@ static ALLEGRO_SAMPLE *sndGameOver = NULL;
 static ALLEGRO_SAMPLE *bgGameMusic = NULL;
 static ALLEGRO_SAMPLE *bgMenuMusic = NULL;
 static ALLEGRO_SAMPLE_ID idMenuMusic = {._id = -1};
-static ALLEGRO_SAMPLE_ID idGameMusic = {._id = -1};
+// static ALLEGRO_SAMPLE_ID idGameMusic = {._id = -1};
+ALLEGRO_SAMPLE_INSTANCE *gameMusicInstance = NULL;
 
 /*******************************************************************************
  *******************************************************************************
@@ -130,14 +131,26 @@ void stopMenuMusic(void)
 
 void playGameplayMusic(void)
 {
-    if (bgGameMusic)
-        al_play_sample(bgGameMusic, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idGameMusic);
+    if (gameMusicInstance)
+    {
+        al_set_sample_instance_playmode(gameMusicInstance, ALLEGRO_PLAYMODE_LOOP);
+        al_play_sample_instance(gameMusicInstance);
+    }
+    // al_play_sample(bgGameMusic, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idGameMusic);
 }
 
 void stopGameplayMusic(void)
 {
-    if (idGameMusic._id != -1)
-        al_stop_sample(&idGameMusic);
+    // if (idGameMusic._id != -1)
+    //     al_stop_sample(&idGameMusic);
+    al_set_sample_instance_playing(gameMusicInstance, false);
+}
+
+void resumeGameplayMusic(void)
+{
+    // if (idGameMusic._id != -1)
+    //     al_stop_sample(&idGameMusic);
+    al_set_sample_instance_playing(gameMusicInstance, true);
 }
 
 void cleanupAudio(void)
@@ -173,6 +186,11 @@ void cleanupAudio(void)
         al_destroy_sample(bgMenuMusic);
         bgMenuMusic = NULL;
     }
+    if(gameMusicInstance)
+    {
+        al_destroy_sample_instance(gameMusicInstance);
+        gameMusicInstance = NULL;
+    }
     al_uninstall_audio();
 }
 
@@ -187,24 +205,44 @@ static void loadAudioAssets(void)
     // Sound effects
     sndShoot = al_load_sample("frontend_pc/assets/audio/shoot.wav");
     if (!sndShoot)
-        fprintf(stderr, "Error cargando shoot.wav\n");
+        fprintf(stderr, "Error loading shoot.wav\n");
     sndExplosion = al_load_sample("frontend_pc/assets/audio/explosion.wav");
     if (!sndExplosion)
-        fprintf(stderr, "Error cargando explosion.wav\n");
+        fprintf(stderr, "Error loading explosion.wav\n");
     sndMothership = al_load_sample("frontend_pc/assets/audio/mothership.wav");
     if (!sndMothership)
-        fprintf(stderr, "Error cargando mothership.wav\n");
+        fprintf(stderr, "Error loading mothership.wav\n");
     sndGameOver = al_load_sample("frontend_pc/assets/audio/gameover.wav");
     if (!sndGameOver)
-        fprintf(stderr, "Error cargando gameover.wav\n");
+        fprintf(stderr, "Error loading gameover.wav\n");
 
     // Background music
     bgGameMusic = al_load_sample("frontend_pc/assets/audio/gamemusic.wav");
     if (!bgGameMusic)
-        fprintf(stderr, "Error cargando gamemusic.wav\n");
+        fprintf(stderr, "Error loading gamemusic.wav\n");
+
+    gameMusicInstance = al_create_sample_instance(bgGameMusic);
+    al_attach_sample_instance_to_mixer(gameMusicInstance, al_get_default_mixer());
+
+    bgGameMusic = al_load_sample("frontend_pc/assets/audio/gamemusic.wav");
+    if (bgGameMusic) {
+    gameMusicInstance = al_create_sample_instance(bgGameMusic);
+    if (!gameMusicInstance) {
+        fprintf(stderr, "Error creating sample instance\n");
+        return;
+    }
+
+    if (!al_attach_sample_instance_to_mixer(gameMusicInstance, al_get_default_mixer())) {
+        fprintf(stderr, "Error connecting sample instance to mixer\n");
+        al_destroy_sample_instance(gameMusicInstance);
+        gameMusicInstance = NULL;
+        return;
+    }
+}
+
     bgMenuMusic = al_load_sample("frontend_pc/assets/audio/menumusic.wav");
     if (!bgMenuMusic)
-        fprintf(stderr, "Error cargando menumusic.wav\n");
+        fprintf(stderr, "Error loading menumusic.wav\n");
 
     // Error managing for samples loaded
     if (!sndShoot || !sndExplosion || !sndMothership || !sndGameOver || !bgGameMusic || !bgMenuMusic)

@@ -117,7 +117,7 @@ static int checkBulletHitsAliens(game_t *game)
                 if (game->aliens.alien[i][j].entity.isAlive && checkEntitiesCollision(game->aliens.alien[i][j].entity, game->shipBullet.entity))
                 {
                     // if collision detected, kill the bullet and set the alien explosion timer
-                    game->aliens.alien[i][j].entity.isAlive = 0;
+                    // game->aliens.alien[i][j].entity.isAlive = 0;
                     game->aliens.alien[i][j].entity.explosionTimer = EXPLOSION_TIMER;
                     game->aliensRemaining--;
                     game->shipBullet.entity.isAlive = 0;
