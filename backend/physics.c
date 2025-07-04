@@ -49,6 +49,7 @@ static int checkBulletHitsAliens(game_t *game);
 static void checkBulletHitsShip(game_t *game);
 static void checkBulletHitsBarriers(game_t *game);
 static void checkBulletHitsMothership(game_t *game);
+static void checkBulletHitsBullet(game_t *game);
 static void checkAllienHitsBarrier(game_t *game);
 static void checkAlienHitsShip(game_t *game);
 
@@ -81,6 +82,7 @@ int handleCollisions(game_t *game)
         checkBulletHitsShip(game);
         checkBulletHitsBarriers(game);
         checkBulletHitsMothership(game);
+        checkBulletHitsBullet(game);
         checkAllienHitsBarrier(game);
         checkAlienHitsShip(game);
     }
@@ -117,7 +119,6 @@ static int checkBulletHitsAliens(game_t *game)
                 if (game->aliens.alien[i][j].entity.isAlive && checkEntitiesCollision(game->aliens.alien[i][j].entity, game->shipBullet.entity))
                 {
                     // if collision detected, kill the bullet and set the alien explosion timer
-                    // game->aliens.alien[i][j].entity.isAlive = 0;
                     game->aliens.alien[i][j].entity.explosionTimer = EXPLOSION_TIMER;
                     game->aliensRemaining--;
                     game->shipBullet.entity.isAlive = 0;
@@ -199,6 +200,24 @@ static void checkBulletHitsMothership(game_t *game)
 
             // allows the ship to shoot
             game->ship.canShoot = 1;
+        }
+    }
+}
+
+static void checkBulletHitsBullet(game_t *game)
+{
+    if (game->shipBullet.entity.isAlive && game->alienBullet.entity.isAlive) // check collision only if the entitys are alive
+    {
+        if (checkEntitiesCollision(game->shipBullet.entity, game->alienBullet.entity))
+        {
+            // if collision detected, kill the bullets
+            game->shipBullet.entity.isAlive = 0;
+            game->alienBullet.entity.isAlive = 0;
+
+            // allows the ship and aliens to shoot
+            game->ship.canShoot = 1;
+            game->aliens.canShoot = 1;
+
         }
     }
 }

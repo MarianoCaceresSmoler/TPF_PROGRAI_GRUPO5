@@ -19,9 +19,9 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
- // defines tickrate of the aliens depending on the game ticks and the number of aliens remaining
+// defines tickrate of the aliens depending on the game ticks and the number of aliens remaining
 
- #define TICKS_TO_MOVE_ALIENS(gameTicks, aliensRemaining) (ALIEN_MAX_MOVE_TICKRATE - ((gameTicks) / 3000) - ((aliensRemaining) / 5))
+#define TICKS_TO_MOVE_ALIENS(gameTicks, aliensRemaining) (ALIEN_MAX_MOVE_TICKRATE - ((gameTicks) / 3000) - ((aliensRemaining) / 5))
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -222,7 +222,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		if (game->shipBullet.entity.isAlive)
 		{
 			updateBullet(&game->shipBullet);
-			if(game->shipBullet.entity.isAlive == false)
+			if (game->shipBullet.entity.isAlive == false)
 				game->ship.canShoot = true;
 		}
 		else if (game->ship.canShoot && input.shootKeyPressed)
@@ -234,7 +234,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		if (game->alienBullet.entity.isAlive)
 		{
 			updateBullet(&game->alienBullet);
-			if(game->alienBullet.entity.isAlive == false)
+			if (game->alienBullet.entity.isAlive == false)
 				game->aliens.canShoot = true;
 		}
 		else if (game->aliens.canShoot && game->tickCounter % ALIENS_SHOOT_RATE == 0)
@@ -243,13 +243,16 @@ void gameUpdate(game_t *game, inputStatus_t input)
 			// int alienRowToShoot = getNearestRowAlive(game->aliens);
 			int alienColumnToShoot = getNearestColumnAlive(game->aliens, game->ship.entity.x);
 			int alienRowToShoot = getNearestRowAlive(game->aliens, alienColumnToShoot);
-			if(game->aliens.alien[alienColumnToShoot][alienRowToShoot].entity.isAlive)
-				shootFromEntity(&game->alienBullet, &game->aliens.alien[alienColumnToShoot][alienRowToShoot].entity);
-			game->aliens.canShoot = false;
+
+			if (alienRowToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
+			{
+				shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
+				game->aliens.canShoot = false;
+			}
 		}
 
 		updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining);
-			
+
 		updateMothership(&game->mothership);
 
 		// updates score if an alien is killed
@@ -271,9 +274,9 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 		ship->canShoot = 0;
 		updateEntityExplosion(&ship->entity);
 	}
-	else if(ship->entity.isAlive)
+	else if (ship->entity.isAlive)
 	{
-		if(moveLeft && ship->entity.x > SHIP_MOVE_RATE)
+		if (moveLeft && ship->entity.x > SHIP_MOVE_RATE)
 		{
 			moveEntityX(&ship->entity, -SHIP_MOVE_RATE);
 			ship->direction = MOVING_LEFT;
@@ -281,7 +284,7 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 		else
 			ship->direction = STILL;
 
-		if(moveRight && ship->entity.x < SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
+		if (moveRight && ship->entity.x < SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
 		{
 			moveEntityX(&ship->entity, SHIP_MOVE_RATE);
 			ship->direction = MOVING_RIGHT;
@@ -289,16 +292,16 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 		else
 			ship->direction = STILL;
 
-		if(moveLeft && moveRight)
+		if (moveLeft && moveRight)
 			ship->direction = STILL;
 	}
 }
 
 static void updateBullet(bullet_t *bullet)
 {
-	if(bullet->entity.isAlive)
+	if (bullet->entity.isAlive)
 	{
-		if(bullet->entity.x >= 0 && bullet->entity.x <= SCREEN_SIZE && bullet->entity.y >= 0 && bullet->entity.y <= SCREEN_SIZE)
+		if (bullet->entity.x >= 0 && bullet->entity.x <= SCREEN_SIZE && bullet->entity.y >= 0 && bullet->entity.y <= SCREEN_SIZE)
 		{
 			moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
 		}
@@ -336,7 +339,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 
 	// calculates the tickrate to move aliens depending on the game ticks and the number of aliens remaining
 	ticksToMove = TICKS_TO_MOVE_ALIENS(gameTicks, aliensRemaining);
-	if(ticksToMove < ALIEN_MIN_MOVE_TICKRATE)
+	if (ticksToMove < ALIEN_MIN_MOVE_TICKRATE)
 		ticksToMove = ALIEN_MIN_MOVE_TICKRATE;
 
 	if (ticksSinceLastMovement >= ticksToMove)
@@ -390,12 +393,11 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 		default:
 			break;
 		}
-	
-		if(rowToMove == 0)
+
+		if (rowToMove == 0)
 			ticksSinceLastMovement = 0; // reset ticks since last movement when all rows have moved
 	}
 	ticksSinceLastMovement++;
-	
 }
 
 static void updateMothership(mothership_t *mothership)
@@ -433,16 +435,13 @@ static int getNearestColumnAlive(alienFormation_t aliens, short int shipX)
 
 static int getNearestRowAlive(alienFormation_t aliens, int column)
 {
-	int i, nearestRow = -1;
-	for (i = ALIENS_ROWS; i > 0; i--)
+	int i;
+	for (i = ALIENS_ROWS - 1; i >= 0; i--)
 	{
-		if (nearestRow == -1 && aliens.alien[i][column].entity.isAlive)
-		{
-			nearestRow = i;
-			break; // we only need the nearest row, so we can break the loop once we
-		}
+		if (aliens.alien[i][column].entity.isAlive)
+			return i;
 	}
-	return nearestRow;
+	return -1;
 }
 
 static int getFirstColumnAlive(alienFormation_t aliens)

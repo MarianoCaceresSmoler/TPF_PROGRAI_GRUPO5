@@ -134,6 +134,12 @@ int getAlienPoints(alien_t alien)
     case 2:
         return ALIEN_TYPE_2_POINTS;
         break;
+    case 3:
+        return ALIEN_TYPE_3_POINTS;
+        break;
+    case 4:
+        return ALIEN_TYPE_4_POINTS;
+        break;
     default:
 		return 0;
         break;
