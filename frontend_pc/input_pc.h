@@ -58,8 +58,6 @@ void setInput(inputStatus_t * inputStatus, int keycode);
 void clearInput(inputStatus_t *inputStatus, int keycode);
 
 
-
-
 /*******************************************************************************
  ******************************************************************************/
 

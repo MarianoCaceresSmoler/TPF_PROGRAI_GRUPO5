@@ -17,7 +17,7 @@ Backend:
 - Programa no termina cuando se acaba el tiempo (cuando la nave se queda sin vidas)
 
 Frontend:
-- Arreglar todo el audio
+- Arreglar todo el audio // LISTO
 - Recortar imagenes
 - Arreglar pausa
 - Mostrar bien pantalla de menu: titulo del juego, top scores y press para jugar
