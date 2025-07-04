@@ -120,7 +120,7 @@
 #define STANDBY_POSITION 2000 // logical position for inactive entities
 
 #define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS)
-#define ALIENS_SHOOT_RATE 30
+#define ALIENS_SHOOT_RATE 5
 
 #define MOTHERSHIP_CHANCE 10 // %
 #define MOTHERSHIP_INITIAL_X (0 - MOTHERSHIP_WIDTH)
