@@ -204,16 +204,16 @@ void gameReset(game_t *game)
 
 void gameUpdate(game_t *game, inputStatus_t input)
 {
-	static int firstTime = 1;
+	static bool firstTime = true;
 	if (firstTime)
 	{
 		srand(time(NULL)); // seed the random number generator
-		firstTime = 0;
+		firstTime = false;
 	}
 
 	if (game->status == GAME_RUNNING)
 	{
-		int points = 0, row, column; // ROW Y COLUMN SON PARA EL ALIEN QUE DISPARA
+		int points = 0;
 		game->tickCounter++;
 
 		// updates entities
@@ -237,18 +237,25 @@ void gameUpdate(game_t *game, inputStatus_t input)
 			if (game->alienBullet.entity.isAlive == false)
 				game->aliens.canShoot = true;
 		}
-		else if (game->aliens.canShoot && game->tickCounter % ALIENS_SHOOT_RATE == 0)
+		else if (game->aliens.canShoot)
 		{
 			// int alienColumnToShoot getNearestColumnAlive(game->aliens, game->ship.entity.x
 			// int alienRowToShoot = getNearestRowAlive(game->aliens);
 			int alienColumnToShoot = getNearestColumnAlive(game->aliens, game->ship.entity.x);
 			int alienRowToShoot = getNearestRowAlive(game->aliens, alienColumnToShoot);
 
+<<<<<<< HEAD
 			if (alienRowToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
 			{
 				shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
 				game->aliens.canShoot = false;
 			}
+=======
+			if (alienColumnToShoot >= 0 && alienRowToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
+				shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
+			
+			game->aliens.canShoot = false;
+>>>>>>> 89522f280276836aa25e81aa7d17c713b1a3680b
 		}
 
 		updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining);
@@ -419,27 +426,40 @@ static void updateEntityExplosion(entity_t *entity)
 
 static int getNearestColumnAlive(alienFormation_t aliens, short int shipX)
 {
-	int i, nearestColumn = 0;
-	for (i = 0; i < ALIENS_COLS; i++)
+	int i, nearestColumn = -1;
+
+	for(i = 0; i < ALIENS_COLS && nearestColumn == -1; i++)
 	{
-		if (aliens.alien[0][i].entity.isAlive)
+		if(aliens.alien[0][i].entity.x + ALIEN_WIDTH  >= shipX && 
+			aliens.alien[0][i].entity.x <= shipX)
 		{
-			if (abs(aliens.alien[0][i].entity.x - shipX) < abs(aliens.alien[0][nearestColumn].entity.x - shipX))
-			{
-				nearestColumn = i;
-			}
+			nearestColumn = i;
+			printf("Column %d is within range of the ship at position %d\n", i, shipX);
+			printf("\tRange: %d - %d\n", aliens.alien[0][i].entity.x, aliens.alien[0][i].entity.x + ALIEN_WIDTH);
 		}
 	}
+	
 	return nearestColumn;
 }
 
 static int getNearestRowAlive(alienFormation_t aliens, int column)
 {
+<<<<<<< HEAD
 	int i;
 	for (i = ALIENS_ROWS - 1; i >= 0; i--)
 	{
 		if (aliens.alien[i][column].entity.isAlive)
 			return i;
+=======
+	int row, nearestRow = -1;
+	for (row = ALIENS_ROWS - 1; row > 0 && nearestRow == -1; row--)
+	{
+		if (aliens.alien[row][column].entity.isAlive)
+		{
+			nearestRow = row;
+			printf("Row %d is the nearest alive row in column %d\n", row, column);
+		}
+>>>>>>> 89522f280276836aa25e81aa7d17c713b1a3680b
 	}
 	return -1;
 }
