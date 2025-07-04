@@ -216,27 +216,39 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		int points = 0;
 		game->tickCounter++;
 
+		// updates game status
+		if(game->aliensRemaining == 0)
+		{
+			game->currentLevel++;
+			levelInit(game);
+		}
+		else if(game->ship.entity.isAlive == false)
+		{
+			if(game->ship.livesLeft == 0)
+				gameEnd(game);
+			else
+				setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
+		}
+
 		// updates entities
 		updateShip(&game->ship, input.leftKeyPressed, input.rightKeyPressed);
 
+		if (game->shipBullet.entity.isAlive == false)
+			game->ship.canShoot = true;
+
 		if (game->shipBullet.entity.isAlive)
-		{
 			updateBullet(&game->shipBullet);
-			if (game->shipBullet.entity.isAlive == false)
-				game->ship.canShoot = true;
-		}
 		else if (game->ship.canShoot && input.shootKeyPressed)
 		{
 			shootFromEntity(&game->shipBullet, &game->ship.entity);
 			game->ship.canShoot = false;
 		}
 
+		if (game->alienBullet.entity.isAlive == false)
+			game->aliens.canShoot = true;
+
 		if (game->alienBullet.entity.isAlive)
-		{
 			updateBullet(&game->alienBullet);
-			if (game->alienBullet.entity.isAlive == false)
-				game->aliens.canShoot = true;
-		}
 		else if (game->aliens.canShoot)
 		{
 			// int alienColumnToShoot getNearestColumnAlive(game->aliens, game->ship.entity.x
@@ -442,7 +454,7 @@ static int getNearestRowAlive(alienFormation_t aliens, int column)
 			nearestRow = row;
 		}
 	}
-	return -1;
+	return nearestRow;
 }
 
 static int getFirstColumnAlive(alienFormation_t aliens)
