@@ -257,7 +257,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 			int alienRowToShoot = getNearestRowAlive(game->aliens, alienColumnToShoot);
 
 			if (alienRowToShoot >= 0 && alienColumnToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
-			//	shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
+				shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
 			
 			game->aliens.canShoot = false;
 		}
