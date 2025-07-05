@@ -130,9 +130,10 @@ void moveEntityY(entity_t *entity, int moveRate)
 
 void setEntity(entity_t * entity, int x, int y)
 {
-	entity->isAlive = 1;
 	entity->x = x;
 	entity->y = y;
+	entity->isAlive = 1;
+	entity->explosionTimer = 0;
 }
 
 void shootFromEntity(bullet_t *bullet, entity_t *shootingEntity)

@@ -44,8 +44,8 @@ powerUpTypes_t;
 
 typedef struct
 {
-	unsigned short int x;
-	unsigned short int y;
+	short int x;
+	short int y;
 	unsigned short int height;
 	unsigned short int width;
 	unsigned char isAlive;

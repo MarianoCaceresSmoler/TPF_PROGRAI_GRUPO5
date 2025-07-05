@@ -10,6 +10,8 @@
 // +Incluir el header propio (ej: #include "template.h")+
 
 #include "physics.h"
+#include <stdlib.h>
+#include <time.h>
 #include "config.h"
 #include "entities.h"
 #include "scores.h"
@@ -46,9 +48,9 @@ static int checkEntitiesCollision(entity_t entityA, entity_t entityB);
  * @param game pointer to the game information
  */
 static int checkBulletHitsAliens(game_t *game);
+static int checkBulletHitsMothership(game_t *game);
 static void checkBulletHitsShip(game_t *game);
 static void checkBulletHitsBarriers(game_t *game);
-static void checkBulletHitsMothership(game_t *game);
 static void checkBulletHitsBullet(game_t *game);
 static void checkAllienHitsBarrier(game_t *game);
 static void checkAlienHitsShip(game_t *game);
@@ -79,9 +81,9 @@ int handleCollisions(game_t *game)
     {
         // Check for collisions between bullets and other objects
         points += checkBulletHitsAliens(game);
+        points += checkBulletHitsMothership(game);
         checkBulletHitsShip(game);
         checkBulletHitsBarriers(game);
-        checkBulletHitsMothership(game);
         checkBulletHitsBullet(game);
         checkAllienHitsBarrier(game);
         checkAlienHitsShip(game);
@@ -188,20 +190,24 @@ static void checkBulletHitsBarriers(game_t *game)
     }
 }
 
-static void checkBulletHitsMothership(game_t *game)
+static int checkBulletHitsMothership(game_t *game)
 {
+    int mothershipPoints = 0;
+   
     if (game->shipBullet.entity.isAlive && game->mothership.entity.isAlive) // check collision only if the entitys are alive
     {
         if (checkEntitiesCollision(game->shipBullet.entity, game->mothership.entity))
         {
             // if collision detected, kill the bullet and set the mothership explosion timer
             game->shipBullet.entity.isAlive = 0;
-            game->mothership.entity.explosionTimer = EXPLOSION_TIMER;
+            game->mothership.entity.explosionTimer = MOTHERSHIP_EXPLOSION_TIMER;
+            mothershipPoints = MIN_MOTHERSHIP_POINTS + rand() % ((MAX_MOTHERSHIP_POINTS - MIN_MOTHERSHIP_POINTS) / 10 + 1) * 10;
 
             // allows the ship to shoot
             game->ship.canShoot = 1;
         }
     }
+    return mothershipPoints;
 }
 
 static void checkBulletHitsBullet(game_t *game)

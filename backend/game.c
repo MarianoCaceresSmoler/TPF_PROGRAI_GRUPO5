@@ -21,7 +21,7 @@
 
 // defines tickrate of the aliens depending on the game ticks and the number of aliens remaining
 
-#define TICKS_TO_MOVE_ALIENS(gameTicks, aliensRemaining) (ALIEN_MAX_MOVE_TICKRATE - ((gameTicks) / 3000) - ((aliensRemaining) / 5))
+#define TICKS_TO_MOVE_ALIENS(gameTicks, aliensRemaining) (ALIEN_MAX_MOVE_TICKRATE - ((gameTicks) / 3000) - ((ALIENS_NUMBER - (aliensRemaining)) / 5))
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -140,15 +140,15 @@ void gameInit(game_t *game)
 
 void levelInit(game_t *game)
 {
-	game->status = GAME_RUNNING;
-	game->tickCounter = 0;
-	game->aliensRemaining = ALIENS_NUMBER;
+	// reset bullets to standby position
+	setEntity(&game->shipBullet.entity, STANDBY_POSITION, STANDBY_POSITION);
+	setEntity(&game->alienBullet.entity, STANDBY_POSITION, STANDBY_POSITION);
 
 	// set entities to initial position
 	setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
 	game->ship.canShoot = 1;
 
-	setEntity(&game->mothership.entity, MOTHERSHIP_INITIAL_X, MOTHERSHIP_INITIAL_Y);
+	game->mothership.entity.isAlive = 0;
 
 	// set aliens to initial position
 	int i, j, k;
@@ -160,6 +160,12 @@ void levelInit(game_t *game)
 		}
 	}
 
+	game->status = GAME_RUNNING;
+	game->tickCounter = 0;
+	game->aliensRemaining = ALIENS_NUMBER;
+
+	if(game->currentLevel > 1)
+		return;
 	// set barriers to initial position
 	for (k = 0; k < BARRIERS; k++)
 	{
@@ -172,10 +178,6 @@ void levelInit(game_t *game)
 			}
 		}
 	}
-
-	// reset bullets to standby position
-	setEntity(&game->shipBullet.entity, STANDBY_POSITION, STANDBY_POSITION);
-	setEntity(&game->alienBullet.entity, STANDBY_POSITION, STANDBY_POSITION);
 }
 
 void gamePause(game_t *game)
@@ -251,20 +253,24 @@ void gameUpdate(game_t *game, inputStatus_t input)
 			updateBullet(&game->alienBullet);
 		else if (game->aliens.canShoot)
 		{
-			// int alienColumnToShoot getNearestColumnAlive(game->aliens, game->ship.entity.x
-			// int alienRowToShoot = getNearestRowAlive(game->aliens);
 			int alienColumnToShoot = getNearestColumnAlive(game->aliens, game->ship.entity.x);
 			int alienRowToShoot = getNearestRowAlive(game->aliens, alienColumnToShoot);
 
 			if (alienRowToShoot >= 0 && alienColumnToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
-				shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
+			//	shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
 			
 			game->aliens.canShoot = false;
 		}
 
 		updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining);
 
-		updateMothership(&game->mothership);
+		if(game->mothership.entity.isAlive)
+			updateMothership(&game->mothership);
+		else if(game->tickCounter % 150 == 0 && rand() % 100 < MOTHERSHIP_CHANCE)
+		{
+			game->mothership.direction = (rand() % 2 == 0)? MOVING_RIGHT: MOVING_LEFT;
+			setEntity(&game->mothership.entity, (game->mothership.direction == MOVING_LEFT? MOTHERSHIP_RIGHT_INITIAL_X: MOTHERSHIP_LEFT_INITIAL_X), MOTHERSHIP_INITIAL_Y);
+		}
 
 		// updates score if an alien is killed
 		if ((points = handleCollisions(game)))
@@ -325,7 +331,7 @@ static void updateBullet(bullet_t *bullet)
 
 static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemaining)
 {
-	int firstColumn = -1, lastColumn = ALIENS_COLS - 1, i, j, ticksToMove;
+	int firstColumn = -1, lastColumn = ALIENS_COLS - 1, i, j;
 
 	for (i = 0; i < ALIENS_ROWS; i++)
 	{
@@ -340,83 +346,76 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 	lastColumn = getLastColumnAlive(*aliens);
 
 	// rowToMove is used to move the alien rows separately
-	static int rowToMove = 5;
+	static int rowToMove = ALIENS_ROWS;
+
+	if(gameTicks % 2 != 0)
+		return;
+
 	if (rowToMove == 0)
-		rowToMove = 4;
+		rowToMove = ALIENS_ROWS - 1;
 	else
 		rowToMove--;
 
-	static int ticksSinceLastMovement = 0;
-
-	// calculates the tickrate to move aliens depending on the game ticks and the number of aliens remaining
-	ticksToMove = TICKS_TO_MOVE_ALIENS(gameTicks, aliensRemaining);
-	if (ticksToMove < ALIEN_MIN_MOVE_TICKRATE)
-		ticksToMove = ALIEN_MIN_MOVE_TICKRATE;
-
-	if (ticksSinceLastMovement >= ticksToMove)
+	switch (aliens->direction)
 	{
-		switch (aliens->direction)
+	case MOVING_RIGHT:
+		if (aliens->alien[0][lastColumn].entity.x < SCREEN_SIZE - ALIEN_WIDTH - ALIEN_MOVE_RATE)
 		{
-		case MOVING_RIGHT:
-			if (aliens->alien[0][lastColumn].entity.x < SCREEN_SIZE - ALIEN_WIDTH - ALIEN_MOVE_RATE)
-			{
-				for (i = 0; i < ALIENS_COLS; i++)
-				{
-					moveEntityX(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
-				}
-			}
-			else
-			{
-				aliens->direction = MOVING_DOWN;
-				rowToMove++;
-			}
-			break;
-
-		case MOVING_LEFT:
-			if (aliens->alien[0][firstColumn].entity.x > ALIEN_MOVE_RATE)
-			{
-				for (i = 0; i < ALIENS_COLS; i++)
-				{
-					moveEntityX(&aliens->alien[rowToMove][i].entity, -ALIEN_MOVE_RATE);
-				}
-			}
-			else
-			{
-				aliens->direction = MOVING_DOWN;
-				rowToMove++;
-			}
-			break;
-
-		case MOVING_DOWN:
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
-				moveEntityY(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
+				moveEntityX(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
 			}
-			if (!rowToMove)
-			{
-				if (aliens->alien[0][firstColumn].entity.x > 2 * ALIEN_MOVE_RATE)
-					aliens->direction = MOVING_LEFT;
-				else
-					aliens->direction = MOVING_RIGHT;
-			}
-			break;
+		}
+		else
+		{
+			aliens->direction = MOVING_DOWN;
+			rowToMove++;
+		}
+		break;
 
-		default:
-			break;
+	case MOVING_LEFT:
+		if (aliens->alien[0][firstColumn].entity.x > ALIEN_MOVE_RATE)
+		{
+			for (i = 0; i < ALIENS_COLS; i++)
+			{
+				moveEntityX(&aliens->alien[rowToMove][i].entity, -ALIEN_MOVE_RATE);
+			}
+		}
+		else
+		{
+			aliens->direction = MOVING_DOWN;
+			rowToMove++;
+		}
+		break;
+
+	case MOVING_DOWN:
+		for (i = 0; i < ALIENS_COLS; i++)
+		{
+			moveEntityY(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
 		}
 
 		if (rowToMove == 0)
-			ticksSinceLastMovement = 0; // reset ticks since last movement when all rows have moved
+		{
+			if (aliens->alien[0][firstColumn].entity.x > 2 * ALIEN_MOVE_RATE)
+				aliens->direction = MOVING_LEFT;
+			else
+				aliens->direction = MOVING_RIGHT;
+		}
+		break;
+
+	default:
+		break;
 	}
-	ticksSinceLastMovement++;
 }
 
 static void updateMothership(mothership_t *mothership)
 {
 	if (mothership->entity.explosionTimer > 0)
 		updateEntityExplosion(&mothership->entity);
-	else if (mothership->entity.isAlive && mothership->entity.x >= -MOTHERSHIP_WIDTH && mothership->entity.x <= SCREEN_SIZE + MOTHERSHIP_WIDTH)
+	else if (mothership->entity.isAlive && mothership->entity.x >= MOTHERSHIP_LEFT_INITIAL_X && mothership->entity.x <= MOTHERSHIP_RIGHT_INITIAL_X)
 		moveEntityX(&mothership->entity, mothership->direction * MOTHERSHIP_MOVE_RATE);
+	else 
+		mothership->entity.isAlive = false;
 }
 
 static void updateEntityExplosion(entity_t *entity)
@@ -434,8 +433,8 @@ static int getNearestColumnAlive(alienFormation_t aliens, short int shipX)
 
 	for(i = 0; i < ALIENS_COLS && nearestColumn == -1; i++)
 	{
-		if(aliens.alien[0][i].entity.x + ALIEN_WIDTH  >= shipX && 
-			aliens.alien[0][i].entity.x <= shipX)
+		if(aliens.alien[0][i].entity.x + ALIEN_WIDTH  >= shipX + SHIP_WIDTH / 2 && 
+			aliens.alien[0][i].entity.x <= shipX + SHIP_WIDTH / 2)
 		{
 			nearestColumn = i;
 		}
