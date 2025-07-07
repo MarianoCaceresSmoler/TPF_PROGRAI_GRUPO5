@@ -63,6 +63,14 @@ static void drawScore(int score);
  */
 static void drawAliensPoints();
 
+/**
+ * @brief private function to draw HUD during gameplay
+ * @param score the actual score
+ * @param lives the lives left
+ * @param level the actual level
+ */
+static void drawHUD(int score, int lives, int level);
+
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -219,7 +227,8 @@ void renderGame(game_t game)
 	drawBullets(game.shipBullet, game.alienBullet);
 	drawBarriers(game.barriers);
 	drawMothership(game.mothership);
-	drawScore(game.score);
+	// drawScore(game.score);
+	drawHUD(game.score, game.ship.livesLeft, game.currentLevel);
 
 	al_flip_display();
 }
@@ -595,6 +604,31 @@ static void drawScore(int score)
 	char buffer[64];
 	snprintf(buffer, sizeof(buffer), "Score: %d", score);
 	al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCORE_INITIAL_X, SCORE_INITIAL_Y, 0, buffer);
+}
+
+static void drawHUD(int score, int lives, int level)
+{
+    char hudText[128];
+	int i;
+    
+    // Score
+    snprintf(hudText, sizeof(hudText), "Score: %d", score);
+    al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCREEN_WIDTH-500, SCREEN_HEIGHT/5, 0, hudText);
+
+	 // Level
+    snprintf(hudText, sizeof(hudText), "Level: %d", level);
+    al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCREEN_WIDTH-500, SCREEN_HEIGHT/5 + 100, 0, hudText);
+
+	// Lives
+    snprintf(hudText, sizeof(hudText), "Lives: %d", lives);
+	al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCREEN_WIDTH-500, SCREEN_HEIGHT/5 + 200, 0, hudText);
+
+	for(i = 0; i < lives; i++)
+	{
+		al_draw_text(fontGameplay, al_map_rgb(66,141,255), SCREEN_WIDTH-(320 - i * 50), SCREEN_HEIGHT/5 + 195, 0, "W");
+	}    
+    
+    
 }
 
 static void drawAliensPoints()

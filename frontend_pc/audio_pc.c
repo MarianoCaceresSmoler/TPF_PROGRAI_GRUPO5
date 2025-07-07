@@ -56,8 +56,10 @@ static ALLEGRO_SAMPLE *sndGameOver = NULL;
 static ALLEGRO_SAMPLE *bgGameMusic = NULL;
 static ALLEGRO_SAMPLE *bgMenuMusic = NULL;
 static ALLEGRO_SAMPLE_ID idMenuMusic = {._id = -1};
+// static ALLEGRO_SAMPLE_ID idMothershipSound = {._id = -1};
 // static ALLEGRO_SAMPLE_ID idGameMusic = {._id = -1};
 ALLEGRO_SAMPLE_INSTANCE *gameMusicInstance = NULL;
+ALLEGRO_SAMPLE_INSTANCE *mothershipSoundInstance = NULL;
 
 /*******************************************************************************
  *******************************************************************************
@@ -78,7 +80,7 @@ void initAudio(void)
     }
 
     if (!al_reserve_samples(6))
-    { // 66 samples (shoot, explosion, music, etc.)
+    { // 6 samples (shoot, explosion, music, etc.)
         fprintf(stderr, "Error reserving audio samples.\n");
     }
 
@@ -95,12 +97,6 @@ void playExplosionSound(void)
 {
     if (sndExplosion)
         al_play_sample(sndExplosion, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-}
-
-void playMothershipSound(void)
-{
-    if (sndMothership)
-        al_play_sample(sndMothership, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 }
 
 void playShipDiedSound(void)
@@ -136,21 +132,35 @@ void playGameplayMusic(void)
         al_set_sample_instance_playmode(gameMusicInstance, ALLEGRO_PLAYMODE_LOOP);
         al_play_sample_instance(gameMusicInstance);
     }
-    // al_play_sample(bgGameMusic, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idGameMusic);
 }
 
 void stopGameplayMusic(void)
 {
-    // if (idGameMusic._id != -1)
-    //     al_stop_sample(&idGameMusic);
     al_set_sample_instance_playing(gameMusicInstance, false);
 }
 
 void resumeGameplayMusic(void)
 {
-    // if (idGameMusic._id != -1)
-    //     al_stop_sample(&idGameMusic);
     al_set_sample_instance_playing(gameMusicInstance, true);
+}
+
+void playMothershipSound(void)
+{
+    if (mothershipSoundInstance)
+    {
+        al_set_sample_instance_playmode(mothershipSoundInstance, ALLEGRO_PLAYMODE_ONCE);
+        al_play_sample_instance(mothershipSoundInstance);
+    }
+}
+
+void stopMothershipSound(void)
+{
+    al_set_sample_instance_playing(mothershipSoundInstance, false);
+}
+
+void resumeMothershipSound(void)
+{
+    al_set_sample_instance_playing(mothershipSoundInstance, true);
 }
 
 void cleanupAudio(void)
@@ -186,11 +196,17 @@ void cleanupAudio(void)
         al_destroy_sample(bgMenuMusic);
         bgMenuMusic = NULL;
     }
-    if(gameMusicInstance)
+    if (gameMusicInstance)
     {
         al_destroy_sample_instance(gameMusicInstance);
         gameMusicInstance = NULL;
     }
+    if (mothershipSoundInstance)
+    {
+        al_destroy_sample_instance(mothershipSoundInstance);
+        mothershipSoundInstance = NULL;
+    }
+
     al_uninstall_audio();
 }
 
@@ -209,36 +225,55 @@ static void loadAudioAssets(void)
     sndExplosion = al_load_sample("frontend_pc/assets/audio/explosion.wav");
     if (!sndExplosion)
         fprintf(stderr, "Error loading explosion.wav\n");
-    sndMothership = al_load_sample("frontend_pc/assets/audio/mothership.wav");
-    if (!sndMothership)
-        fprintf(stderr, "Error loading mothership.wav\n");
     sndGameOver = al_load_sample("frontend_pc/assets/audio/gameover.wav");
     if (!sndGameOver)
         fprintf(stderr, "Error loading gameover.wav\n");
 
+    sndMothership = al_load_sample("frontend_pc/assets/audio/mothership.wav");
+    if (!sndMothership)
+        fprintf(stderr, "Error loading mothership.wav\n");
+    else
+    {
+        mothershipSoundInstance = al_create_sample_instance(sndMothership);
+        if (!mothershipSoundInstance)
+        {
+            fprintf(stderr, "Error creating mothership sound sample instance\n");
+            return;
+        }
+
+        if (!al_attach_sample_instance_to_mixer(mothershipSoundInstance, al_get_default_mixer()))
+        {
+            fprintf(stderr, "Error connecting mothership sound sample instance to mixer\n");
+            al_destroy_sample_instance(mothershipSoundInstance);
+            mothershipSoundInstance = NULL;
+            return;
+        }
+    }
+
     // Background music
+
     bgGameMusic = al_load_sample("frontend_pc/assets/audio/gamemusic.wav");
-    if (!bgGameMusic)
+    if (bgGameMusic)
+    {
+        gameMusicInstance = al_create_sample_instance(bgGameMusic);
+        if (!gameMusicInstance)
+        {
+            fprintf(stderr, "Error creating gameplay music sample instance\n");
+            return;
+        }
+
+        if (!al_attach_sample_instance_to_mixer(gameMusicInstance, al_get_default_mixer()))
+        {
+            fprintf(stderr, "Error connecting gameplay music sample instance to mixer\n");
+            al_destroy_sample_instance(gameMusicInstance);
+            gameMusicInstance = NULL;
+            return;
+        }
+    }
+    else
+    {
         fprintf(stderr, "Error loading gamemusic.wav\n");
-
-    gameMusicInstance = al_create_sample_instance(bgGameMusic);
-    al_attach_sample_instance_to_mixer(gameMusicInstance, al_get_default_mixer());
-
-    bgGameMusic = al_load_sample("frontend_pc/assets/audio/gamemusic.wav");
-    if (bgGameMusic) {
-    gameMusicInstance = al_create_sample_instance(bgGameMusic);
-    if (!gameMusicInstance) {
-        fprintf(stderr, "Error creating sample instance\n");
-        return;
     }
-
-    if (!al_attach_sample_instance_to_mixer(gameMusicInstance, al_get_default_mixer())) {
-        fprintf(stderr, "Error connecting sample instance to mixer\n");
-        al_destroy_sample_instance(gameMusicInstance);
-        gameMusicInstance = NULL;
-        return;
-    }
-}
 
     bgMenuMusic = al_load_sample("frontend_pc/assets/audio/menumusic.wav");
     if (!bgMenuMusic)

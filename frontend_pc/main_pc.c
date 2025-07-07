@@ -99,7 +99,7 @@ int main(void)
 	// For audio management
 	bool isMenuMusicPlaying = false;
 	bool isGameplayMusicPlaying = false;
-	bool isMothershipSoundPlaying = false;
+	bool isMothershipSoundPlaying = false, mothershipSoundHasBegan = false;
 	bool gameoverSoundPlayed = false;
 	int currentPoints = 0;
 	int currentLives = SHIP_LIVES;
@@ -120,6 +120,7 @@ int main(void)
 				switch (game.status)
 				{
 				case GAME_MENU:
+
 					if (!isMenuMusicPlaying) // Inits menu music only when game starts
 					{
 						playMenuMusic();
@@ -143,14 +144,23 @@ int main(void)
 
 					if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
 						playShootSound();
-					if(game.mothership.entity.isAlive && !isMothershipSoundPlaying) // Plays mothership sound when it appears
+					if (game.mothership.entity.isAlive && !isMothershipSoundPlaying && !mothershipSoundHasBegan) // Plays mothership sound when it appears
 					{
 						playMothershipSound();
 						isMothershipSoundPlaying = true;
 					}
+					else if (game.mothership.entity.isAlive && !isMothershipSoundPlaying && mothershipSoundHasBegan)
+					{
+						resumeMothershipSound();
+						isMothershipSoundPlaying = true;
+					}
 					else if (!game.mothership.entity.isAlive && isMothershipSoundPlaying)
+					{
+						stopMothershipSound();
+						mothershipSoundHasBegan = false;
 						isMothershipSoundPlaying = false;
-						
+					}
+
 					gameUpdate(&game, inputStatus);
 					renderGame(game);
 					break;
@@ -163,7 +173,15 @@ int main(void)
 						isGameplayMusicPlaying = false;
 					}
 
+					if (isMothershipSoundPlaying)
+					{
+						stopMothershipSound();
+						mothershipSoundHasBegan = true;
+						isMothershipSoundPlaying = false;
+					}
+
 					renderMenu(game);
+					
 					if (inputStatus.resumeKeyPressed)
 					{
 						// Resumes game
@@ -188,7 +206,7 @@ int main(void)
 
 				case GAME_END:
 
-					if(isGameplayMusicPlaying)
+					if (isGameplayMusicPlaying)
 					{
 						stopGameplayMusic(); // Stops gameplay music when game ends
 						isGameplayMusicPlaying = false;
