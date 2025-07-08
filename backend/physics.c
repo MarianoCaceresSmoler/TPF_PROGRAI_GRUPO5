@@ -139,6 +139,9 @@ static int checkBulletHitsAliens(game_t *game)
 
 static void checkBulletHitsShip(game_t *game)
 {
+    if(game->ship.invencibilityTicks > 0)
+        return;
+    
     if (game->alienBullet.entity.isAlive && game->ship.livesLeft > 0 && game->ship.entity.isAlive) // check collision only if the entitys are alive
     {
         if (checkEntitiesCollision(game->alienBullet.entity, game->ship.entity))

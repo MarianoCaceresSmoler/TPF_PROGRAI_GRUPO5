@@ -404,14 +404,17 @@ static void drawShip(ship_t ship)
 	}
 	else
 	{
-
-		al_draw_scaled_bitmap(
-			shipBitMap,
-			0, 0,
-			al_get_bitmap_width(shipBitMap), al_get_bitmap_height(shipBitMap),
-			ship.entity.x, ship.entity.y,
-			SHIP_WIDTH, SHIP_HEIGHT,
-			0);
+		if(ship.invencibilityTicks % 2 == 0)
+		{
+			al_draw_scaled_bitmap(
+				shipBitMap,
+				0, 0,
+				al_get_bitmap_width(shipBitMap), al_get_bitmap_height(shipBitMap),
+				ship.entity.x, ship.entity.y,
+				SHIP_WIDTH, SHIP_HEIGHT,
+				0);
+		}
+		printf("Ship is invencible for %d ticks\n", ship.invencibilityTicks);
 	}
 }
 
