@@ -67,8 +67,6 @@ void stopMenuMusic(void);
 void stopGameplayMusic(void);
 void stopMothershipSound(void);
 void resumeGameplayMusic(void);
-void resumeMothershipSound(void);
-
 
 /*******************************************************************************
  ******************************************************************************/

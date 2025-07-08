@@ -117,14 +117,23 @@ void initGraphics(void)
 		fprintf(stderr, "Failed to initialize allegro!\n");
 	}
 
-	// Create the display
 	if (!al_install_keyboard())
 	{
 		fprintf(stderr, "Failed to initialize the keyboard!\n");
 	}
 
+	// Create the display
 	display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
-	timer = al_create_timer(1.0 / FPS); // 1 frame per second timer
+	if(!display)
+	{
+		fprintf(stderr, "Unable to create display \n");
+	}
+
+	timer = al_create_timer(1.0 / FPS);
+	if(!timer) // 1 frame per second timer
+	{
+		fprintf(stderr, "Unable to create timer \n");
+	}
 
 	// Initialize allegro images controller
 	if (!al_init_image_addon())

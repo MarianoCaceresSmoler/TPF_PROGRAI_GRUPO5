@@ -12,12 +12,11 @@ Backend:
 - Validacion en funciones
 
 Frontend:
-- Arreglar que la musica se reanude y no arranque desde el inicio cuando se vuelve de la pausa
-- Meter linea que separe hud y juego
-- Mostrar bien hud de juego: titulo del juego, nivel actual, vidas, score y si hay algun powerup activo
-- Mostrar puntos de aliens muertos y mothership
-- Poner opciones o distintas pantallas en menu de inicio (capaz usar mouse tambien) y mostrar scores maximos
-- Mostrar cantidad de puntos 
+- Hacer animacion de cargar nivel
+- Mostrar datos del juego en gameplay (puntos, nivel y vidas, y si hay algun powerup activo)
+- Meter video o imagen de fondo
+- Poner opciones o distintas pantallas en menu de inicio (capaz usar mouse tambien) y mostrar highscores
+- Ver bien que mostrar en pantalla de menu final
 
 Animaciones o sprites a cambiar:
 - Sprites de nave en movimiento

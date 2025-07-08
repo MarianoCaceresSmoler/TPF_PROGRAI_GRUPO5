@@ -99,7 +99,7 @@ int main(void)
 	// For audio management
 	bool isMenuMusicPlaying = false;
 	bool isGameplayMusicPlaying = false;
-	bool isMothershipSoundPlaying = false, mothershipSoundHasBegan = false;
+	bool isMothershipSoundPlaying = false;
 	bool gameoverSoundPlayed = false;
 	int currentPoints = 0;
 	int currentLives = SHIP_LIVES;
@@ -144,20 +144,14 @@ int main(void)
 
 					if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
 						playShootSound();
-					if (game.mothership.entity.isAlive && !isMothershipSoundPlaying && !mothershipSoundHasBegan) // Plays mothership sound when it appears
+					if (game.mothership.entity.isAlive && !isMothershipSoundPlaying) // Plays mothership sound when it appears
 					{
 						playMothershipSound();
-						isMothershipSoundPlaying = true;
-					}
-					else if (game.mothership.entity.isAlive && !isMothershipSoundPlaying && mothershipSoundHasBegan)
-					{
-						resumeMothershipSound();
-						isMothershipSoundPlaying = true;
+						isMothershipSoundPlaying = false;
 					}
 					else if (!game.mothership.entity.isAlive && isMothershipSoundPlaying)
 					{
 						stopMothershipSound();
-						mothershipSoundHasBegan = false;
 						isMothershipSoundPlaying = false;
 					}
 
@@ -176,7 +170,6 @@ int main(void)
 					if (isMothershipSoundPlaying)
 					{
 						stopMothershipSound();
-						mothershipSoundHasBegan = true;
 						isMothershipSoundPlaying = false;
 					}
 
@@ -210,6 +203,12 @@ int main(void)
 					{
 						stopGameplayMusic(); // Stops gameplay music when game ends
 						isGameplayMusicPlaying = false;
+					}
+
+					if(isMothershipSoundPlaying)
+					{
+						stopMothershipSound();
+						isMothershipSoundPlaying = false;
 					}
 
 					if (!gameoverSoundPlayed) // Plays gameover sound only when game ends
