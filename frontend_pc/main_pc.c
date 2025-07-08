@@ -94,7 +94,6 @@ int main(void)
 	bool programRunning = true;
 	ALLEGRO_EVENT ev;
 	inputStatus_t inputStatus = {false, false, false, false, false, false, false, false};
-	bool anyKeyPressed = false;
 
 	// For audio management
 	bool isMenuMusicPlaying = false;
@@ -128,7 +127,8 @@ int main(void)
 					}
 
 					renderMenu(game);
-					if (anyKeyPressed)
+
+					if (inputStatus.shootKeyPressed)
 					{
 						// Changes background music and inits level
 						stopMenuMusic();
@@ -147,7 +147,7 @@ int main(void)
 					if (game.mothership.entity.isAlive && !isMothershipSoundPlaying) // Plays mothership sound when it appears
 					{
 						playMothershipSound();
-						isMothershipSoundPlaying = false;
+						isMothershipSoundPlaying = true;
 					}
 					else if (!game.mothership.entity.isAlive && isMothershipSoundPlaying)
 					{
@@ -239,12 +239,10 @@ int main(void)
 			}
 			else if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
-				anyKeyPressed = true;
-
 				setInput(&inputStatus, ev.keyboard.keycode);
 
 				// Manages if the player pauses or exits the game
-				if (inputStatus.pauseKeyPressed)
+				if (inputStatus.pauseKeyPressed && game.status == GAME_RUNNING)
 					game.status = GAME_PAUSED;
 				else if (inputStatus.exitKeyPressed)
 					game.status = GAME_END;
