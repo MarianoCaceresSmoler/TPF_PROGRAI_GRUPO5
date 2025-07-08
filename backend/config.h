@@ -118,11 +118,13 @@
 #define MOTHERSHIP_MOVE_RATE 4
 #define BULLET_MOVE_RATE 15
 #define SHIP_MOVE_RATE 10
+#define POWERUP_MOVE_RATE 4
+
+#define POWERUP_TYPES 4
 
 #endif
 
 #define SHIP_LIVES 3
-#define POWERUP_TYPES 4
 #define STANDBY_POSITION 2000 // logical position for inactive entities
 
 #define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS)

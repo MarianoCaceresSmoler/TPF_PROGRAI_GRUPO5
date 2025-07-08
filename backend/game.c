@@ -63,6 +63,8 @@ static void updateAliens(alienFormation_t *aliens, int tickCounter, int aliensRe
  */
 static void updateMothership(mothership_t *mothership);
 
+static void updatePowerUp(powerUp_t *powerUp);
+
 /**
  * @brief function to update an entity explosion/live state
  * @param entity pointer to the entity
@@ -111,6 +113,8 @@ static void setBarrierShape(barrier_t *barrier);
 
 void gameInit(game_t *game)
 {
+	srand(time(NULL));
+
 	// initialize entities
 	game->ship = createShip();
 	game->aliens = createAlienFormation(ALIENS_ROWS, ALIENS_COLS);
@@ -206,76 +210,73 @@ void gameReset(game_t *game)
 
 void gameUpdate(game_t *game, inputStatus_t input)
 {
-	static bool firstTime = true;
-	if (firstTime)
+	if (game->status != GAME_RUNNING)
+		return;
+
+	int points = 0;
+	game->tickCounter++;
+
+	// updates game status
+	if(game->aliensRemaining == 0)
 	{
-		srand(time(NULL)); // seed the random number generator
-		firstTime = false;
+		game->currentLevel++;
+		levelInit(game);
+	}
+	else if(game->ship.entity.isAlive == false)
+	{
+		if(game->ship.livesLeft == 0)
+			gameEnd(game);
+		else
+			setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
 	}
 
-	if (game->status == GAME_RUNNING)
+	// updates entities
+	updateShip(&game->ship, input.leftKeyPressed, input.rightKeyPressed);
+
+	if (game->shipBullet.entity.isAlive == false)
+		game->ship.canShoot = true;
+
+	if (game->shipBullet.entity.isAlive)
+		updateBullet(&game->shipBullet);
+	else if (game->ship.canShoot && input.shootKeyPressed)
 	{
-		int points = 0;
-		game->tickCounter++;
-
-		// updates game status
-		if(game->aliensRemaining == 0)
-		{
-			game->currentLevel++;
-			levelInit(game);
-		}
-		else if(game->ship.entity.isAlive == false)
-		{
-			if(game->ship.livesLeft == 0)
-				gameEnd(game);
-			else
-				setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
-		}
-
-		// updates entities
-		updateShip(&game->ship, input.leftKeyPressed, input.rightKeyPressed);
-
-		if (game->shipBullet.entity.isAlive == false)
-			game->ship.canShoot = true;
-
-		if (game->shipBullet.entity.isAlive)
-			updateBullet(&game->shipBullet);
-		else if (game->ship.canShoot && input.shootKeyPressed)
-		{
-			shootFromEntity(&game->shipBullet, &game->ship.entity);
-			game->ship.canShoot = false;
-		}
-
-		if (game->alienBullet.entity.isAlive == false)
-			game->aliens.canShoot = true;
-
-		if (game->alienBullet.entity.isAlive)
-			updateBullet(&game->alienBullet);
-		else if (game->aliens.canShoot)
-		{
-			int alienColumnToShoot = getNearestColumnAlive(game->aliens, game->ship.entity.x);
-			int alienRowToShoot = getNearestRowAlive(game->aliens, alienColumnToShoot);
-
-			if (alienRowToShoot >= 0 && alienColumnToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
-				shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
-			
-			game->aliens.canShoot = false;
-		}
-
-		updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining);
-
-		if(game->mothership.entity.isAlive)
-			updateMothership(&game->mothership);
-		else if(game->tickCounter % 150 == 0 && rand() % 100 < MOTHERSHIP_CHANCE)
-		{
-			game->mothership.direction = (rand() % 2 == 0)? MOVING_RIGHT: MOVING_LEFT;
-			setEntity(&game->mothership.entity, (game->mothership.direction == MOVING_LEFT? MOTHERSHIP_RIGHT_INITIAL_X: MOTHERSHIP_LEFT_INITIAL_X), MOTHERSHIP_INITIAL_Y);
-		}
-
-		// updates score if an alien is killed
-		if ((points = handleCollisions(game)))
-			incrementScore(game, points);
+		shootFromEntity(&game->shipBullet, &game->ship.entity);
+		game->ship.canShoot = false;
 	}
+
+	if (game->alienBullet.entity.isAlive == false)
+		game->aliens.canShoot = true;
+
+	if (game->alienBullet.entity.isAlive)
+		updateBullet(&game->alienBullet);
+	else if (game->aliens.canShoot)
+	{
+		int alienColumnToShoot = getNearestColumnAlive(game->aliens, game->ship.entity.x);
+		int alienRowToShoot = getNearestRowAlive(game->aliens, alienColumnToShoot);
+
+		if (alienRowToShoot >= 0 && alienColumnToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
+			shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
+		
+		game->aliens.canShoot = false;
+	}
+
+	updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining);
+
+	if(game->mothership.entity.isAlive)
+		updateMothership(&game->mothership);
+	else if(game->tickCounter % 150 == 0 && rand() % 100 < MOTHERSHIP_CHANCE)
+	{
+		game->mothership.direction = (rand() % 2 == 0)? MOVING_RIGHT: MOVING_LEFT;
+		setEntity(&game->mothership.entity, (game->mothership.direction == MOVING_LEFT? MOTHERSHIP_RIGHT_INITIAL_X: MOTHERSHIP_LEFT_INITIAL_X), MOTHERSHIP_INITIAL_Y);
+	}
+	
+	#ifdef PLATFORM_PC
+		updatePowerUp(game->powerUp);
+	#endif
+
+	// updates score if an alien is killed
+	if ((points = handleCollisions(game)))
+		incrementScore(game, points);
 }
 
 /*******************************************************************************
