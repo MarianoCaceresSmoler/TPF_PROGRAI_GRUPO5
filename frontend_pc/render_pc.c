@@ -19,6 +19,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_video.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -26,6 +27,8 @@
 
 #define SCALE_X (SCREEN_WIDTH / LOGICAL_WIDTH)
 #define SCALE_Y (SCREEN_HEIGHT / LOGICAL_HEIGHT)
+#define CROSSFADE_TIME 0.5 // seconds
+#define BACKGROUND_VIDEO_DURATION 5
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -51,6 +54,7 @@ static void loadImages(void);
 /**
  * @brief private functions to draw objects in display
  */
+static void renderBackgroundVideo();
 static void drawShip(ship_t ship);
 static void drawAliens(alienFormation_t alienFormation, int time);
 static void drawMothership(mothership_t mothership);
@@ -90,6 +94,9 @@ static ALLEGRO_TIMER *timer = NULL;
 static ALLEGRO_FONT *fontGameplay = NULL;
 static ALLEGRO_FONT *fontRetro = NULL;
 
+static ALLEGRO_VIDEO *backgroundVideo1;
+static ALLEGRO_VIDEO *backgroundVideo2;
+
 static ALLEGRO_BITMAP *alien0BitMap = NULL;
 static ALLEGRO_BITMAP *alien1BitMap = NULL;
 static ALLEGRO_BITMAP *alien2BitMap = NULL;
@@ -106,6 +113,10 @@ static ALLEGRO_BITMAP *bulletBitmap = NULL;
 static ALLEGRO_BITMAP *mothershipBitmap = NULL;
 static ALLEGRO_BITMAP *explosionBitmap = NULL;
 static ALLEGRO_BITMAP *titleBitmap = NULL;
+
+static int drawMenu = 1;
+static bool crossfading = false;
+static double crossfadeStartTime = 0.0;
 
 /*******************************************************************************
  *******************************************************************************
@@ -148,7 +159,13 @@ void initGraphics(void)
 	// Initialize allegro primitives addon
 	if (!al_init_primitives_addon())
 	{
-		fprintf(stderr, "Unable to primitives addon \n");
+		fprintf(stderr, "Unable to start primitives addon \n");
+	}
+
+	// Initialize allegro video addon
+	if (!al_init_video_addon())
+	{
+		fprintf(stderr, "Unable to start video addon \n");
 	}
 
 	// Create bitmaps for objects
@@ -190,9 +207,14 @@ void initGraphics(void)
 	// Calls private function to load sprites
 	loadImages();
 
+	// Start background video
+	al_start_video(backgroundVideo1, al_get_default_mixer());
+
 	// Registers the event sources
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
+	al_register_event_source(eventQueue, al_get_video_event_source(backgroundVideo1));
+	al_register_event_source(eventQueue, al_get_video_event_source(backgroundVideo2));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
 	al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -203,10 +225,15 @@ void initGraphics(void)
 void cleanupGraphics(void)
 {
 	// Destroys all elements at the end of the program
+
 	if (display)
 		al_destroy_display(display);
 	if (timer)
 		al_destroy_timer(timer);
+	if (backgroundVideo1)
+		al_close_video(backgroundVideo1);
+	if (backgroundVideo2)
+		al_close_video(backgroundVideo2);
 	if (alien0BitMap)
 		al_destroy_bitmap(alien0BitMap);
 	if (alien1BitMap)
@@ -251,6 +278,9 @@ void renderGame(game_t game)
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 
+	drawMenu = 1;
+
+	renderBackgroundVideo();
 	drawShip(game.ship);
 	drawAliens(game.aliens, game.tickCounter);
 	drawBullets(game.shipBullet, game.alienBullet);
@@ -265,10 +295,10 @@ void renderMenu(game_t game)
 {
 	gameStatus_t status = game.status;
 
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-
 	if (status == GAME_MENU) // If player is at menu
 	{
+		renderBackgroundVideo();
+
 		int titleWidth = al_get_bitmap_width(titleBitmap);
 		int titleHeight = al_get_bitmap_height(titleBitmap);
 
@@ -290,23 +320,30 @@ void renderMenu(game_t game)
 	}
 	else if (status == GAME_PAUSED) // if game was paused
 	{
-		al_draw_text(fontRetro, al_map_rgb(255, 255, 0),
-					 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3,
-					 ALLEGRO_ALIGN_CENTER, "GAME PAUSED");
+		if (drawMenu)
+		{
+			al_draw_filled_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, al_map_rgba(0, 0, 0, 128));
 
-		al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
-					 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
-					 ALLEGRO_ALIGN_CENTER, "Press ENTER to resume, ESC to quit, R to restart the game");
+			al_draw_text(fontRetro, al_map_rgb(255, 255, 0),
+						 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3,
+						 ALLEGRO_ALIGN_CENTER, "GAME PAUSED");
+
+			al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+						 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+						 ALLEGRO_ALIGN_CENTER, "Press ENTER to resume, ESC to quit, R to restart the game");
+		}
+		drawMenu = 0;
 	}
 
 	al_flip_display();
+
 }
 
 void renderGameOver(game_t game)
 {
 	int score = game.score;
 
-	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_draw_filled_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, al_map_rgba(0, 0, 0, 20));
 
 	al_draw_text(fontRetro, al_map_rgb(255, 0, 0),
 				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3,
@@ -423,6 +460,98 @@ static void loadImages(void)
 	{
 		fprintf(stderr, "Failed to load title.png\n");
 	}
+
+	backgroundVideo1 = al_open_video("frontend_pc/assets/img/background.ogv");
+	if (!backgroundVideo1)
+	{
+		fprintf(stderr, "Failed to load background.ogv\n");
+	}
+
+	backgroundVideo2 = al_open_video("frontend_pc/assets/img/background.ogv");
+	if (!backgroundVideo2)
+	{
+		fprintf(stderr, "Failed to load background.ogv\n");
+	}
+}
+
+static void renderBackgroundVideo()
+{
+	double pos = al_get_video_position(backgroundVideo1, 0);
+	double dur = BACKGROUND_VIDEO_DURATION;
+
+	if (!crossfading && pos >= dur - CROSSFADE_TIME)
+	{
+		// Start reproducing second video
+		al_start_video(backgroundVideo2, al_get_default_mixer());
+		crossfading = true;
+		crossfadeStartTime = al_get_time();
+	}
+
+	if (crossfading)
+	{
+		double elapsed = al_get_time() - crossfadeStartTime;
+		float alpha1 = 1.0f - (elapsed / CROSSFADE_TIME);
+		float alpha2 = elapsed / CROSSFADE_TIME;
+
+		// Limit alfa between 0 and 1
+		if (alpha1 < 0.0f)
+			alpha1 = 0.0f;
+		if (alpha2 > 1.0f)
+			alpha2 = 1.0f;
+
+		// Draw both videos with transparency
+		ALLEGRO_BITMAP *currentFrame1 = al_get_video_frame(backgroundVideo1);
+		if (currentFrame1)
+		{
+			al_draw_tinted_scaled_bitmap(
+				currentFrame1,
+				al_map_rgba_f(1, 1, 1, alpha1),
+				0, 0,
+				al_get_bitmap_width(currentFrame1), al_get_bitmap_height(currentFrame1),
+				0, 0,
+				SCREEN_WIDTH, SCREEN_HEIGHT,
+				0);
+		}
+
+		ALLEGRO_BITMAP *currentFrame2 = al_get_video_frame(backgroundVideo2);
+		if (currentFrame2)
+		{
+			al_draw_tinted_scaled_bitmap(
+				currentFrame2,
+				al_map_rgba_f(1, 1, 1, alpha2),
+				0, 0,
+				al_get_bitmap_width(currentFrame2), al_get_bitmap_height(currentFrame2),
+				0, 0,
+				SCREEN_WIDTH, SCREEN_HEIGHT,
+				0);
+		}
+
+		if (elapsed >= CROSSFADE_TIME)
+		{
+			// Prepare next cycle
+			ALLEGRO_VIDEO *temp = backgroundVideo1;
+			backgroundVideo1 = backgroundVideo2;
+			backgroundVideo2 = temp;
+
+			al_seek_video(backgroundVideo2, 0); // Reload the old video to use it in the next loop
+			crossfading = false;
+		}
+	}
+	else
+	{
+		// Draws main video frame to frame
+		ALLEGRO_BITMAP *currentFrame = al_get_video_frame(backgroundVideo1);
+		if (currentFrame)
+		{
+			al_draw_scaled_bitmap(
+				currentFrame,
+				0, 0,
+				al_get_bitmap_width(currentFrame), al_get_bitmap_height(currentFrame),
+				0, 0,
+				SCREEN_WIDTH, SCREEN_HEIGHT,
+				0);
+		}
+	}
 }
 
 static void drawShip(ship_t ship)
@@ -451,7 +580,7 @@ static void drawShip(ship_t ship)
 				0);
 		}
 	}
-	else if(ship.invencibilityTicks % 2 == 0) // After the ship was hit
+	else if (ship.invencibilityTicks % 2 == 0) // After the ship was hit
 	{
 		const float PI = 3.14159265f;
 		float angleRads = 0, angleGrads = 20;
@@ -463,7 +592,7 @@ static void drawShip(ship_t ship)
 		else if (ship.direction == MOVING_LEFT)
 		{
 			angleRads = -angleGrads * PI / 180.0f;
-		}		
+		}
 
 		// Centres of original bitmapp
 		float bitmap_cx = al_get_bitmap_width(shipBitMap) / 2.0f;
@@ -481,12 +610,10 @@ static void drawShip(ship_t ship)
 		al_draw_scaled_rotated_bitmap(
 			shipBitMap,
 			bitmap_cx, bitmap_cy,
-			draw_x, draw_y,		  
-			scale_x, scale_y,	 
-			angleRads,				  
-			0					  
-		);
-
+			draw_x, draw_y,
+			scale_x, scale_y,
+			angleRads,
+			0);
 	}
 }
 
