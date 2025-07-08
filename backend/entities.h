@@ -56,9 +56,9 @@ typedef struct
 {
 	entity_t entity;
 	movingDirections_t direction;
-	unsigned char livesLeft				: 3;
-	unsigned char canShoot 				: 1;
-	unsigned char invencibilityTicks 	: 4;
+	unsigned char livesLeft				: 4;
+	unsigned char canShoot 				: 4;
+	unsigned char invencibilityTicks;
 } ship_t;
 
 typedef struct

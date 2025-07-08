@@ -148,7 +148,7 @@ static void checkBulletHitsShip(game_t *game)
         {
             // if collision detected, kill the bullet and decrement ship's lives
             game->alienBullet.entity.isAlive = 0;
-            game->ship.livesLeft -= 1;
+            game->ship.livesLeft--;
             game->ship.entity.explosionTimer = EXPLOSION_TIMER;
 
             // allows the aliens to shoot

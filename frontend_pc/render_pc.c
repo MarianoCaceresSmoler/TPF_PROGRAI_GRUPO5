@@ -413,7 +413,6 @@ static void drawShip(ship_t ship)
 				SHIP_WIDTH, SHIP_HEIGHT,
 				0);
 		}
-		printf("Ship is invencible for %d ticks\n", ship.invencibilityTicks);
 	}
 }
 
