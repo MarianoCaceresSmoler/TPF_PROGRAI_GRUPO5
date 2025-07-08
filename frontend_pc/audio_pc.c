@@ -143,11 +143,10 @@ void resumeGameplayMusic(void)
     al_set_sample_instance_playing(gameMusicInstance, true);
 }
 
-
 void playMothershipSound(void)
 {
     if (sndMothership)
-        al_play_sample(sndMothership, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idMothershipSound);
+        al_play_sample(sndMothership, 0.3, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idMothershipSound);
 }
 
 void stopMothershipSound(void)
@@ -224,7 +223,6 @@ static void loadAudioAssets(void)
         fprintf(stderr, "Error loading mothership.wav\n");
 
     // Background music
-
     bgGameMusic = al_load_sample("frontend_pc/assets/audio/gamemusic.wav");
     if (bgGameMusic)
     {

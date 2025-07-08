@@ -51,6 +51,7 @@ typedef enum
 {
 	GAME_ERROR = -1,
     GAME_MENU,
+    GAME_LOADING,
     GAME_RUNNING,
     GAME_PAUSED,
     GAME_END

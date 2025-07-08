@@ -122,7 +122,7 @@ void initGraphics(void)
 		fprintf(stderr, "Failed to initialize the keyboard!\n");
 	}
 
-	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+	// al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 	display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 	if(!display)
 	{
@@ -236,7 +236,6 @@ void renderGame(game_t game)
 	drawBullets(game.shipBullet, game.alienBullet);
 	drawBarriers(game.barriers);
 	drawMothership(game.mothership);
-	// drawScore(game.score);
 	drawHUD(game.score, game.ship.livesLeft, game.currentLevel);
 
 	al_flip_display();
@@ -265,7 +264,7 @@ void renderMenu(game_t game)
 			titleWidth, titleHeight,
 			0);
 
-		al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 2, SCREEN_HEIGHT * 0.85, ALLEGRO_ALIGN_CENTER, "Press any key to play");
+		al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 2, SCREEN_HEIGHT * 0.85, ALLEGRO_ALIGN_CENTER, "Press SPACE to play");
 
 		drawAliensPoints();
 	}
