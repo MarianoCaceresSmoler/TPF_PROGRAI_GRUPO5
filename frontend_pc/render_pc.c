@@ -123,6 +123,7 @@ void initGraphics(void)
 		fprintf(stderr, "Failed to initialize the keyboard!\n");
 	}
 
+	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 	display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 	timer = al_create_timer(1.0 / FPS); // 1 frame per second timer
 
@@ -158,11 +159,11 @@ void initGraphics(void)
 	// Register fonts
 	al_init_font_addon();
 	al_init_ttf_addon();
-	fontGameplay = al_load_ttf_font("frontend_pc/assets/fonts/font_gameplay.ttf", 36, 0);
-	fontRetro = al_load_ttf_font("frontend_pc/assets/fonts/font_retro.ttf", 42, 0);
-
+	fontGameplay = al_load_ttf_font("frontend_pc/assets/fonts/font_gameplay.ttf", FONT_GAME_SIZE, 0);
+	fontRetro = al_load_ttf_font("frontend_pc/assets/fonts/font_retro.ttf", FONT_TEXT_SIZE, 0);
+	
 	// Error managing for elements created
-	if (!(display && timer && alien0BitMap && alien1BitMap && alien2BitMap && alien3BitMap && alien4BitMap && shipBitMap && barrierPixelBitmap && bulletBitmap && mothershipBitmap && eventQueue))
+	if(!(display && timer && alien0BitMap && alien1BitMap && alien2BitMap && alien3BitMap && alien4BitMap && shipBitMap && barrierPixelBitmap && bulletBitmap && mothershipBitmap && eventQueue))
 	{
 		fprintf(stderr, "Failed to load assets.\n");
 		cleanupGraphics();
