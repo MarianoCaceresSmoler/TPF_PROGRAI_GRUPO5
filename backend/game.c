@@ -316,17 +316,17 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 
 static void updateBullet(bullet_t *bullet)
 {
-	if (bullet->entity.isAlive)
+	if (bullet->entity.isAlive == false)
+		return;
+
+	if (bullet->entity.x < 0 || bullet->entity.x > SCREEN_SIZE || bullet->entity.y < 0 || bullet->entity.y > SCREEN_SIZE)
 	{
-		if (bullet->entity.x >= 0 && bullet->entity.x <= SCREEN_SIZE && bullet->entity.y >= 0 && bullet->entity.y <= SCREEN_SIZE)
-		{
-			moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
-		}
-		else
-		{
-			bullet->entity.isAlive = 0;
-		}
-	}
+		bullet->entity.isAlive = 0;
+		return;
+	}	
+	
+	moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
+	
 }
 
 static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemaining)
