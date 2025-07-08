@@ -125,6 +125,7 @@
 #endif
 
 #define SHIP_LIVES 3
+#define INVENCIBILITY_TICKS 30
 #define STANDBY_POSITION 2000 // logical position for inactive entities
 
 #define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS)

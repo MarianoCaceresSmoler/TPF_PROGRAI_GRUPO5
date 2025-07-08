@@ -451,7 +451,7 @@ static void drawShip(ship_t ship)
 				0);
 		}
 	}
-	else
+	else if(ship.invencibilityTicks % 2 == 0) // After the ship was hit
 	{
 		const float PI = 3.14159265f;
 		float angleRads = 0, angleGrads = 20;
@@ -465,27 +465,28 @@ static void drawShip(ship_t ship)
 			angleRads = -angleGrads * PI / 180.0f;
 		}		
 
-		// Centros del bitmap original
+		// Centres of original bitmapp
 		float bitmap_cx = al_get_bitmap_width(shipBitMap) / 2.0f;
 		float bitmap_cy = al_get_bitmap_height(shipBitMap) / 2.0f;
 
-		// Posición en pantalla (centro del sprite deseado)
+		// Position in display (centre of the desire sprite)
 		float draw_x = ship.entity.x + SHIP_WIDTH / 2.0f;
 		float draw_y = ship.entity.y + SHIP_HEIGHT / 2.0f;
 
-		// Escalado: desde tamaño original al deseado
+		// Escalated
 		float scale_x = SHIP_WIDTH / (float)al_get_bitmap_width(shipBitMap);
 		float scale_y = SHIP_HEIGHT / (float)al_get_bitmap_height(shipBitMap);
 
-		// Dibujo final
+		// Final draw
 		al_draw_scaled_rotated_bitmap(
 			shipBitMap,
-			bitmap_cx, bitmap_cy, // centro de rotación en el bitmap original
-			draw_x, draw_y,		  // centro de dibujo en pantalla
-			scale_x, scale_y,	  // escalado en X e Y
-			angleRads,				  // rotación en radianes
-			0					  // flags (normalmente 0)
+			bitmap_cx, bitmap_cy,
+			draw_x, draw_y,		  
+			scale_x, scale_y,	 
+			angleRads,				  
+			0					  
 		);
+
 	}
 }
 

@@ -64,7 +64,7 @@ static void updateAliens(alienFormation_t *aliens, int tickCounter, int aliensRe
  */
 static void updateMothership(mothership_t *mothership);
 
-static void updatePowerUp(powerUp_t *powerUp);
+//static void updatePowerUp(powerUp_t *powerUp);
 
 /**
  * @brief function to update an entity explosion/live state
@@ -228,7 +228,10 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		if(game->ship.livesLeft == 0)
 			gameEnd(game);
 		else
+		{
 			setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
+			game->ship.invencibilityTicks = INVENCIBILITY_TICKS;
+		}
 	}
 
 	// updates entities
@@ -272,7 +275,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	}
 	
 	#ifdef PLATFORM_PC
-		// updatePowerUp(game->powerUp);
+		//updatePowerUp(game->powerUp);
 	#endif
 
 	// updates score if an alien is killed
@@ -295,11 +298,14 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 	}
 	else if (ship->entity.isAlive)
 	{
+
+		if(ship->invencibilityTicks > 0)
+			ship->invencibilityTicks--;
+
 		if (moveLeft && !moveRight && ship->entity.x > SHIP_MOVE_RATE)
 		{
 			moveEntityX(&ship->entity, -SHIP_MOVE_RATE);
 			ship->direction = MOVING_LEFT;
-			printf("actualice direction: %d\n", ship->direction);	
 
 		}
 		else if (moveRight && !moveLeft && ship->entity.x < SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
@@ -313,9 +319,6 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 		}
 
 	}
-
-	printf("direction: %d\n", ship->direction);	
-
 	
 }
 
