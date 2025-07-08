@@ -64,6 +64,8 @@
 #define BULLET_MOVE_RATE 2
 #define SHIP_MOVE_RATE 1
 
+#define SCORE_FILE "Files/HiScores_RPI.txt"
+
 #else // platform pc
 
 #define SCREEN_WIDTH 1920
@@ -122,6 +124,8 @@
 
 #define POWERUP_TYPES 4
 
+#define SCORE_FILE "Files/HiScores_PC.txt"
+
 #endif
 
 #define SHIP_LIVES 3
@@ -135,7 +139,6 @@
 
 
 #define MAX_SCORES 10
-#define SCORE_FILE "scores.txt"
 
 #define MIN_MOTHERSHIP_POINTS 100
 #define MAX_MOTHERSHIP_POINTS 250

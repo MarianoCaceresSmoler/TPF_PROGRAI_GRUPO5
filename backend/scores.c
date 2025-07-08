@@ -47,8 +47,6 @@
 
 // +ej: static int temperaturas_actuales[4];+
 
-static int top_scores[MAX_SCORES];
-
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
@@ -59,68 +57,46 @@ void incrementScore(game_t * game, int points)
 {
 	game->score += points;
 }
-
-void scores_init()
+/*
+int * readTopScore(int rank)
 {
-    FILE *f = fopen(SCORE_FILE, "r+");
-    if (!f)
-    {
-        int i;
-        // if file does not exist, initialize with ceros
-        for (i = 0; i < MAX_SCORES; i++)
-        {
-            top_scores[i] = 0;
-        }
-        return;
-    }
-
-    // read scores from file (scores are stored from highest to lowest)
-    if(fread(top_scores, sizeof(int), MAX_SCORES, f) != MAX_SCORES){
-        // error reading file
-        fprintf(stderr, "Error reading scores file\n");
-    }
-    fclose(f);
+    return highScores;
 }
 
-int * get_top_scores()
-{
-    return top_scores;
-}
-
-void add_score(int score)
+void addScore(int score)
 {
     // if top score does not enter the top, exit
-    if (score <= top_scores[MAX_SCORES - 1])
+    if (score <= highScores[MAX_SCORES - 1].score)
         return;
 
     // insert new score in correct position
     int i, j, scoreInserted;
     for (i = 0, scoreInserted = 0; i < MAX_SCORES && !scoreInserted; i++)
     {
-        if (score > top_scores[i])
+        if (score > highScores[i].score)
         {
             // move scores down
             for (j = MAX_SCORES - 1; j > i; j--)
             {
-                top_scores[j] = top_scores[j - 1];
+                highScores[j].score = highScores[j - 1].score;
             }
 
             // insert new score
-            top_scores[i] = score;
+            highScores[i].score = score;
             scoreInserted = 1;
         }
     }
 }
 
-void save_scores()
+void saveScores()
 {
     FILE *f = fopen(SCORE_FILE, "w+"); // if file does not exist, create it
     if (!f) 
        return;
-    fwrite(top_scores, sizeof(int), MAX_SCORES, f);
+    fwrite(highScores[0].score, sizeof(int), MAX_SCORES, f);
     fclose(f);
 }
-
+*/
 int getAlienPoints(alien_t alien)
 {
     switch(alien.alienType)

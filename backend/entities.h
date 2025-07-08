@@ -94,7 +94,7 @@ typedef struct
 typedef struct
 {
 	entity_t entity;
-	char direction;
+	movingDirections_t direction;
 } bullet_t;
 
 typedef struct
