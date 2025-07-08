@@ -124,15 +124,6 @@ void stopMenuMusic(void)
     }
 }
 
-void playGameplayMusic(void)
-{
-    if (gameMusicInstance)
-    {
-        al_set_sample_instance_playmode(gameMusicInstance, ALLEGRO_PLAYMODE_LOOP);
-        al_play_sample_instance(gameMusicInstance);
-    }
-}
-
 void stopGameplayMusic(void)
 {
     al_set_sample_instance_playing(gameMusicInstance, false);
@@ -141,6 +132,16 @@ void stopGameplayMusic(void)
 void resumeGameplayMusic(void)
 {
     al_set_sample_instance_playing(gameMusicInstance, true);
+}
+
+void playGameplayMusic(void)
+{
+    if (gameMusicInstance)
+    {
+        al_set_sample_instance_playmode(gameMusicInstance, ALLEGRO_PLAYMODE_LOOP);
+        resumeGameplayMusic();
+        // al_play_sample_instance(gameMusicInstance);
+    }
 }
 
 void playMothershipSound(void)

@@ -25,7 +25,7 @@ OBJS := entities.o game.o physics.o  scores.o audio_${PLATFORM}.o input_${PLATFO
 
 # FALTA DEFINIR BIEN LAS DEPENDENCIAS PARA CADA TARGET
 
-ALLEGRO_LINKS := -lallegro -lallegro_primitives -lallegro_font -lallegro_ttf -lallegro_image -lallegro_audio -lallegro_acodec
+ALLEGRO_LINKS := -lallegro -lallegro_primitives -lallegro_font -lallegro_ttf -lallegro_image -lallegro_audio -lallegro_acodec -lallegro_video
 
 program: ${OBJS}
 	${CC} ${OBJS} ${OPTIONS} -o ${OUTPUT} ${ALLEGRO_LINKS} ${PLATFORM_FLAG}

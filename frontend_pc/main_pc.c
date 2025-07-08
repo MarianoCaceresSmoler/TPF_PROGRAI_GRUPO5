@@ -85,8 +85,8 @@ enum inputKeys
 int main(void)
 {
 	// Allegro and game initialization
-	initGraphics();
 	initAudio();
+	initGraphics();
 	game_t game;
 	gameInit(&game);
 
@@ -141,6 +141,12 @@ int main(void)
 					break;
 
 				case GAME_RUNNING:
+
+					if(!isGameplayMusicPlaying)
+					{
+						resumeGameplayMusic();
+						isGameplayMusicPlaying = true;
+					}
 
 					if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
 						playShootSound();
@@ -216,6 +222,7 @@ int main(void)
 						playGameoverSound();
 						gameoverSoundPlayed = true;
 					}
+
 					renderGameOver(game);
 
 					if (inputStatus.restartKeyPressed)

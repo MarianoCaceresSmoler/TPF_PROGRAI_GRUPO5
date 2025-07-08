@@ -13,17 +13,13 @@ Backend:
 
 Frontend:
 - Hacer animacion de cargar nivel
-- Mostrar datos del juego en gameplay (puntos, nivel y vidas, y si hay algun powerup activo)
-- Meter video o imagen de fondo
-- Poner opciones o distintas pantallas en menu de inicio (capaz usar mouse tambien) y mostrar highscores
+- Mostrar datos del juego en gameplay (falta si hay algun powerup activo)
+- Pantalla de menu: mostrar highscores, que el usuario ingrese nombre de tres caracteres, y elegir dificultad
 - Ver bien que mostrar en pantalla de menu final
 
 Animaciones o sprites a cambiar:
-- Sprites de nave en movimiento
 - Sprites de balas 
 - Hacer que la mothership vaya cambiando de color
-- Background de espacio o algo asi
-- 
 
 ADICIONALES:
 - Aumentar dificultad a medida que mueren aliens
