@@ -151,7 +151,7 @@ void shootFromEntity(bullet_t *bullet, entity_t *shootingEntity)
 
 static alien_t createAlien(int type)
 {
-	alien_t alien = {{STANDBY_POSITION, STANDBY_POSITION, ALIEN_HEIGHT, ALIEN_WIDTH, 1}, ALIEN_MOVE_RATE, type};
+	alien_t alien = {{STANDBY_POSITION, STANDBY_POSITION, ALIEN_HEIGHT, ALIEN_WIDTH, 1}, ALIEN_MOVE_RATE, type, 0};
 	return alien;
 }
 
