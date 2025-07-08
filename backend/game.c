@@ -14,6 +14,7 @@
 #include "scores.h"
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -297,28 +298,28 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 	}
 	else if (ship->entity.isAlive)
 	{
+
 		if(ship->invencibilityTicks > 0)
 			ship->invencibilityTicks--;
 
-		if (moveLeft && ship->entity.x > SHIP_MOVE_RATE)
+		if (moveLeft && !moveRight && ship->entity.x > SHIP_MOVE_RATE)
 		{
 			moveEntityX(&ship->entity, -SHIP_MOVE_RATE);
 			ship->direction = MOVING_LEFT;
-		}
-		else
-			ship->direction = STILL;
 
-		if (moveRight && ship->entity.x < SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
+		}
+		else if (moveRight && !moveLeft && ship->entity.x < SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
 		{
 			moveEntityX(&ship->entity, SHIP_MOVE_RATE);
 			ship->direction = MOVING_RIGHT;
 		}
 		else
+		{
 			ship->direction = STILL;
+		}
 
-		if (moveLeft && moveRight)
-			ship->direction = STILL;
 	}
+	
 }
 
 static void updateBullet(bullet_t *bullet)
@@ -371,6 +372,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
 				moveEntityX(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
+				aliens->alien[rowToMove][i].isMoving = !(aliens->alien[rowToMove][i].isMoving);		
 			}
 		}
 		else
@@ -386,6 +388,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
 				moveEntityX(&aliens->alien[rowToMove][i].entity, -ALIEN_MOVE_RATE);
+				aliens->alien[rowToMove][i].isMoving = !(aliens->alien[rowToMove][i].isMoving);			
 			}
 		}
 		else

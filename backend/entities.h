@@ -66,6 +66,7 @@ typedef struct
 	entity_t entity;
 	unsigned short int moveRate;
 	unsigned char alienType;
+	unsigned char isMoving;
 } alien_t;
 
 typedef struct

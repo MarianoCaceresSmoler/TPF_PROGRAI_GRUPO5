@@ -52,7 +52,7 @@ static void loadImages(void);
  * @brief private functions to draw objects in display
  */
 static void drawShip(ship_t ship);
-static void drawAliens(alienFormation_t alienFormation);
+static void drawAliens(alienFormation_t alienFormation, int time);
 static void drawMothership(mothership_t mothership);
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
 static void drawBarriers(barrier_t barriers[BARRIERS]);
@@ -70,7 +70,6 @@ static void drawAliensPoints();
  * @param level the actual level
  */
 static void drawHUD(int score, int lives, int level);
-
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -96,6 +95,11 @@ static ALLEGRO_BITMAP *alien1BitMap = NULL;
 static ALLEGRO_BITMAP *alien2BitMap = NULL;
 static ALLEGRO_BITMAP *alien3BitMap = NULL;
 static ALLEGRO_BITMAP *alien4BitMap = NULL;
+static ALLEGRO_BITMAP *alien0MoveBitMap = NULL;
+static ALLEGRO_BITMAP *alien1MoveBitMap = NULL;
+static ALLEGRO_BITMAP *alien2MoveBitMap = NULL;
+static ALLEGRO_BITMAP *alien3MoveBitMap = NULL;
+static ALLEGRO_BITMAP *alien4MoveBitMap = NULL;
 static ALLEGRO_BITMAP *shipBitMap = NULL;
 static ALLEGRO_BITMAP *barrierPixelBitmap = NULL;
 static ALLEGRO_BITMAP *bulletBitmap = NULL;
@@ -124,13 +128,13 @@ void initGraphics(void)
 
 	// al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 	display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
-	if(!display)
+	if (!display)
 	{
 		fprintf(stderr, "Unable to create display \n");
 	}
 
 	timer = al_create_timer(1.0 / FPS);
-	if(!timer) // 1 frame per second timer
+	if (!timer) // 1 frame per second timer
 	{
 		fprintf(stderr, "Unable to create timer \n");
 	}
@@ -154,6 +158,12 @@ void initGraphics(void)
 	alien3BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
 	alien4BitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
 
+	alien0MoveBitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
+	alien1MoveBitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
+	alien2MoveBitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
+	alien3MoveBitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
+	alien4MoveBitMap = al_create_bitmap(ALIEN_WIDTH, ALIEN_HEIGHT);
+
 	shipBitMap = al_create_bitmap(SHIP_WIDTH, SHIP_HEIGHT);
 	barrierPixelBitmap = al_create_bitmap(BARRIER_PIXEL_WIDTH, BARRIER_PIXEL_HEIGHT);
 	bulletBitmap = al_create_bitmap(BULLET_WIDTH, BULLET_HEIGHT);
@@ -169,9 +179,9 @@ void initGraphics(void)
 	al_init_ttf_addon();
 	fontGameplay = al_load_ttf_font("frontend_pc/assets/fonts/font_gameplay.ttf", FONT_GAME_SIZE, 0);
 	fontRetro = al_load_ttf_font("frontend_pc/assets/fonts/font_retro.ttf", FONT_TEXT_SIZE, 0);
-	
+
 	// Error managing for elements created
-	if(!(display && timer && alien0BitMap && alien1BitMap && alien2BitMap && alien3BitMap && alien4BitMap && shipBitMap && barrierPixelBitmap && bulletBitmap && mothershipBitmap && eventQueue))
+	if (!(display && timer && alien0BitMap && alien1BitMap && alien2BitMap && alien3BitMap && alien4BitMap && shipBitMap && barrierPixelBitmap && bulletBitmap && mothershipBitmap && eventQueue))
 	{
 		fprintf(stderr, "Failed to load assets.\n");
 		cleanupGraphics();
@@ -207,6 +217,16 @@ void cleanupGraphics(void)
 		al_destroy_bitmap(alien3BitMap);
 	if (alien4BitMap)
 		al_destroy_bitmap(alien4BitMap);
+	if (alien0MoveBitMap)
+		al_destroy_bitmap(alien0MoveBitMap);
+	if (alien1MoveBitMap)
+		al_destroy_bitmap(alien1MoveBitMap);
+	if (alien2MoveBitMap)
+		al_destroy_bitmap(alien2MoveBitMap);
+	if (alien3MoveBitMap)
+		al_destroy_bitmap(alien3MoveBitMap);
+	if (alien4MoveBitMap)
+		al_destroy_bitmap(alien4MoveBitMap);
 	if (shipBitMap)
 		al_destroy_bitmap(shipBitMap);
 	if (barrierPixelBitmap)
@@ -232,7 +252,7 @@ void renderGame(game_t game)
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 
 	drawShip(game.ship);
-	drawAliens(game.aliens);
+	drawAliens(game.aliens, game.tickCounter);
 	drawBullets(game.shipBullet, game.alienBullet);
 	drawBarriers(game.barriers);
 	drawMothership(game.mothership);
@@ -350,6 +370,36 @@ static void loadImages(void)
 		fprintf(stderr, "Failed to load alien4.png\n");
 	}
 
+	alien0MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien0move.png");
+	if (!alien0MoveBitMap)
+	{
+		fprintf(stderr, "Failed to load alien0move.png\n");
+	}
+
+	alien1MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien1move.png");
+	if (!alien1MoveBitMap)
+	{
+		fprintf(stderr, "Failed to load alien1move.png\n");
+	}
+
+	alien2MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien2move.png");
+	if (!alien2MoveBitMap)
+	{
+		fprintf(stderr, "Failed to load alien2move.png\n");
+	}
+
+	alien3MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien3move.png");
+	if (!alien3MoveBitMap)
+	{
+		fprintf(stderr, "Failed to load alien3move.png\n");
+	}
+
+	alien4MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien4move.png");
+	if (!alien4MoveBitMap)
+	{
+		fprintf(stderr, "Failed to load alien4move.png\n");
+	}
+
 	shipBitMap = al_load_bitmap("frontend_pc/assets/img/ship.png");
 	if (!shipBitMap)
 	{
@@ -401,22 +451,46 @@ static void drawShip(ship_t ship)
 				0);
 		}
 	}
-	else
+	else if(ship.invencibilityTicks % 2 == 0) // After the ship was hit
 	{
-		if(ship.invencibilityTicks % 2 == 0)
+		const float PI = 3.14159265f;
+		float angleRads = 0, angleGrads = 20;
+
+		if (ship.direction == MOVING_RIGHT)
 		{
-			al_draw_scaled_bitmap(
-				shipBitMap,
-				0, 0,
-				al_get_bitmap_width(shipBitMap), al_get_bitmap_height(shipBitMap),
-				ship.entity.x, ship.entity.y,
-				SHIP_WIDTH, SHIP_HEIGHT,
-				0);
+			angleRads = angleGrads * PI / 180.0f;
 		}
+		else if (ship.direction == MOVING_LEFT)
+		{
+			angleRads = -angleGrads * PI / 180.0f;
+		}		
+
+		// Centres of original bitmapp
+		float bitmap_cx = al_get_bitmap_width(shipBitMap) / 2.0f;
+		float bitmap_cy = al_get_bitmap_height(shipBitMap) / 2.0f;
+
+		// Position in display (centre of the desire sprite)
+		float draw_x = ship.entity.x + SHIP_WIDTH / 2.0f;
+		float draw_y = ship.entity.y + SHIP_HEIGHT / 2.0f;
+
+		// Escalated
+		float scale_x = SHIP_WIDTH / (float)al_get_bitmap_width(shipBitMap);
+		float scale_y = SHIP_HEIGHT / (float)al_get_bitmap_height(shipBitMap);
+
+		// Final draw
+		al_draw_scaled_rotated_bitmap(
+			shipBitMap,
+			bitmap_cx, bitmap_cy,
+			draw_x, draw_y,		  
+			scale_x, scale_y,	 
+			angleRads,				  
+			0					  
+		);
+
 	}
 }
 
-static void drawAliens(alienFormation_t aliens)
+static void drawAliens(alienFormation_t aliens, int time)
 {
 	int i, j;
 
@@ -456,56 +530,113 @@ static void drawAliens(alienFormation_t aliens)
 				}
 				else
 				{
-					switch (alienType)
+					if (!aliens.alien[i][j].isMoving)
 					{
-					case 0:
-						al_draw_scaled_bitmap(
-							alien0BitMap,
-							0, 0,
-							al_get_bitmap_width(alien0BitMap), al_get_bitmap_height(alien0BitMap),
-							alienEntity.x, alienEntity.y,
-							ALIEN_WIDTH, ALIEN_HEIGHT,
-							0);
-						break;
-					case 1:
-						al_draw_scaled_bitmap(
-							alien1BitMap,
-							0, 0,
-							al_get_bitmap_width(alien1BitMap), al_get_bitmap_height(alien1BitMap),
-							alienEntity.x, alienEntity.y,
-							ALIEN_WIDTH, ALIEN_HEIGHT,
-							0);
-						break;
-					case 2:
-						al_draw_scaled_bitmap(
-							alien2BitMap,
-							0, 0,
-							al_get_bitmap_width(alien2BitMap), al_get_bitmap_height(alien2BitMap),
-							alienEntity.x, alienEntity.y,
-							ALIEN_WIDTH, ALIEN_HEIGHT,
-							0);
-						break;
-					case 3:
-						al_draw_scaled_bitmap(
-							alien3BitMap,
-							0, 0,
-							al_get_bitmap_width(alien3BitMap), al_get_bitmap_height(alien3BitMap),
-							alienEntity.x, alienEntity.y,
-							ALIEN_WIDTH, ALIEN_HEIGHT,
-							0);
-						break;
-					case 4:
-						al_draw_scaled_bitmap(
-							alien4BitMap,
-							0, 0,
-							al_get_bitmap_width(alien4BitMap), al_get_bitmap_height(alien4BitMap),
-							alienEntity.x, alienEntity.y,
-							ALIEN_WIDTH, ALIEN_HEIGHT,
-							0);
-						break;
+						switch (alienType)
+						{
+						case 0:
+							al_draw_scaled_bitmap(
+								alien0BitMap,
+								0, 0,
+								al_get_bitmap_width(alien0BitMap), al_get_bitmap_height(alien0BitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
+						case 1:
+							al_draw_scaled_bitmap(
+								alien1BitMap,
+								0, 0,
+								al_get_bitmap_width(alien1BitMap), al_get_bitmap_height(alien1BitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
+						case 2:
+							al_draw_scaled_bitmap(
+								alien2BitMap,
+								0, 0,
+								al_get_bitmap_width(alien2BitMap), al_get_bitmap_height(alien2BitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
+						case 3:
+							al_draw_scaled_bitmap(
+								alien3BitMap,
+								0, 0,
+								al_get_bitmap_width(alien3BitMap), al_get_bitmap_height(alien3BitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
+						case 4:
+							al_draw_scaled_bitmap(
+								alien4BitMap,
+								0, 0,
+								al_get_bitmap_width(alien4BitMap), al_get_bitmap_height(alien4BitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
 
-					default:
-						break;
+						default:
+							break;
+						}
+					}
+					else
+					{
+						switch (alienType)
+						{
+						case 0:
+							al_draw_scaled_bitmap(
+								alien0MoveBitMap,
+								0, 0,
+								al_get_bitmap_width(alien0MoveBitMap), al_get_bitmap_height(alien0MoveBitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
+						case 1:
+							al_draw_scaled_bitmap(
+								alien1MoveBitMap,
+								0, 0,
+								al_get_bitmap_width(alien1MoveBitMap), al_get_bitmap_height(alien1MoveBitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
+						case 2:
+							al_draw_scaled_bitmap(
+								alien2MoveBitMap,
+								0, 0,
+								al_get_bitmap_width(alien2MoveBitMap), al_get_bitmap_height(alien2MoveBitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
+						case 3:
+							al_draw_scaled_bitmap(
+								alien3MoveBitMap,
+								0, 0,
+								al_get_bitmap_width(alien3MoveBitMap), al_get_bitmap_height(alien3MoveBitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
+						case 4:
+							al_draw_scaled_bitmap(
+								alien4MoveBitMap,
+								0, 0,
+								al_get_bitmap_width(alien4MoveBitMap), al_get_bitmap_height(alien4MoveBitMap),
+								alienEntity.x, alienEntity.y,
+								ALIEN_WIDTH, ALIEN_HEIGHT,
+								0);
+							break;
+
+						default:
+							break;
+						}
 					}
 				}
 			}
@@ -618,27 +749,25 @@ static void drawScore(int score)
 
 static void drawHUD(int score, int lives, int level)
 {
-    char hudText[128];
+	char hudText[128];
 	int i;
-    
-    // Score
-    snprintf(hudText, sizeof(hudText), "Score: %d", score);
-    al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCREEN_WIDTH-500, SCREEN_HEIGHT/5, 0, hudText);
 
-	 // Level
-    snprintf(hudText, sizeof(hudText), "Level: %d", level);
-    al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCREEN_WIDTH-500, SCREEN_HEIGHT/5 + 100, 0, hudText);
+	// Score
+	snprintf(hudText, sizeof(hudText), "Score: %d", score);
+	al_draw_text(fontRetro, al_map_rgb(255, 255, 255), 150, 20, 0, hudText);
+
+	// Level
+	snprintf(hudText, sizeof(hudText), "Level: %d", level);
+	al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCREEN_WIDTH - 300, 20, 0, hudText);
 
 	// Lives
-    snprintf(hudText, sizeof(hudText), "Lives: %d", lives);
-	al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCREEN_WIDTH-500, SCREEN_HEIGHT/5 + 200, 0, hudText);
+	snprintf(hudText, sizeof(hudText), "Lives: %d", lives);
+	al_draw_text(fontRetro, al_map_rgb(255, 255, 255), 800, 20, 0, hudText);
 
-	for(i = 0; i < lives; i++)
+	for (i = 0; i < lives; i++)
 	{
-		al_draw_text(fontGameplay, al_map_rgb(66,141,255), SCREEN_WIDTH-(320 - i * 50), SCREEN_HEIGHT/5 + 195, 0, "W");
-	}    
-    
-    
+		al_draw_text(fontGameplay, al_map_rgb(66, 141, 255), 975 + i * 50, 17, 0, "W");
+	}
 }
 
 static void drawAliensPoints()
@@ -710,7 +839,7 @@ static void drawAliensPoints()
 		spriteX, startY + 3 * rowSpacing,
 		ALIEN_WIDTH * spriteScale, ALIEN_HEIGHT * spriteScale,
 		0);
-	
+
 	sprintf(buffer, "= %d POINTS", ALIEN_TYPE_3_POINTS); // saves alien points in buffer
 
 	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
@@ -725,7 +854,7 @@ static void drawAliensPoints()
 		spriteX, startY + 4 * rowSpacing,
 		ALIEN_WIDTH * spriteScale, ALIEN_HEIGHT * spriteScale,
 		0);
-	
+
 	sprintf(buffer, "= %d POINTS", ALIEN_TYPE_4_POINTS); // saves alien points in buffer
 
 	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
@@ -740,9 +869,8 @@ static void drawAliensPoints()
 		spriteX - 15, startY + 5 * rowSpacing,
 		MOTHERSHIP_WIDTH * spriteScale, MOTHERSHIP_HEIGHT * spriteScale,
 		0);
-	
+
 	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
 				 textX, startY + 5 * rowSpacing,
 				 ALLEGRO_ALIGN_LEFT, "= ??? MYSTERY");
-
 }
