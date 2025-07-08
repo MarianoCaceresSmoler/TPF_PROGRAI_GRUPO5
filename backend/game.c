@@ -156,7 +156,7 @@ void levelInit(game_t *game)
 	{
 		for (j = 0; j < ALIENS_COLS; j++)
 		{
-			setEntity(&game->aliens.alien[i][j].entity, ALIENS_INITIAL_X + j * ALIEN_SEPARATION, ALIENS_INITIAL_Y + i * ALIEN_SEPARATION);
+			setEntity(&game->aliens.alien[i][j].entity, ALIENS_INITIAL_X + j * ALIEN_X_SEPARATION, ALIENS_INITIAL_Y + i * ALIEN_Y_SEPARATION);
 		}
 	}
 

@@ -7,16 +7,16 @@ UNAME_M := $(shell uname -m)
 
 BACKEND_DIR := backend
 
-ifeq ($(UNAME_M),x86_64)
-    PLATFORM := pc
-    PLATFORM_FLAG := -DPLATFORM_PC
-    FRONTEND_DIR := frontend_pc
-    OUTPUT := game_pc
-else
+ifeq ($(UNAME_M),armv7l)
     PLATFORM := rpi
     PLATFORM_FLAG := -DPLATFORM_RPI
     FRONTEND_DIR := frontend_rpi
     OUTPUT := game_rpi
+else
+    PLATFORM := pc
+    PLATFORM_FLAG := -DPLATFORM_PC
+    FRONTEND_DIR := frontend_pc
+    OUTPUT := game_pc
 endif
 
 $(info Compiling for: $(PLATFORM))
