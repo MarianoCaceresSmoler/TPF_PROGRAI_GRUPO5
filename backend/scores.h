@@ -20,15 +20,13 @@
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
-/*
+
 typedef struct 
 {
 	unsigned char tag[4];
-	unsigned short int  score;
+	unsigned short int score;
 } score_t;
 
-score_t highScores[MAX_SCORES];
-*/
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
@@ -47,21 +45,11 @@ score_t highScores[MAX_SCORES];
 void incrementScore(game_t *game, int points);
 
 /**
- * @brief get a top score 
- * @return array of scores
+ * @brief updates score file with the new score
+ * @param lastScore the score to update
+ * @return the rank of the score in the top scores list, 0 if score is not in top 10
  */
-getHighScores(int rank);
-
-/**
- * @brief add new score to ranking if qualifies
- * @param score the score to add
- */
-void addScore(int score);
-
-/**
- * @brief save actual ranking to file
- */
-void saveScores();
+int updateScoreRank(score_t lastScore);
 
 /**
  * @brief function to get the amount of points given by the type of alien killed

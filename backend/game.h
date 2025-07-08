@@ -70,6 +70,7 @@ typedef struct
 
     // game variables and info
     gameStatus_t status;
+    char nameTag[4];
     int score;
     int currentLevel;
     int tickCounter;
@@ -121,8 +122,9 @@ void gameResume(game_t *game);
 /**
  * @brief function to finish the game
  * @param game pointer to the game information
+ * @return the rank of the score in the top scores list, 0 if score is not in top 10
  */
-void gameEnd(game_t *game);
+int gameEnd(game_t *game);
 
 /**
  * @brief function to restart the game

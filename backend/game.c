@@ -195,9 +195,16 @@ void gameResume(game_t *game)
 	game->status = GAME_RUNNING;
 }
 
-void gameEnd(game_t *game)
+int gameEnd(game_t *game)
 {
+	score_t score;
+	score.score = game->score;
+	score.tag[0] = game->nameTag[0];
+	score.tag[1] = game->nameTag[1];
+	score.tag[2] = game->nameTag[2];
+
 	game->status = GAME_END;
+	return updateScoreRank(score);
 }
 
 void gameReset(game_t *game)
