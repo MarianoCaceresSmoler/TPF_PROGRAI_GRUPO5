@@ -160,6 +160,8 @@
 #define MOTHERSHIP_EXPLOSION_TIMER 30
 #define TOTAL_INPUTS 8
 
+#define LOADING_TIME (ALIENS_NUMBER)
+
 #define FPS 30
 
 /*******************************************************************************

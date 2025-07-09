@@ -156,6 +156,7 @@ void gameInit(game_t *game)
 	game->aliensRemaining = ALIENS_NUMBER;
 	for (i = 0; i < MAX_NAME_CHARS; i++)
 		game->nameTag[i] = '_';
+	game->nameTag[i] = 0;
 }
 
 void levelInit(game_t *game)
@@ -172,7 +173,8 @@ void levelInit(game_t *game)
 
 	setAliens(game); // set aliens to initial position
 
-	game->status = GAME_RUNNING;
+	game->status = GAME_LOADING;
+	game->loadingTimer = LOADING_TIME;
 	game->aliensRemaining = ALIENS_NUMBER;
 	game->tickCounter = 0;
 

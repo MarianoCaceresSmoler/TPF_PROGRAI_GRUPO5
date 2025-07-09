@@ -60,7 +60,8 @@ static void loadImages(void);
  */
 static void renderBackgroundVideo();
 static void drawShip(ship_t ship);
-static void drawAliens(alienFormation_t alienFormation, int time);
+static void drawAliens(alienFormation_t alienFormation);
+static void drawAliensLoading(alienFormation_t alienFormation, int aliensToDraw);
 static void drawMothership(mothership_t mothership);
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
 static void drawBarriers(barrier_t barriers[BARRIERS]);
@@ -287,14 +288,27 @@ void renderGame(game_t game)
 
 	drawMenu = 1;
 
-	renderBackgroundVideo();
-	drawShip(game.ship);
-	drawAliens(game.aliens, game.tickCounter);
-	drawBullets(game.shipBullet, game.alienBullet);
-	drawBarriers(game.barriers);
-	drawPowerUps(game.powerUp, game.activePowerUp);
-	drawMothership(game.mothership);
-	drawHUD(game.score, game.ship.livesLeft, game.currentLevel);
+	if (game.status == GAME_LOADING)
+	{
+		if(game.loadingTimer == LOADING_TIME)
+			al_set_timer_speed(timer, 1.0 / (FPS * 2));
+		else if(game.loadingTimer == 1)
+			al_set_timer_speed(timer, 1.0 / FPS);
+		
+		renderBackgroundVideo();
+		drawAliensLoading(game.aliens, LOADING_TIME - game.loadingTimer);
+	}
+	else
+	{
+		renderBackgroundVideo();
+		drawShip(game.ship);
+		drawAliens(game.aliens);
+		drawBullets(game.shipBullet, game.alienBullet);
+		drawBarriers(game.barriers);
+		drawPowerUps(game.powerUp, game.activePowerUp);
+		drawMothership(game.mothership);
+		drawHUD(game.score, game.ship.livesLeft, game.currentLevel);
+	}
 
 	al_flip_display();
 }
@@ -329,11 +343,11 @@ void renderMenu(game_t game)
 		// Coords and dims for input box
 		float boxWidth = 200;
 		float boxHeight = 50;
-		float boxX =  SCREEN_WIDTH / 3 + boxWidth * 2.3;
+		float boxX = SCREEN_WIDTH / 3 + boxWidth * 2.3;
 		float boxY = SCREEN_HEIGHT * 0.845;
 
 		al_draw_filled_rectangle(boxX, boxY, boxX + boxWidth, boxY + boxHeight, al_map_rgb(30, 30, 30)); // input box background
-		al_draw_rectangle(boxX, boxY, boxX + boxWidth, boxY + boxHeight, al_map_rgb(255, 255, 255), 2); // input box border
+		al_draw_rectangle(boxX, boxY, boxX + boxWidth, boxY + boxHeight, al_map_rgb(255, 255, 255), 2);	 // input box border
 
 		// draws the text from nameTag
 		al_draw_text(
@@ -687,7 +701,7 @@ static void drawShip(ship_t ship)
 	}
 }
 
-static void drawAliens(alienFormation_t aliens, int time)
+static void drawAliens(alienFormation_t aliens)
 {
 	int i, j;
 
@@ -727,118 +741,116 @@ static void drawAliens(alienFormation_t aliens, int time)
 				}
 				else
 				{
+
+					ALLEGRO_BITMAP *bitmap = NULL;
+
 					if (!aliens.alien[i][j].isMoving)
 					{
 						switch (alienType)
 						{
 						case 0:
-							al_draw_scaled_bitmap(
-								alien0BitMap,
-								0, 0,
-								al_get_bitmap_width(alien0BitMap), al_get_bitmap_height(alien0BitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien0BitMap;
 							break;
 						case 1:
-							al_draw_scaled_bitmap(
-								alien1BitMap,
-								0, 0,
-								al_get_bitmap_width(alien1BitMap), al_get_bitmap_height(alien1BitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien1BitMap;
 							break;
 						case 2:
-							al_draw_scaled_bitmap(
-								alien2BitMap,
-								0, 0,
-								al_get_bitmap_width(alien2BitMap), al_get_bitmap_height(alien2BitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien2BitMap;
 							break;
 						case 3:
-							al_draw_scaled_bitmap(
-								alien3BitMap,
-								0, 0,
-								al_get_bitmap_width(alien3BitMap), al_get_bitmap_height(alien3BitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien3BitMap;
 							break;
 						case 4:
-							al_draw_scaled_bitmap(
-								alien4BitMap,
-								0, 0,
-								al_get_bitmap_width(alien4BitMap), al_get_bitmap_height(alien4BitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien4BitMap;
 							break;
-
 						default:
 							break;
 						}
+
+						al_draw_scaled_bitmap(
+							bitmap,
+							0, 0,
+							al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap),
+							alienEntity.x, alienEntity.y,
+							ALIEN_WIDTH, ALIEN_HEIGHT,
+							0);
 					}
 					else
 					{
 						switch (alienType)
 						{
 						case 0:
-							al_draw_scaled_bitmap(
-								alien0MoveBitMap,
-								0, 0,
-								al_get_bitmap_width(alien0MoveBitMap), al_get_bitmap_height(alien0MoveBitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien0MoveBitMap;
 							break;
 						case 1:
-							al_draw_scaled_bitmap(
-								alien1MoveBitMap,
-								0, 0,
-								al_get_bitmap_width(alien1MoveBitMap), al_get_bitmap_height(alien1MoveBitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien1MoveBitMap;
 							break;
 						case 2:
-							al_draw_scaled_bitmap(
-								alien2MoveBitMap,
-								0, 0,
-								al_get_bitmap_width(alien2MoveBitMap), al_get_bitmap_height(alien2MoveBitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien2MoveBitMap;
 							break;
 						case 3:
-							al_draw_scaled_bitmap(
-								alien3MoveBitMap,
-								0, 0,
-								al_get_bitmap_width(alien3MoveBitMap), al_get_bitmap_height(alien3MoveBitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien3MoveBitMap;
 							break;
 						case 4:
-							al_draw_scaled_bitmap(
-								alien4MoveBitMap,
-								0, 0,
-								al_get_bitmap_width(alien4MoveBitMap), al_get_bitmap_height(alien4MoveBitMap),
-								alienEntity.x, alienEntity.y,
-								ALIEN_WIDTH, ALIEN_HEIGHT,
-								0);
+							bitmap = alien4MoveBitMap;
 							break;
-
 						default:
 							break;
 						}
+
+						al_draw_scaled_bitmap(
+							bitmap,
+							0, 0,
+							al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap),
+							alienEntity.x, alienEntity.y,
+							ALIEN_WIDTH, ALIEN_HEIGHT,
+							0);
 					}
 				}
 			}
 		}
 	}
+}
+
+static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw)
+{
+    int i,j, drawn = 0;
+
+    for (i = ALIENS_ROWS -1; i >= 0; i--)
+    {
+        for (j = 0; j < ALIENS_COLS; j++)
+        {
+            if (drawn >= aliensToDraw)
+			{
+				aliensToDraw++;
+				return; // Termina cuando llega al límite
+			}
+
+            entity_t alienEntity = aliens.alien[i][j].entity;
+            unsigned char alienType = aliens.alien[i][j].alienType;
+
+            ALLEGRO_BITMAP *bitmap = NULL;
+            switch (alienType)
+            {
+            case 0: bitmap = alien0BitMap; break;
+            case 1: bitmap = alien1BitMap; break;
+            case 2: bitmap = alien2BitMap; break;
+            case 3: bitmap = alien3BitMap; break;
+            case 4: bitmap = alien4BitMap; break;
+            default: continue;
+            }
+
+            al_draw_scaled_bitmap(
+                bitmap,
+                0, 0,
+                al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap),
+                alienEntity.x, alienEntity.y,
+                ALIEN_WIDTH, ALIEN_HEIGHT,
+                0);
+
+            drawn++;
+        }
+    }
 }
 
 static void drawMothership(mothership_t mothership)

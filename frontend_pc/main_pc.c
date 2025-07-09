@@ -119,8 +119,6 @@ int main(void)
 				{
 				case GAME_MENU:
 
-					printf("user name: %s \n", game.nameTag);
-
 					if (!isMenuMusicPlaying) // Inits menu music only when game starts
 					{
 						playMenuMusic();
@@ -133,12 +131,24 @@ int main(void)
 					{
 						// Changes background music and inits level
 						stopMenuMusic();
-						isMenuMusicPlaying = false;
-						playGameplayMusic();
-						isGameplayMusicPlaying = true;
+						isMenuMusicPlaying = false;	
 
 						levelInit(&game);
 					}
+					break;
+
+				case GAME_LOADING:
+
+						renderGame(game);
+						if (game.loadingTimer > 0)
+							game.loadingTimer--;
+						else
+						{
+							playGameplayMusic();
+							isGameplayMusicPlaying = true;
+							game.status = GAME_RUNNING;			
+						}		
+						
 					break;
 
 				case GAME_RUNNING:
@@ -162,8 +172,8 @@ int main(void)
 						isMothershipSoundPlaying = false;
 					}
 
-					gameUpdate(&game, inputStatus);
 					renderGame(game);
+					gameUpdate(&game, inputStatus);
 					break;
 
 				case GAME_PAUSED:
@@ -192,8 +202,6 @@ int main(void)
 					else if (inputStatus.restartKeyPressed)
 					{
 						// Restarts game
-						playGameplayMusic();
-						isGameplayMusicPlaying = true;
 						gameReset(&game);
 					}
 					else if (inputStatus.exitKeyPressed)
@@ -225,8 +233,7 @@ int main(void)
 
 					if (inputStatus.restartKeyPressed)
 					{
-						playGameplayMusic(); // Play the gameplay music if game restarts
-						gameReset(&game);
+						gameReset(&game);						
 						gameoverSoundPlayed = false;
 					}
 					else if (inputStatus.exitKeyPressed)
