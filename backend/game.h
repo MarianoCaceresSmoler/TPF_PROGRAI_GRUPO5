@@ -74,7 +74,7 @@ typedef struct
 
     // game variables and info
     gameStatus_t status;
-    char nameTag[MAX_NAME_CHARS];
+    char nameTag[MAX_NAME_CHARS + 1];
     int score;
     int scoreRank;
     int currentLevel;

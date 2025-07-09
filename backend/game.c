@@ -154,9 +154,8 @@ void gameInit(game_t *game)
 	game->currentLevel = 1;
 	game->tickCounter = 0;
 	game->aliensRemaining = ALIENS_NUMBER;
-
 	for (i = 0; i < MAX_NAME_CHARS; i++)
-		game->nameTag[i] = 'X';
+		game->nameTag[i] = '_';
 }
 
 void levelInit(game_t *game)
@@ -175,6 +174,7 @@ void levelInit(game_t *game)
 
 	game->status = GAME_RUNNING;
 	game->aliensRemaining = ALIENS_NUMBER;
+	game->tickCounter = 0;
 
 	if (game->currentLevel > 1)
 		return;
@@ -206,9 +206,9 @@ void gameEnd(game_t *game)
 	score.score = game->score;
 
 	int i;
-	for (i = 0; i < MAX_NAME_CHARS; i++)
-		score.tag[i] = game->nameTag[i];
-	
+	for (i = 0; game->nameTag[i] != '\0'; i++)
+		score.tag[i] = game->nameTag[i]; // copies the name
+
 	game->scoreRank = updateScoreRank(score);
 	if (getHighScores(game->highScores))
 		printf("Error geting highscores");

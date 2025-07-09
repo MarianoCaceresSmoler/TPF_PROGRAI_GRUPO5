@@ -60,8 +60,7 @@ void setUserName(game_t *game, int keycode)
     // allows backspace
     if (keycode == ALLEGRO_KEY_BACKSPACE && charIndex > 0)
     {
-        charIndex--;
-        game->nameTag[charIndex] = '\0';
+        game->nameTag[--charIndex] = '_';
     }
 
     if (charIndex >= MAX_NAME_CHARS) // validates name max characters
@@ -71,7 +70,6 @@ void setUserName(game_t *game, int keycode)
     if (keycode >= ALLEGRO_KEY_A && keycode <= ALLEGRO_KEY_Z)
     {
         game->nameTag[charIndex++] = 'A' + (keycode - ALLEGRO_KEY_A);
-        game->nameTag[charIndex] = '\0';  // Mantener string terminada en '\0'
     }
 
 }

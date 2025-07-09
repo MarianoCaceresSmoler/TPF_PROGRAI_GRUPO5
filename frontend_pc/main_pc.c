@@ -251,7 +251,7 @@ int main(void)
 				if (inputStatus.pauseKeyPressed && game.status == GAME_RUNNING)
 					game.status = GAME_PAUSED;
 				else if (inputStatus.exitKeyPressed)
-					game.status = GAME_END;
+					programRunning = false;
 				else if(game.status == GAME_MENU)
 					setUserName(&game, ev.keyboard.keycode);
 			}
