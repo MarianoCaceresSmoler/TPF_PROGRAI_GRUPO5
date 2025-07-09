@@ -345,27 +345,47 @@ void renderMenu(game_t game)
 	}
 
 	al_flip_display();
-
 }
 
 void renderGameOver(game_t game)
 {
 	int score = game.score;
+	int i;
+	char highScoreBuffer[100];
 
 	al_draw_filled_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, al_map_rgba(0, 0, 0, 20));
 
 	al_draw_text(fontRetro, al_map_rgb(255, 0, 0),
-				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3,
+				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 6,
 				 ALLEGRO_ALIGN_CENTER, "GAME OVER");
 
 	char scoreText[64];
 	snprintf(scoreText, sizeof(scoreText), "Final Score: %d", score);
 	al_draw_text(fontRetro, al_map_rgb(255, 255, 255),
-				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 50,
+				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4,
 				 ALLEGRO_ALIGN_CENTER, scoreText);
 
-	al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
-				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 150,
+	// Highscores table
+	for (i = 0; i < MAX_SCORES; i++)
+	{
+		snprintf(highScoreBuffer, sizeof(highScoreBuffer), "%s %d", game.highScores[i].tag, game.highScores[i].score);
+
+		if (game.scoreRank == i + 1)
+		{
+			al_draw_text(fontRetro, al_map_rgb(255, 255, 0),
+						 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4 + 60 + i * 50,
+						 ALLEGRO_ALIGN_CENTER, highScoreBuffer);
+		}
+		else
+		{
+			al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
+						 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4 + 60 + i * 50,
+						 ALLEGRO_ALIGN_CENTER, highScoreBuffer);
+		}
+	}
+
+	al_draw_text(fontRetro, al_map_rgb(255, 255, 255),
+				 SCREEN_WIDTH / 2, SCREEN_HEIGHT - 200,
 				 ALLEGRO_ALIGN_CENTER, "Enter ESC to quit, R to restart the game");
 
 	al_flip_display();
@@ -919,14 +939,14 @@ static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES], int activePowerUp[PO
 				POWERUP_WIDTH, POWERUP_HEIGHT,
 				0);
 		}
-		if(activePowerUp[i] == true)
+		if (activePowerUp[i] == true)
 		{
 			al_draw_scaled_bitmap(
 				powerUpBitmaps[powerUps[i].type],
 				0, 0,
 				al_get_bitmap_width(powerUpBitmaps[powerUps[i].type]),
 				al_get_bitmap_height(powerUpBitmaps[powerUps[i].type]),
-				HUD_POWERUP_X + i * HUD_POWERUP_WIDTH * 2 , HUD_POWERUP_Y,
+				HUD_POWERUP_X + i * HUD_POWERUP_WIDTH * 2, HUD_POWERUP_Y,
 				HUD_POWERUP_WIDTH, HUD_POWERUP_HEIGHT,
 				0);
 		}

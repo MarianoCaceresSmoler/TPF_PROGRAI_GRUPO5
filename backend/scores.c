@@ -13,7 +13,6 @@
 #include <string.h>
 #include "scores.h"
 #include "config.h"
-#include "game.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -53,23 +52,18 @@
  *******************************************************************************
  ******************************************************************************/
 
-void incrementScore(game_t * game, int points)
-{
-	game->score += points;
-}
-
 int updateScoreRank(score_t lastScore)
 {
-    if(lastScore.score > 99999)
-        lastScore.score = 99999;
-        
+    if(lastScore.score > MAX_SCORE)
+        lastScore.score = MAX_SCORE; // if last score was higher than the max score limit
+
+    // Open highscores file in r+ mode        
     FILE *scoreFiles = fopen(SCORE_FILE, "r+");
     if (!scoreFiles)
     {
         printf("Error opening score file.\n");
         return -1;
     }
-    printf("Updating score rank for tag: %s, score: %d\n", lastScore.tag, lastScore.score);
 
     int i, rank = -1;
     score_t highScore;
@@ -113,6 +107,32 @@ int updateScoreRank(score_t lastScore)
     fclose(scoreFiles);
 
     return (rank <= MAX_SCORES && rank >= 1) ? rank : 0;
+}
+
+int getHighScores(score_t scores[MAX_SCORES])
+{
+    FILE *scoreFile = fopen(SCORE_FILE, "r");
+    if (!scoreFile)
+    {
+        printf("Error opening score file.\n");
+        return -1;
+    }
+
+    for (int i = 0; i < MAX_SCORES; i++)
+    {
+        if (fscanf(scoreFile, "%3s %05d", scores[i].tag, &scores[i].score) != 2)
+        {
+            // if there are less than 10 valid scores, fill with empty values
+            for (; i < MAX_SCORES; i++) {
+                strcpy(scores[i].tag, "---");
+                scores[i].score = 0;
+            }
+            break;
+        }
+    }
+
+    fclose(scoreFile);
+    return 0;
 }
 
 int getAlienPoints(alien_t alien)

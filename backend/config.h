@@ -65,6 +65,7 @@
 #define SHIP_MOVE_RATE 1
 
 #define SCORE_FILE "backend/Files/HiScores_RPI"
+#define MAX_SCORE 99999
 
 #else // platform pc
 
@@ -127,6 +128,7 @@
 #define POWERUP_DURATION 150
 
 #define SCORE_FILE "backend/Files/HiScores_PC"
+#define MAX_SCORE 99999
 
 #endif
 

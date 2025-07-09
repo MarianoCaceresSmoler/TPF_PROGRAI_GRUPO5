@@ -213,7 +213,9 @@ void gameEnd(game_t *game)
 	score.tag[2] = 'C'; //game->nameTag[2];
 
 	game->scoreRank = updateScoreRank(score);
-	printf("Score updated with rank %d and score %d.\n", game->scoreRank, game->score);
+	if(getHighScores(game->highScores))
+		printf("Error geting highscores");
+
 }
 
 void gameReset(game_t *game)
@@ -301,7 +303,8 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	// updates score if an alien is killed
 	if ((points = handleCollisions(game)))
 	{
-		incrementScore(game, points);
+		// incrementScore(game, points);
+		game->score += points;
 
 		int powerUpType = rand() % POWERUP_TYPES;
 		if(game->powerUp[powerUpType].entity.isAlive == false && game->activePowerUp[powerUpType] == false && rand() % 100 < POWERUP_CHANCE)

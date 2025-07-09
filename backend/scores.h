@@ -11,7 +11,7 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
-#include "game.h"
+#include "entities.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -23,9 +23,10 @@
 
 typedef struct 
 {
-	unsigned char tag[4];
+	char tag[4];
 	unsigned int score;
 } score_t;
+
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
@@ -38,18 +39,19 @@ typedef struct
  ******************************************************************************/
 
 /**
- * @brief increment player score
- * @param game pointer to game object
- * @param points the number to add to score
- */
-void incrementScore(game_t *game, int points);
-
-/**
  * @brief updates score file with the new score
  * @param lastScore the score to update
  * @return the rank of the score in the top scores list, 0 if score is not in top 10
  */
 int updateScoreRank(score_t lastScore);
+
+/**
+ * @brief get the content in the highscores file
+ * @param scores array to save the highscores
+ * @return 0 if all ok, -1 if there was an error
+ */
+int getHighScores(score_t scores[MAX_SCORES]);
+
 
 /**
  * @brief function to get the amount of points given by the type of alien killed
