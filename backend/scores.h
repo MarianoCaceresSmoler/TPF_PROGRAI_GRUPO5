@@ -23,7 +23,7 @@
 
 typedef struct 
 {
-	char tag[4];
+	char tag[MAX_NAME_CHARS+1];
 	unsigned int score;
 } score_t;
 

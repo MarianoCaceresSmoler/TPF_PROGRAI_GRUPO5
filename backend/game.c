@@ -89,6 +89,18 @@ static int getFirstColumnAlive(alienFormation_t aliens);
 static int getLastColumnAlive(alienFormation_t aliens);
 
 /**
+ * @brief function to set the barriers position
+ * @param game pointer to the game
+ */
+static void setBarriers(game_t *game);
+
+/**
+ * @brief function to set the aliens position
+ * @param game pointer to the game
+ */
+static void setAliens(game_t *game);
+
+/**
  * @brief function to set the shape of a barrier
  * @param barrier pointer to the barrier type entity
  */
@@ -142,6 +154,9 @@ void gameInit(game_t *game)
 	game->currentLevel = 1;
 	game->tickCounter = 0;
 	game->aliensRemaining = ALIENS_NUMBER;
+
+	for (i = 0; i < MAX_NAME_CHARS; i++)
+		game->nameTag[i] = 'X';
 }
 
 void levelInit(game_t *game)
@@ -156,33 +171,15 @@ void levelInit(game_t *game)
 
 	game->mothership.entity.isAlive = 0;
 
-	// set aliens to initial position
-	int i, j, k;
-	for (i = 0; i < ALIENS_ROWS; i++)
-	{
-		for (j = 0; j < ALIENS_COLS; j++)
-		{
-			setEntity(&game->aliens.alien[i][j].entity, ALIENS_INITIAL_X + j * ALIEN_X_SEPARATION, ALIENS_INITIAL_Y + i * ALIEN_Y_SEPARATION);
-		}
-	}
+	setAliens(game); // set aliens to initial position
 
 	game->status = GAME_RUNNING;
 	game->aliensRemaining = ALIENS_NUMBER;
 
 	if (game->currentLevel > 1)
 		return;
-	// set barriers to initial position
-	for (k = 0; k < BARRIERS; k++)
-	{
-		for (i = 0; i < BARRIER_HEIGHT; i++)
-		{
-			for (j = 0; j < BARRIER_WIDTH; j++)
-			{
-				setEntity(&game->barriers[k].pixel[i][j].entity, BARRIERS_INITIAL_X + k * BARRIERS_SEPARATION + j * BARRIER_PIXEL_WIDTH, BARRIERS_INITIAL_Y + i * BARRIER_PIXEL_HEIGHT);
-				setBarrierShape(&game->barriers[k]);
-			}
-		}
-	}
+
+	setBarriers(game); // set barriers to initial position
 }
 
 void gamePause(game_t *game)
@@ -207,10 +204,11 @@ void gameEnd(game_t *game)
 
 	score_t score;
 	score.score = game->score;
-	score.tag[0] = 'A'; // game->nameTag[0];
-	score.tag[1] = 'B'; // game->nameTag[1];
-	score.tag[2] = 'C'; // game->nameTag[2];
 
+	int i;
+	for (i = 0; i < MAX_NAME_CHARS; i++)
+		score.tag[i] = game->nameTag[i];
+	
 	game->scoreRank = updateScoreRank(score);
 	if (getHighScores(game->highScores))
 		printf("Error geting highscores");
@@ -384,7 +382,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 
 	// aliens velocity adjust
 	float aliensFactor = (float)(ALIENS_NUMBER - aliensRemaining) / (ALIENS_NUMBER - 1); // 0 at start, 1 when 1 alien left
-	float timeFactor = (float)gameTicks / 1000.0f;	// Goes up with time until it reaches a cap
+	float timeFactor = (float)gameTicks / 1000.0f;										 // Goes up with time until it reaches a cap
 
 	if (timeFactor > 1.0f)
 		timeFactor = 1.0f;
@@ -394,7 +392,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 	int moveInterval = ALIEN_MAX_MOVE_INTERVAL - (int)((ALIEN_MAX_MOVE_INTERVAL - ALIEN_MIN_MOVE_INTERVAL) * speedFactor); // Calculates new move interval
 
 	if (moveInterval < ALIEN_MIN_MOVE_INTERVAL)
-		moveInterval = ALIEN_MIN_MOVE_INTERVAL;
+		moveInterval = ALIEN_MIN_MOVE_INTERVAL; // to not surpass the min move interval
 
 	printf("ticks: %d moveinterval: %d \n", gameTicks, moveInterval);
 
@@ -563,6 +561,35 @@ static int getLastColumnAlive(alienFormation_t aliens)
 	}
 
 	return lastColumn;
+}
+
+static void setBarriers(game_t *game)
+{
+	int i, j, k;
+	// set barriers to initial position
+	for (k = 0; k < BARRIERS; k++)
+	{
+		for (i = 0; i < BARRIER_HEIGHT; i++)
+		{
+			for (j = 0; j < BARRIER_WIDTH; j++)
+			{
+				setEntity(&game->barriers[k].pixel[i][j].entity, BARRIERS_INITIAL_X + k * BARRIERS_SEPARATION + j * BARRIER_PIXEL_WIDTH, BARRIERS_INITIAL_Y + i * BARRIER_PIXEL_HEIGHT);
+				setBarrierShape(&game->barriers[k]);
+			}
+		}
+	}
+}
+
+static void setAliens(game_t *game)
+{
+	int i, j;
+	for (i = 0; i < ALIENS_ROWS; i++)
+	{
+		for (j = 0; j < ALIENS_COLS; j++)
+		{
+			setEntity(&game->aliens.alien[i][j].entity, ALIENS_INITIAL_X + j * ALIEN_X_SEPARATION, ALIENS_INITIAL_Y + i * ALIEN_Y_SEPARATION);
+		}
+	}
 }
 
 static void setBarrierShape(barrier_t *barrier)

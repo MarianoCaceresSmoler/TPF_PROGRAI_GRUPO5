@@ -313,7 +313,7 @@ void renderMenu(game_t game)
 		float destX = (SCREEN_WIDTH - titleWidth) / 2;
 		float destY = SCREEN_HEIGHT / 11; // Relative height
 
-		// Draws title
+		// Draws game title
 		al_draw_scaled_bitmap(
 			titleBitmap,
 			0, 0,
@@ -322,9 +322,27 @@ void renderMenu(game_t game)
 			titleWidth, titleHeight,
 			0);
 
-		al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 2, SCREEN_HEIGHT * 0.85, ALLEGRO_ALIGN_CENTER, "Press SPACE to play");
+		drawAliensPoints(); // draws aliens points table
 
-		drawAliensPoints();
+		al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 3, SCREEN_HEIGHT * 0.85, 0, "Enter a name to play:");
+
+		// Coords and dims for input box
+		float boxWidth = 200;
+		float boxHeight = 50;
+		float boxX =  SCREEN_WIDTH / 3 + boxWidth * 2.3;
+		float boxY = SCREEN_HEIGHT * 0.845;
+
+		al_draw_filled_rectangle(boxX, boxY, boxX + boxWidth, boxY + boxHeight, al_map_rgb(30, 30, 30)); // input box background
+		al_draw_rectangle(boxX, boxY, boxX + boxWidth, boxY + boxHeight, al_map_rgb(255, 255, 255), 2); // input box border
+
+		// draws the text from nameTag
+		al_draw_text(
+			fontRetro,
+			al_map_rgb(255, 255, 255),
+			boxX + boxWidth / 2,
+			boxY + (boxHeight - al_get_font_line_height(fontRetro)) / 2,
+			ALLEGRO_ALIGN_CENTRE,
+			game.nameTag);
 	}
 	else if (status == GAME_PAUSED) // if game was paused
 	{

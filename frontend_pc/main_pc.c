@@ -119,6 +119,8 @@ int main(void)
 				{
 				case GAME_MENU:
 
+					printf("user name: %s \n", game.nameTag);
+
 					if (!isMenuMusicPlaying) // Inits menu music only when game starts
 					{
 						playMenuMusic();
@@ -127,7 +129,7 @@ int main(void)
 
 					renderMenu(game);
 
-					if (inputStatus.shootKeyPressed)
+					if (inputStatus.resumeKeyPressed)
 					{
 						// Changes background music and inits level
 						stopMenuMusic();
@@ -250,6 +252,8 @@ int main(void)
 					game.status = GAME_PAUSED;
 				else if (inputStatus.exitKeyPressed)
 					game.status = GAME_END;
+				else if(game.status == GAME_MENU)
+					setUserName(&game, ev.keyboard.keycode);
 			}
 			else if (ev.type == ALLEGRO_EVENT_KEY_UP)
 			{

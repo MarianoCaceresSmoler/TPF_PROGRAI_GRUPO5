@@ -17,9 +17,7 @@ Backend:
 Frontend:
 - Hacer animacion de cargar nivel
 - Mostrar datos del juego en gameplay (falta si hay algun powerup activo)
-- Pantalla de menu: mostrar highscores, que el usuario ingrese nombre de tres caracteres, y elegir dificultad
-
-Animaciones o sprites a cambiar:
+- Pantalla de menu: que el usuario ingrese nombre de tres caracteres
 - Hacer que la mothership vaya cambiando de color
 
 ADICIONALES:

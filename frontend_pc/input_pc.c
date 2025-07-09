@@ -13,6 +13,7 @@
 #include <allegro5/allegro.h>
 #include "../backend/game.h"
 #include "render_pc.h"
+#include "../backend/config.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -51,6 +52,29 @@
                         GLOBAL FUNCTION DEFINITIONS
  *******************************************************************************
  ******************************************************************************/
+
+void setUserName(game_t *game, int keycode)
+{
+    static int charIndex = 0;
+
+    // allows backspace
+    if (keycode == ALLEGRO_KEY_BACKSPACE && charIndex > 0)
+    {
+        charIndex--;
+        game->nameTag[charIndex] = '\0';
+    }
+
+    if (charIndex >= MAX_NAME_CHARS) // validates name max characters
+        return;
+
+    // only letters from A to Z
+    if (keycode >= ALLEGRO_KEY_A && keycode <= ALLEGRO_KEY_Z)
+    {
+        game->nameTag[charIndex++] = 'A' + (keycode - ALLEGRO_KEY_A);
+        game->nameTag[charIndex] = '\0';  // Mantener string terminada en '\0'
+    }
+
+}
 
 void setInput(inputStatus_t *inputStatus, int keycode)
 {
