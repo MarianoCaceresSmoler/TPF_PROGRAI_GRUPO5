@@ -10,9 +10,12 @@
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
+
 #include "config.h"
 #include "entities.h"
+#include "scores.h"
 #include <stdbool.h>
+
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -67,6 +70,7 @@ typedef struct
     barrier_t barriers[BARRIERS];
     mothership_t mothership;
     powerUp_t powerUp[POWERUP_TYPES];
+    score_t highScores[MAX_SCORES];
 
     // game variables and info
     gameStatus_t status;

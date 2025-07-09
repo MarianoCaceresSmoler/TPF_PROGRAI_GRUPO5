@@ -167,10 +167,9 @@ void levelInit(game_t *game)
 	}
 
 	game->status = GAME_RUNNING;
-	game->tickCounter = 0;
 	game->aliensRemaining = ALIENS_NUMBER;
 
-	if(game->currentLevel > 1)
+	if (game->currentLevel > 1)
 		return;
 	// set barriers to initial position
 	for (k = 0; k < BARRIERS; k++)
@@ -200,7 +199,7 @@ void gameEnd(game_t *game)
 {
 	game->status = GAME_END;
 
-	if(game->score <= 0)
+	if (game->score <= 0)
 	{
 		game->scoreRank = 0;
 		return;
@@ -208,12 +207,13 @@ void gameEnd(game_t *game)
 
 	score_t score;
 	score.score = game->score;
-	score.tag[0] = 'A'; //game->nameTag[0];
-	score.tag[1] = 'B'; //game->nameTag[1];
-	score.tag[2] = 'C'; //game->nameTag[2];
+	score.tag[0] = 'A'; // game->nameTag[0];
+	score.tag[1] = 'B'; // game->nameTag[1];
+	score.tag[2] = 'C'; // game->nameTag[2];
 
 	game->scoreRank = updateScoreRank(score);
-	printf("Score updated with rank %d and score %d.\n", game->scoreRank, game->score);
+	if (getHighScores(game->highScores))
+		printf("Error geting highscores");
 }
 
 void gameReset(game_t *game)
@@ -232,19 +232,22 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		gameEnd(game);
 		return;
 	}
-	
+
 	int points = 0;
 	game->tickCounter++;
 
 	// updates game status
-	if(game->aliensRemaining == 0)
+	if (game->aliensRemaining == 0)
 	{
 		game->currentLevel++;
+		if (game->ship.livesLeft < SHIP_LIVES)
+			game->ship.livesLeft++;
+
 		levelInit(game);
 	}
-	else if(game->ship.entity.isAlive == false)
+	else if (game->ship.entity.isAlive == false)
 	{
-		if(game->ship.livesLeft == 0)
+		if (game->ship.livesLeft == 0)
 		{
 			gameEnd(game);
 			game->status = GAME_END;
@@ -282,29 +285,30 @@ void gameUpdate(game_t *game, inputStatus_t input)
 
 		if (alienRowToShoot >= 0 && alienColumnToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
 			shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
-		
+
 		game->aliens.canShoot = false;
 	}
 
 	updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining);
-	
+
 	updatePowerUps(game->powerUp, game->activePowerUp);
 
-	if(game->mothership.entity.isAlive)
+	if (game->mothership.entity.isAlive)
 		updateMothership(&game->mothership);
-	else if(game->tickCounter % 150 == 0 && rand() % 100 < MOTHERSHIP_CHANCE)
+	else if (game->tickCounter % 150 == 0 && rand() % 100 < MOTHERSHIP_CHANCE)
 	{
-		game->mothership.direction = (rand() % 2 == 0)? MOVING_RIGHT: MOVING_LEFT;
-		setEntity(&game->mothership.entity, (game->mothership.direction == MOVING_LEFT? MOTHERSHIP_RIGHT_INITIAL_X: MOTHERSHIP_LEFT_INITIAL_X), MOTHERSHIP_INITIAL_Y);
+		game->mothership.direction = (rand() % 2 == 0) ? MOVING_RIGHT : MOVING_LEFT;
+		setEntity(&game->mothership.entity, (game->mothership.direction == MOVING_LEFT ? MOTHERSHIP_RIGHT_INITIAL_X : MOTHERSHIP_LEFT_INITIAL_X), MOTHERSHIP_INITIAL_Y);
 	}
 
 	// updates score if an alien is killed
 	if ((points = handleCollisions(game)))
 	{
-		incrementScore(game, points);
+		// incrementScore(game, points);
+		game->score += points;
 
 		int powerUpType = rand() % POWERUP_TYPES;
-		if(game->powerUp[powerUpType].entity.isAlive == false && game->activePowerUp[powerUpType] == false && rand() % 100 < POWERUP_CHANCE)
+		if (game->powerUp[powerUpType].entity.isAlive == false && game->activePowerUp[powerUpType] == false && rand() % 100 < POWERUP_CHANCE)
 			setEntity(&game->powerUp[powerUpType].entity, rand() % (SCREEN_SIZE - POWERUP_WIDTH), POWERUP_INITIAL_Y);
 	}
 }
@@ -325,14 +329,13 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 	else if (ship->entity.isAlive)
 	{
 
-		if(ship->invencibilityTicks > 0)
+		if (ship->invencibilityTicks > 0)
 			ship->invencibilityTicks--;
 
 		if (moveLeft && !moveRight && ship->entity.x > SHIP_MOVE_RATE)
 		{
 			moveEntityX(&ship->entity, -SHIP_MOVE_RATE);
 			ship->direction = MOVING_LEFT;
-
 		}
 		else if (moveRight && !moveLeft && ship->entity.x < SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
 		{
@@ -343,9 +346,7 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 		{
 			ship->direction = STILL;
 		}
-
 	}
-	
 }
 
 static void updateBullet(bullet_t *bullet)
@@ -357,10 +358,9 @@ static void updateBullet(bullet_t *bullet)
 	{
 		bullet->entity.isAlive = 0;
 		return;
-	}	
-	
+	}
+
 	moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
-	
 }
 
 static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemaining)
@@ -382,7 +382,23 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 	// rowToMove is used to move the alien rows separately
 	static int rowToMove = ALIENS_ROWS;
 
-	if(gameTicks % 2 != 0)
+	// aliens velocity adjust
+	float aliensFactor = (float)(ALIENS_NUMBER - aliensRemaining) / (ALIENS_NUMBER - 1); // 0 at start, 1 when 1 alien left
+	float timeFactor = (float)gameTicks / 1000.0f;	// Goes up with time until it reaches a cap
+
+	if (timeFactor > 1.0f)
+		timeFactor = 1.0f;
+
+	float speedFactor = aliensFactor * ALIEN_COUNT_SPEED_WEIGHT + timeFactor * TIME_SPEED_WEIGHT; // Ponderated combination
+
+	int moveInterval = ALIEN_MAX_MOVE_INTERVAL - (int)((ALIEN_MAX_MOVE_INTERVAL - ALIEN_MIN_MOVE_INTERVAL) * speedFactor); // Calculates new move interval
+
+	if (moveInterval < ALIEN_MIN_MOVE_INTERVAL)
+		moveInterval = ALIEN_MIN_MOVE_INTERVAL;
+
+	printf("ticks: %d moveinterval: %d \n", gameTicks, moveInterval);
+
+	if (gameTicks % moveInterval != 0)
 		return;
 
 	if (rowToMove == 0)
@@ -398,7 +414,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
 				moveEntityX(&aliens->alien[rowToMove][i].entity, ALIEN_MOVE_RATE);
-				aliens->alien[rowToMove][i].isMoving = !(aliens->alien[rowToMove][i].isMoving);		
+				aliens->alien[rowToMove][i].isMoving = !(aliens->alien[rowToMove][i].isMoving);
 			}
 		}
 		else
@@ -414,7 +430,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
 				moveEntityX(&aliens->alien[rowToMove][i].entity, -ALIEN_MOVE_RATE);
-				aliens->alien[rowToMove][i].isMoving = !(aliens->alien[rowToMove][i].isMoving);			
+				aliens->alien[rowToMove][i].isMoving = !(aliens->alien[rowToMove][i].isMoving);
 			}
 		}
 		else
@@ -450,7 +466,7 @@ static void updateMothership(mothership_t *mothership)
 		updateEntityExplosion(&mothership->entity);
 	else if (mothership->entity.isAlive && mothership->entity.x >= MOTHERSHIP_LEFT_INITIAL_X && mothership->entity.x <= MOTHERSHIP_RIGHT_INITIAL_X)
 		moveEntityX(&mothership->entity, mothership->direction * MOTHERSHIP_MOVE_RATE);
-	else 
+	else
 		mothership->entity.isAlive = false;
 }
 
@@ -466,7 +482,7 @@ static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[P
 			{
 				activePowerUp[i] = false;
 			}
-		} 
+		}
 		else if (powerUp[i].entity.isAlive == true)
 		{
 			if (powerUp[i].entity.x < 0 || powerUp[i].entity.x > SCREEN_SIZE || powerUp[i].entity.y < 0 || powerUp[i].entity.y > SCREEN_SIZE)
@@ -490,15 +506,15 @@ static int getNearestColumnAlive(alienFormation_t aliens, short int shipX)
 {
 	int i, nearestColumn = -1;
 
-	for(i = 0; i < ALIENS_COLS && nearestColumn == -1; i++)
+	for (i = 0; i < ALIENS_COLS && nearestColumn == -1; i++)
 	{
-		if(aliens.alien[0][i].entity.x + ALIEN_WIDTH  >= shipX + SHIP_WIDTH / 2 && 
+		if (aliens.alien[0][i].entity.x + ALIEN_WIDTH >= shipX + SHIP_WIDTH / 2 &&
 			aliens.alien[0][i].entity.x <= shipX + SHIP_WIDTH / 2)
 		{
 			nearestColumn = i;
 		}
 	}
-	
+
 	return nearestColumn;
 }
 

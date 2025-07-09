@@ -2,6 +2,8 @@
 
 POR HACER:
 
+- Ver de mejorar toda la validacion de datos en funciones, y comentarios si hace falta
+
 Back+Front:
 - Retardo y animacion cuando pasa de nivel (para resetear el mapa del juego)
 - Cambiar funciones de game para que el front solo tenga que llamar a gameUpdate(meter gameReset, gamePause, gameResume, etc. en gameUpdate y sacarlas del main)
@@ -16,10 +18,8 @@ Frontend:
 - Hacer animacion de cargar nivel
 - Mostrar datos del juego en gameplay (falta si hay algun powerup activo)
 - Pantalla de menu: mostrar highscores, que el usuario ingrese nombre de tres caracteres, y elegir dificultad
-- Ver bien que mostrar en pantalla de menu final
 
 Animaciones o sprites a cambiar:
-- Sprites de balas 
 - Hacer que la mothership vaya cambiando de color
 
 ADICIONALES:
