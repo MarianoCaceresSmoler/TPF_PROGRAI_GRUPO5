@@ -64,7 +64,7 @@ static void updateAliens(alienFormation_t *aliens, int tickCounter, int aliensRe
  */
 static void updateMothership(mothership_t *mothership);
 
-//static void updatePowerUp(powerUp_t *powerUp);
+static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES]);
 
 /**
  * @brief function to update an entity explosion/live state
@@ -133,6 +133,7 @@ void gameInit(game_t *game)
 	for (i = 0; i < POWERUP_TYPES; i++)
 	{
 		game->powerUp[i] = createPowerUp(i);
+		game->activePowerUp[i] = 0;
 	}
 
 	// initialize game parameters
@@ -231,7 +232,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		gameEnd(game);
 		return;
 	}
-
+	
 	int points = 0;
 	game->tickCounter++;
 
@@ -286,6 +287,8 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	}
 
 	updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining);
+	
+	updatePowerUps(game->powerUp, game->activePowerUp);
 
 	if(game->mothership.entity.isAlive)
 		updateMothership(&game->mothership);
@@ -294,14 +297,16 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		game->mothership.direction = (rand() % 2 == 0)? MOVING_RIGHT: MOVING_LEFT;
 		setEntity(&game->mothership.entity, (game->mothership.direction == MOVING_LEFT? MOTHERSHIP_RIGHT_INITIAL_X: MOTHERSHIP_LEFT_INITIAL_X), MOTHERSHIP_INITIAL_Y);
 	}
-	
-	#ifdef PLATFORM_PC
-		//updatePowerUp(game->powerUp);
-	#endif
 
 	// updates score if an alien is killed
 	if ((points = handleCollisions(game)))
+	{
 		incrementScore(game, points);
+
+		int powerUpType = rand() % POWERUP_TYPES;
+		if(game->powerUp[powerUpType].entity.isAlive == false && game->activePowerUp[powerUpType] == false && rand() % 100 < POWERUP_CHANCE)
+			setEntity(&game->powerUp[powerUpType].entity, rand() % (SCREEN_SIZE - POWERUP_WIDTH), POWERUP_INITIAL_Y);
+	}
 }
 
 /*******************************************************************************
@@ -447,6 +452,29 @@ static void updateMothership(mothership_t *mothership)
 		moveEntityX(&mothership->entity, mothership->direction * MOTHERSHIP_MOVE_RATE);
 	else 
 		mothership->entity.isAlive = false;
+}
+
+static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES])
+{
+	int i;
+	for (i = 0; i < POWERUP_TYPES; i++)
+	{
+		if (powerUp[i].ticksLeft > 0)
+		{
+			powerUp[i].ticksLeft--;
+			if (powerUp[i].ticksLeft == 0)
+			{
+				activePowerUp[i] = false;
+			}
+		} 
+		else if (powerUp[i].entity.isAlive == true)
+		{
+			if (powerUp[i].entity.x < 0 || powerUp[i].entity.x > SCREEN_SIZE || powerUp[i].entity.y < 0 || powerUp[i].entity.y > SCREEN_SIZE)
+				powerUp->entity.isAlive = 0;
+			else
+				moveEntityY(&powerUp[i].entity, POWERUP_MOVE_RATE);
+		}
+	}
 }
 
 static void updateEntityExplosion(entity_t *entity)

@@ -54,7 +54,7 @@ static void checkBulletHitsBarriers(game_t *game);
 static void checkBulletHitsBullet(game_t *game);
 static void checkAllienHitsBarrier(game_t *game);
 static void checkAlienHitsShip(game_t *game);
-
+static void checkPowerUpHitsShip(game_t *game);
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -87,6 +87,7 @@ int handleCollisions(game_t *game)
         checkBulletHitsBullet(game);
         checkAllienHitsBarrier(game);
         checkAlienHitsShip(game);
+        checkPowerUpHitsShip(game);
     }
 
     return points;
@@ -275,6 +276,24 @@ static void checkAlienHitsShip(game_t *game)
                     game->ship.entity.explosionTimer = EXPLOSION_TIMER;
                     game->ship.livesLeft = 0;
                 }
+            }
+        }
+    }
+}
+
+static void checkPowerUpHitsShip(game_t *game)
+{
+    int i;
+
+    for (i = 0; i < POWERUP_TYPES; i++)
+    {
+        if(game->powerUp[i].entity.isAlive && game->ship.entity.isAlive)
+        {
+            if(checkEntitiesCollision(game->powerUp[i].entity, game->ship.entity))
+            {
+                game->powerUp[i].entity.isAlive = 0;
+                game->activePowerUp[i] = true;
+                game->powerUp[i].ticksLeft = POWERUP_DURATION;
             }
         }
     }

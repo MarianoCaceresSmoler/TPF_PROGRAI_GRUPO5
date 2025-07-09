@@ -8,6 +8,7 @@ Back+Front:
 
 Backend:
 - Falta incrementar la velocidad a medida que pasa el tiempo
+- Arreglar el trackeo de los aliens para disparar (se rompio cuando cambiamos el tamano)
 - Revisar formato, y prolijidad del codigo (constantes, macros, etc)
 - Validacion en funciones
 
@@ -26,4 +27,5 @@ ADICIONALES:
 - Potenciadores o powerups:
     (congelar aliens, bala que atraviese, puntos dobles, reconstruir barreras, 
     subir aliens al principio, bala mas rapida, etc.)
+    YA ESTA HECHA LA LOGICA DE ENTIDADES POWERUP, SOLO FALTA VER QUE HACE CADA UNO
 - Balas limitadas

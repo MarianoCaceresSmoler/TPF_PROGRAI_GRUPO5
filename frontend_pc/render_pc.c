@@ -29,6 +29,10 @@
 #define SCALE_Y (SCREEN_HEIGHT / LOGICAL_HEIGHT)
 #define CROSSFADE_TIME 0.5 // seconds
 #define BACKGROUND_VIDEO_DURATION 5
+#define HUD_POWERUP_WIDTH 48
+#define HUD_POWERUP_HEIGHT 48
+#define HUD_POWERUP_X (SCREEN_SIZE / 2 + 6 * HUD_POWERUP_WIDTH)
+#define HUD_POWERUP_Y (HUD_POWERUP_HEIGHT / 2)
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -60,6 +64,7 @@ static void drawAliens(alienFormation_t alienFormation, int time);
 static void drawMothership(mothership_t mothership);
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
 static void drawBarriers(barrier_t barriers[BARRIERS]);
+static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES]);
 static void drawScore(int score);
 
 /**
@@ -110,6 +115,9 @@ static ALLEGRO_BITMAP *alien4MoveBitMap = NULL;
 static ALLEGRO_BITMAP *shipBitMap = NULL;
 static ALLEGRO_BITMAP *barrierPixelBitmap = NULL;
 static ALLEGRO_BITMAP *bulletBitmap = NULL;
+static ALLEGRO_BITMAP *shipBulletBitmap = NULL;
+static ALLEGRO_BITMAP *alienBulletBitmap = NULL;
+static ALLEGRO_BITMAP *powerUpBitmaps[POWERUP_TYPES] = {NULL};
 static ALLEGRO_BITMAP *mothershipBitmap = NULL;
 static ALLEGRO_BITMAP *explosionBitmap = NULL;
 static ALLEGRO_BITMAP *titleBitmap = NULL;
@@ -285,6 +293,7 @@ void renderGame(game_t game)
 	drawAliens(game.aliens, game.tickCounter);
 	drawBullets(game.shipBullet, game.alienBullet);
 	drawBarriers(game.barriers);
+	drawPowerUps(game.powerUp, game.activePowerUp);
 	drawMothership(game.mothership);
 	drawHUD(game.score, game.ship.livesLeft, game.currentLevel);
 
@@ -447,6 +456,30 @@ static void loadImages(void)
 	if (!mothershipBitmap)
 	{
 		fprintf(stderr, "Failed to load mothership.png\n");
+	}
+
+	shipBulletBitmap = al_load_bitmap("frontend_pc/assets/img/shipBullet.png");
+	if (!shipBulletBitmap)
+	{
+		fprintf(stderr, "Failed to load shipBullet.png\n");
+	}
+
+	alienBulletBitmap = al_load_bitmap("frontend_pc/assets/img/alienBullet.png");
+	if (!alienBulletBitmap)
+	{
+		fprintf(stderr, "Failed to load alienBullet.png\n");
+	}
+
+	int i;
+	for (i = 0; i < POWERUP_TYPES; i++)
+	{
+		char filename[64];
+		snprintf(filename, sizeof(filename), "frontend_pc/assets/img/powerUp%d.png", i);
+		powerUpBitmaps[i] = al_load_bitmap(filename);
+		if (!powerUpBitmaps[i])
+		{
+			fprintf(stderr, "Failed to load powerup%d.png\n", i);
+		}
 	}
 
 	explosionBitmap = al_load_bitmap("frontend_pc/assets/img/explosion.png");
@@ -819,24 +852,26 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
 	// Only draws if the ship bullet is alive
 	if (shipBullet.entity.isAlive)
 	{
-		al_draw_filled_rectangle(
-			shipBullet.entity.x,
-			shipBullet.entity.y,
-			shipBullet.entity.x + BULLET_WIDTH,
-			shipBullet.entity.y + BULLET_HEIGHT,
-			al_map_rgb(0, 128, 255));
+		al_draw_scaled_bitmap(
+			shipBulletBitmap,
+			0, 0,
+			al_get_bitmap_width(shipBulletBitmap), al_get_bitmap_height(shipBulletBitmap),
+			shipBullet.entity.x, shipBullet.entity.y,
+			BULLET_WIDTH, BULLET_HEIGHT,
+			0);
 	}
 
 	// Alien bullet
 	// Only draws if the alien bullet is alive
 	if (alienBullet.entity.isAlive)
 	{
-		al_draw_filled_rectangle(
-			alienBullet.entity.x,
-			alienBullet.entity.y,
-			alienBullet.entity.x + BULLET_WIDTH,
-			alienBullet.entity.y + BULLET_HEIGHT,
-			al_map_rgb(0, 128, 255));
+		al_draw_scaled_bitmap(
+			alienBulletBitmap,
+			0, 0,
+			al_get_bitmap_width(alienBulletBitmap), al_get_bitmap_height(alienBulletBitmap),
+			alienBullet.entity.x, alienBullet.entity.y,
+			BULLET_WIDTH, BULLET_HEIGHT,
+			0);
 	}
 }
 
@@ -863,6 +898,37 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
 						al_map_rgb(0, 128, 255));
 				}
 			}
+		}
+	}
+}
+
+static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES])
+{
+	int i;
+
+	for (i = 0; i < POWERUP_TYPES; i++)
+	{
+		if (powerUps[i].entity.isAlive)
+		{
+			al_draw_scaled_bitmap(
+				powerUpBitmaps[powerUps[i].type],
+				0, 0,
+				al_get_bitmap_width(powerUpBitmaps[powerUps[i].type]),
+				al_get_bitmap_height(powerUpBitmaps[powerUps[i].type]),
+				powerUps[i].entity.x, powerUps[i].entity.y,
+				POWERUP_WIDTH, POWERUP_HEIGHT,
+				0);
+		}
+		if(activePowerUp[i] == true)
+		{
+			al_draw_scaled_bitmap(
+				powerUpBitmaps[powerUps[i].type],
+				0, 0,
+				al_get_bitmap_width(powerUpBitmaps[powerUps[i].type]),
+				al_get_bitmap_height(powerUpBitmaps[powerUps[i].type]),
+				HUD_POWERUP_X + i * HUD_POWERUP_WIDTH * 2 , HUD_POWERUP_Y,
+				HUD_POWERUP_WIDTH, HUD_POWERUP_HEIGHT,
+				0);
 		}
 	}
 }

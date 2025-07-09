@@ -36,8 +36,8 @@ movingDirections_t;
 typedef enum 
 {
 	FREEZE_POWERUP,
-	DOUBLESHOOT_POWERUP,
-	DOUBLEPOINTS_POWERUP,
+	ALIENRETREAT_POWERUP,
+	ONEUP_POWERUP,
 	REBUILDBARRIERS_POWERUP
 }
 powerUpTypes_t;
@@ -101,7 +101,8 @@ typedef struct
 typedef struct
 {
 	entity_t entity;
-	unsigned char powerUpType;
+	powerUpTypes_t type;
+	int ticksLeft;
 } powerUp_t;
 
 /*******************************************************************************

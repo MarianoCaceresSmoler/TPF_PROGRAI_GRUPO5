@@ -76,6 +76,7 @@ typedef struct
     int currentLevel;
     int tickCounter;
     int aliensRemaining;
+    int activePowerUp[POWERUP_TYPES];
 } game_t;
 
 /*******************************************************************************

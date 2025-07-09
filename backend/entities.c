@@ -114,7 +114,7 @@ bullet_t createBullet(movingDirections_t direction)
 
 powerUp_t createPowerUp(powerUpTypes_t type)
 {
-	powerUp_t powerUp = {{STANDBY_POSITION, STANDBY_POSITION, POWERUP_HEIGHT, POWERUP_WIDTH, 0}, type};
+	powerUp_t powerUp = {{STANDBY_POSITION, STANDBY_POSITION, POWERUP_HEIGHT, POWERUP_WIDTH, 0}, type, 0};
 	return powerUp;
 }
 
