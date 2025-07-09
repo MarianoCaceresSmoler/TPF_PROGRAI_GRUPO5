@@ -4,9 +4,9 @@ POR HACER:
 
 Back+Front:
 - Retardo y animacion cuando pasa de nivel (para resetear el mapa del juego)
+- Cambiar funciones de game para que el front solo tenga que llamar a gameUpdate(meter gameReset, gamePause, gameResume, etc. en gameUpdate y sacarlas del main)
 
 Backend:
-- Falta imprementar las funciones de score y sumar tambien al frontend
 - Falta incrementar la velocidad a medida que pasa el tiempo
 - Revisar formato, y prolijidad del codigo (constantes, macros, etc)
 - Validacion en funciones

@@ -81,7 +81,6 @@ enum inputKeys
  *******************************************************************************
  ******************************************************************************/
 
-// REESCRIBI MAIN PARA HACER MEJOR LA LOGICA
 int main(void)
 {
 	// Allegro and game initialization
@@ -197,7 +196,6 @@ int main(void)
 					}
 					else if (inputStatus.exitKeyPressed)
 					{
-						gameEnd(&game);
 						programRunning = false;
 					}
 
@@ -223,8 +221,6 @@ int main(void)
 						gameoverSoundPlayed = true;
 					}
 
-					renderGameOver(game);
-
 					if (inputStatus.restartKeyPressed)
 					{
 						playGameplayMusic(); // Play the gameplay music if game restarts
@@ -233,12 +229,13 @@ int main(void)
 					}
 					else if (inputStatus.exitKeyPressed)
 					{
-						gameEnd(&game);
 						programRunning = false;
 					}
+
+					renderGameOver(game);
+
 					break;
 				default:
-					gameEnd(&game);
 					programRunning = false;
 					printf("Error: Invalid game status.\n");
 					break;
@@ -260,7 +257,6 @@ int main(void)
 			}
 			else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			{
-				gameEnd(&game);
 				programRunning = false;
 			}
 		}

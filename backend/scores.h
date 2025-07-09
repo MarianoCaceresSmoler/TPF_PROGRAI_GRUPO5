@@ -24,7 +24,7 @@
 typedef struct 
 {
 	unsigned char tag[4];
-	unsigned short int score;
+	unsigned int score;
 } score_t;
 
 /*******************************************************************************

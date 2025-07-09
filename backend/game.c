@@ -195,16 +195,24 @@ void gameResume(game_t *game)
 	game->status = GAME_RUNNING;
 }
 
-int gameEnd(game_t *game)
+void gameEnd(game_t *game)
 {
+	game->status = GAME_END;
+
+	if(game->score <= 0)
+	{
+		game->scoreRank = 0;
+		return;
+	}
+
 	score_t score;
 	score.score = game->score;
-	score.tag[0] = game->nameTag[0];
-	score.tag[1] = game->nameTag[1];
-	score.tag[2] = game->nameTag[2];
+	score.tag[0] = 'A'; //game->nameTag[0];
+	score.tag[1] = 'B'; //game->nameTag[1];
+	score.tag[2] = 'C'; //game->nameTag[2];
 
-	game->status = GAME_END;
-	return updateScoreRank(score);
+	game->scoreRank = updateScoreRank(score);
+	printf("Score updated with rank %d and score %d.\n", game->scoreRank, game->score);
 }
 
 void gameReset(game_t *game)
@@ -219,7 +227,10 @@ void gameReset(game_t *game)
 void gameUpdate(game_t *game, inputStatus_t input)
 {
 	if (game->status != GAME_RUNNING)
+	{
+		gameEnd(game);
 		return;
+	}
 
 	int points = 0;
 	game->tickCounter++;
@@ -233,7 +244,10 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	else if(game->ship.entity.isAlive == false)
 	{
 		if(game->ship.livesLeft == 0)
+		{
 			gameEnd(game);
+			game->status = GAME_END;
+		}
 		else
 		{
 			setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);

@@ -64,7 +64,7 @@
 #define BULLET_MOVE_RATE 2
 #define SHIP_MOVE_RATE 1
 
-#define SCORE_FILE "Files/HiScores_RPI.txt"
+#define SCORE_FILE "backend/Files/HiScores_RPI"
 
 #else // platform pc
 
@@ -124,7 +124,7 @@
 
 #define POWERUP_TYPES 4
 
-#define SCORE_FILE "Files/HiScores_PC.txt"
+#define SCORE_FILE "backend/Files/HiScores_PC"
 
 #endif
 

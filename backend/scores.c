@@ -60,17 +60,29 @@ void incrementScore(game_t * game, int points)
 
 int updateScoreRank(score_t lastScore)
 {
-    FILE *scoreFiles = fopen(SCORE_FILE, "r");
+    if(lastScore.score > 99999)
+        lastScore.score = 99999;
+        
+    FILE *scoreFiles = fopen(SCORE_FILE, "r+");
     if (!scoreFiles)
-        return 0;
+    {
+        printf("Error opening score file.\n");
+        return -1;
+    }
+    printf("Updating score rank for tag: %s, score: %d\n", lastScore.tag, lastScore.score);
 
-    int i, rank = 0;
+    int i, rank = -1;
     score_t highScore;
 
-    for (i = MAX_SCORES; i > 0; i++)
+    for (i = MAX_SCORES; i > 0; i--)
     {
         fseek(scoreFiles, (i - 1) * 10, SEEK_SET);
-        fscanf(scoreFiles, "%3s %05d", &highScore.tag, &highScore.score);
+        if(fscanf(scoreFiles, "%3s %05d", highScore.tag, &highScore.score) != 2)
+        {
+            printf("Error reading score file at position %d.\n", i);
+            fclose(scoreFiles);
+            return -1;
+        }
         if(lastScore.score <= highScore.score)
         {
             rank = i + 1;
@@ -82,10 +94,15 @@ int updateScoreRank(score_t lastScore)
 
     if(rank <= MAX_SCORES && rank > 0)
     {
-        for(i = rank; i < MAX_SCORES; i++)
+        for(i = MAX_SCORES - 1; i >= rank; i--)
         {
             fseek(scoreFiles, (i - 1) * 10, SEEK_SET);
-            fscanf(scoreFiles, "%3s %05d", &highScore.tag, &highScore.score);
+            if(fscanf(scoreFiles, "%3s %05d", highScore.tag, &highScore.score) != 2)
+            {
+                printf("Error reading score file at position %d.\n", i);
+                fclose(scoreFiles);
+                return -1;
+            }
             fseek(scoreFiles, i * 10, SEEK_SET);
             fprintf(scoreFiles, "%3s %05d\n", highScore.tag, highScore.score);
         }
@@ -95,7 +112,7 @@ int updateScoreRank(score_t lastScore)
 
     fclose(scoreFiles);
 
-    return (rank <= MAX_SCORES && rank > 0) ? rank : 0;
+    return (rank <= MAX_SCORES && rank >= 1) ? rank : 0;
 }
 
 int getAlienPoints(alien_t alien)
