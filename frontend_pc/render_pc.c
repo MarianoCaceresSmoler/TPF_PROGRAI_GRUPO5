@@ -65,7 +65,6 @@ static void drawMothership(mothership_t mothership);
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
 static void drawBarriers(barrier_t barriers[BARRIERS]);
 static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES]);
-static void drawScore(int score);
 
 /**
  * @brief private function to draw aliens/mothership points in menu
@@ -951,13 +950,6 @@ static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES], int activePowerUp[PO
 				0);
 		}
 	}
-}
-
-static void drawScore(int score)
-{
-	char buffer[64];
-	snprintf(buffer, sizeof(buffer), "Score: %d", score);
-	al_draw_text(fontRetro, al_map_rgb(255, 255, 255), SCORE_INITIAL_X, SCORE_INITIAL_Y, 0, buffer);
 }
 
 static void drawHUD(int score, int lives, int level)
