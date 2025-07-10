@@ -45,7 +45,7 @@
 
 // +ej: static void falta_envido (int);+
 
-static void * updateInput(void); // private function to update user inputs
+static void * updateInput(void * arg); // private function to update user inputs
 static unsigned int getCurrentTimeMs(void); // to get current time in ms
 
 /*******************************************************************************
@@ -86,13 +86,21 @@ void clearInput()
     stopInputThread = true;
 }
 
+void resetInputFlags(inputStatus_t * inputStatus)
+{
+    inputStatus->pauseKeyPressed = false;
+    inputStatus->resumeKeyPressed = false;
+    inputStatus->restartKeyPressed = false;
+    inputStatus->exitKeyPressed = false;
+}
+
 /*******************************************************************************
  *******************************************************************************
                         LOCAL FUNCTION DEFINITIONS
  *******************************************************************************
  ******************************************************************************/
 
-static void * updateInput(void)
+static void * updateInput(void * arg)
 {
     bool shootButtonPressed = false;
     unsigned int shootPressTime = 0;
@@ -101,7 +109,6 @@ static void * updateInput(void)
     {
         joyinfo_t joy = joy_read();
 
-        // Reset inputs except from pause, resume, restart and exit
         globalInputStatus->leftKeyPressed = false;
         globalInputStatus->rightKeyPressed = false;
         globalInputStatus->shootKeyPressed = false;
@@ -115,6 +122,9 @@ static void * updateInput(void)
         // process button
         if (joy.sw == J_PRESS) {
 
+            shootButtonPressed = true;
+            shootPressTime = getCurrentTimeMs();
+
             if (joy.y < JOY_THRESHOLD) {
                 // Combination: down + button → exit
                 globalInputStatus->exitKeyPressed = true;
@@ -123,12 +133,7 @@ static void * updateInput(void)
                 // Combinación: up + button → restart
                 globalInputStatus->restartKeyPressed = true;
             }
-            else
-            {
-                shootButtonPressed = true;
-                shootPressTime = getCurrentTimeMs();
-            }
-            
+
         } else if (joy.sw == J_NOPRESS && shootButtonPressed) {
             uint64_t pressDuration = getCurrentTimeMs() - shootPressTime; // time in milliseconds in which the button was pressed
 
@@ -142,7 +147,6 @@ static void * updateInput(void)
                 } else {
                     // resume with anoter long duration press
                     globalInputStatus->resumeKeyPressed = true;
-                    globalInputStatus->pauseKeyPressed = false;
                 }
             }
 

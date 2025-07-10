@@ -50,9 +50,15 @@
 
 /**
  * @brief function to init input system
- * @param pointer to input status used in main
+ * @param inputStatus pointer to input status used in main
 */
 void initInput(inputStatus_t *inputStatus);
+
+/**
+ * @brief function to reset input input flags
+ * @param inputStatus pointer to input status used in main
+*/
+void resetInputFlags(inputStatus_t * inputStatus);
 
 /**
  * @brief function to finish inputs loop

@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <SDL2/SDL.h> // to use delays
+
 #include "../backend/config.h"
 #include "../backend/game.h"
 #include "../backend/entities.h"
@@ -45,7 +46,7 @@
 /**
  * @brief private functions to render the different parts of the game
  */
-static void *render(void);
+static void *render(void *arg);
 static void renderLoading(void);
 static void renderGame(void);
 static void renderMenu(void);
@@ -57,20 +58,18 @@ static void renderGameOver(void);
  * @param y position y of the object
  * @param width width of the object
  * @param height height of the object
- * @param state state of the LEDs: D_ON or D_OFF
  */
-void drawObject(int x, int y, int width, int height, dlevel_t state);
+void drawObject(int x, int y, int width, int height);
 
 /**
  * @brief private functions to draw the differents elements in display
  */
 static void drawShip(ship_t ship);
-static void drawAliens(alienFormation_t alienFormation);
+static void drawAliens(alienFormation_t aliens);
 static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw);
 static void drawMothership(mothership_t mothership);
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
 static void drawBarriers(barrier_t barriers[BARRIERS]);
-static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES]);
 
 /**
  * @brief private function to draw HUD during gameplay
@@ -79,6 +78,32 @@ static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POW
  * @param level the actual level
  */
 static void drawHUD(int score, int lives, int level);
+
+/**
+ * @brief private function to draw a character
+ * @param c the character
+ * @param x position in x
+ * @param y position in y
+ */
+void drawChar(char c, int x, int y);
+
+/**
+ * @brief private function to draw text
+ * @param text the text to draw
+ * @param x position in x
+ * @param y position in y
+ */
+void drawText(const char *text, int x, int y);
+
+/**
+ * @brief private function to draw blinking text
+ * @param text the text to draw
+ * @param x position in x
+ * @param y position in y
+ * @param times the number of times the text will blink
+ * @param delay the delay between each blink
+ */
+void blinkText(const char *text, int x, int y, int times, int delay);
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -95,6 +120,189 @@ static void drawHUD(int score, int lives, int level);
 static bool stopRenderThread = false;
 static game_t *globalGameStatus = NULL;
 static pthread_t renderThread;
+
+const unsigned char font5x5[26][5] = {
+    // A
+    {0b01110,
+     0b10001,
+     0b11111,
+     0b10001,
+     0b10001},
+
+    // B
+    {0b11110,
+     0b10001,
+     0b11110,
+     0b10001,
+     0b11110},
+
+    // C
+    {0b01110,
+     0b10001,
+     0b10000,
+     0b10001,
+     0b01110},
+
+    // D
+    {0b11110,
+     0b10001,
+     0b10001,
+     0b10001,
+     0b11110},
+
+    // E
+    {0b11111,
+     0b10000,
+     0b11110,
+     0b10000,
+     0b11111},
+
+    // F
+    {0b11111,
+     0b10000,
+     0b11110,
+     0b10000,
+     0b10000},
+
+    // G
+    {0b01110,
+     0b10000,
+     0b10111,
+     0b10001,
+     0b01110},
+
+    // H
+    {0b10001,
+     0b10001,
+     0b11111,
+     0b10001,
+     0b10001},
+
+    // I
+    {0b01110,
+     0b00100,
+     0b00100,
+     0b00100,
+     0b01110},
+
+    // J
+    {0b00001,
+     0b00001,
+     0b00001,
+     0b10001,
+     0b01110},
+
+    // K
+    {0b10001,
+     0b10010,
+     0b11100,
+     0b10010,
+     0b10001},
+
+    // L
+    {0b10000,
+     0b10000,
+     0b10000,
+     0b10000,
+     0b11111},
+
+    // M
+    {0b10001,
+     0b11011,
+     0b10101,
+     0b10001,
+     0b10001},
+
+    // N
+    {0b10001,
+     0b11001,
+     0b10101,
+     0b10011,
+     0b10001},
+
+    // O
+    {0b01110,
+     0b10001,
+     0b10001,
+     0b10001,
+     0b01110},
+
+    // P
+    {0b11110,
+     0b10001,
+     0b11110,
+     0b10000,
+     0b10000},
+
+    // Q
+    {0b01110,
+     0b10001,
+     0b10001,
+     0b10011,
+     0b01111},
+
+    // R
+    {0b11110,
+     0b10001,
+     0b11110,
+     0b10010,
+     0b10001},
+
+    // S
+    {0b01111,
+     0b10000,
+     0b01110,
+     0b00001,
+     0b11110},
+
+    // T
+    {0b11111,
+     0b00100,
+     0b00100,
+     0b00100,
+     0b00100},
+
+    // U
+    {0b10001,
+     0b10001,
+     0b10001,
+     0b10001,
+     0b01110},
+
+    // V
+    {0b10001,
+     0b10001,
+     0b10001,
+     0b01010,
+     0b00100},
+
+    // W
+    {0b10001,
+     0b10001,
+     0b10101,
+     0b11011,
+     0b10001},
+
+    // X
+    {0b10001,
+     0b01010,
+     0b00100,
+     0b01010,
+     0b10001},
+
+    // Y
+    {0b10001,
+     0b01010,
+     0b00100,
+     0b00100,
+     0b00100},
+
+    // Z
+    {0b11111,
+     0b00010,
+     0b00100,
+     0b01000,
+     0b11111}};
 
 /*******************************************************************************
  *******************************************************************************
@@ -126,7 +334,7 @@ void cleanupGraphics(void)
  *******************************************************************************
  ******************************************************************************/
 
-static void *render(void)
+static void *render(void *arg)
 {
     while (!stopRenderThread)
     {
@@ -147,6 +355,9 @@ static void *render(void)
 
         SDL_Delay(1000 / FPS); // 30 FPS --> 33 ms delay
     }
+
+    return NULL;
+
 }
 
 static void renderLoading(void)
@@ -161,73 +372,33 @@ static void renderGame(void)
     drawMothership(globalGameStatus->mothership);
     drawBullets(globalGameStatus->shipBullet, globalGameStatus->alienBullet);
     drawBarriers(globalGameStatus->barriers);
-    drawPowerUps(globalGameStatus.powerUp, globalGameStatus.activePowerUp);
     drawHUD(globalGameStatus->score, globalGameStatus->ship.livesLeft, globalGameStatus->currentLevel);
 }
 
 static void renderMenu(void)
 {
-    // Usamos parpadeo para simular texto
-    static unsigned int blinkTimer = 0;
-    blinkTimer++;
-
     if (globalGameStatus->status == GAME_MENU)
     {
+        blinkText("SPACE", 0, 0, 3, 500);
+        blinkText("INVADERS", 0, 8, 3, 500);
+        blinkText("HOLD BUTTON TO PLAY", 0, 8, 3, 500);
     }
     else if (globalGameStatus->status == GAME_PAUSED)
     {
-        // Mensaje "GAME PAUSED"
-
-        if (blinkTimer % 3 == 0)
-        {
-            // Dibuja letras grandes (simulando "GAME")
-            drawObject(2, 2, 4, 1, D_ON);  // G
-            drawObject(9, 3, 4, 2, D_ON);  // A
-            drawObject(15, 3, 4, 2, D_ON); // M
-            drawObject(21, 3, 4, 2, D_ON); // E
-
-            // Dibuja letras grandes (simulando "PAUSED")
-            drawObject(3, 6, 4, 2, D_ON);  // P
-            drawObject(9, 6, 4, 2, D_ON);  // A
-            drawObject(15, 6, 4, 2, D_ON); // U
-            drawObject(21, 6, 4, 2, D_ON); // S
-            drawObject(27, 6, 4, 2, D_ON); // E
-            drawObject(33, 6, 4, 2, D_ON); // D
-        }
+        blinkText("DOWN + BUTTON TO EXIT", 0, 0, 3, 500);
+        blinkText("UP + BUTTON TO RESTART", 0, 8, 3, 500);
     }
-
-    // Nave del jugador (centrada abajo)
-    int shipX = (DISP_CANT_X_DOTS - SHIP_WIDTH) / 2;
-    int shipY = DISP_CANT_Y_DOTS - SHIP_HEIGHT - 1;
-    drawObject(shipX, shipY, SHIP_WIDTH, SHIP_HEIGHT, D_ON);
 }
 
 static void renderGameOver(void)
 {
-    static uint8_t gameOverBlink = 0;
-    int x = (DISP_CANT_X_DOTS - SHIP_WIDTH) / 2;
-    int y = DISP_CANT_Y_DOTS - SHIP_HEIGHT - 1;
-
-    // Nave explotada: parpadeo
-    if ((gameOverBlink++ / 5) % 2 == 0)
-    {
-        drawObject(x, y, SHIP_WIDTH, SHIP_HEIGHT, D_ON);
-    }
-    else
-    {
-        drawObject(x, y, SHIP_WIDTH, SHIP_HEIGHT, D_OFF);
-    }
-
-    if ((gameOverBlink / 10) % 2 == 0)
-    {
-        drawObject(0, 0, 1, 1, D_ON);
-        drawObject(DISP_CANT_X_DOTS - 1, 0, 1, 1, D_ON);
-        drawObject(0, DISP_CANT_Y_DOTS - 1, 1, 1, D_ON);
-        drawObject(DISP_CANT_X_DOTS - 1, DISP_CANT_Y_DOTS - 1, 1, 1, D_ON);
-    }
+    blinkText("SPACE", 0, 0, 3, 500);
+    blinkText("INVADERS", 0, 8, 3, 500);
+    blinkText("DOWN + BUTTON TO EXIT", 0, 0, 3, 500);
+    blinkText("UP + BUTTON TO RESTART", 0, 8, 3, 500);
 }
 
-void drawObject(int x, int y, int width, int height, dlevel_t state)
+void drawObject(int x, int y, int width, int height)
 {
     for (int row = 0; row < height; row++)
     {
@@ -240,7 +411,7 @@ void drawObject(int x, int y, int width, int height, dlevel_t state)
                 continue;
 
             dcoord_t coord = {.x = px, .y = py};
-            disp_write(coord, state);
+            disp_write(coord, D_ON);
         }
     }
 }
@@ -254,12 +425,12 @@ static void drawShip(ship_t ship)
 
         if (ship.invencibilityTicks % 2 == 0) // ticks mode if ship is invincible after being shooted
         {
-            drawObject(x, y, SHIP_WIDTH, SHIP_HEIGHT, D_ON);
+            drawObject(x, y, SHIP_WIDTH, SHIP_HEIGHT);
         }
     }
 }
 
-static void drawAliens(alienFormation_t alienFormation)
+static void drawAliens(alienFormation_t aliens)
 {
     for (int i = 0; i < ALIENS_ROWS; i++)
     {
@@ -273,7 +444,7 @@ static void drawAliens(alienFormation_t alienFormation)
             int x = alien->entity.x;
             int y = alien->entity.y;
 
-            drawObject(x, y, ALIEN_WIDTH, ALIEN_HEIGHT, D_ON);
+            drawObject(x, y, ALIEN_WIDTH, ALIEN_HEIGHT);
         }
     }
 }
@@ -292,7 +463,7 @@ static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw)
 
             alien_t alien = aliens.alien[i][j];
 
-            drawObject(alien.entity.x, alien.entity.y, ALIEN_WIDTH, ALIEN_HEIGHT, D_ON);
+            drawObject(alien.entity.x, alien.entity.y, ALIEN_WIDTH, ALIEN_HEIGHT);
 
             drawn++;
         }
@@ -306,7 +477,7 @@ static void drawMothership(mothership_t mothership)
         int x = mothership.entity.x;
         int y = mothership.entity.y;
 
-        drawObject(x, y, MOTHERSHIP_WIDTH, MOTHERSHIP_HEIGHT, D_ON);
+        drawObject(x, y, MOTHERSHIP_WIDTH, MOTHERSHIP_HEIGHT);
     }
 }
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
@@ -319,7 +490,7 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
     {
         x = shipBullet.entity.x;
         y = shipBullet.entity.y;
-        drawObject(x, y, BULLET_WIDTH, BULLET_HEIGHT, D_ON);
+        drawObject(x, y, BULLET_WIDTH, BULLET_HEIGHT);
     }
 
     // Alien bullet
@@ -328,7 +499,7 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
     {
         x = alienBullet.entity.x;
         y = alienBullet.entity.y;
-        drawObject(x, y, BULLET_WIDTH, BULLET_HEIGHT, D_ON);
+        drawObject(x, y, BULLET_WIDTH, BULLET_HEIGHT);
     }
 }
 
@@ -355,4 +526,46 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
     }
 }
 
-static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES]);
+static void drawHUD(int score, int lives, int level)
+{
+    // HACER
+}
+
+void drawChar(char c, int x, int y)
+{
+    if (c < 'A' || c > 'Z')
+        return; // Solo letras mayúsculas
+
+    int index = c - 'A'; // 'A' está en font5x5[0]
+    for (int row = 0; row < 5; row++)
+    {
+        uint8_t line = font5x5[index][row];
+        for (int col = 0; col < 5; col++)
+        {
+            if (line & (1 << (4 - col))) // Bit activo
+            {
+                drawObject(x + col, y + row, 1, 1); // Un pixel
+            }
+        }
+    }
+}
+
+void drawText(const char *text, int x, int y)
+{
+    int spacing = 6; // 5 de letra + 1 espacio
+    for (int i = 0; text[i] != '\0'; i++)
+    {
+        drawChar(text[i], x + i * spacing, y);
+    }
+}
+
+void blinkText(const char *text, int x, int y, int times, int delay)
+{
+    for (int i = 0; i < times; i++)
+    {
+        drawText(text, x, y);
+        SDL_Delay(delay);
+        disp_clear();
+        SDL_Delay(delay);
+    }
+}
