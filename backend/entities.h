@@ -184,6 +184,55 @@ void setEntity(entity_t * entity, int x, int y);
  */
 void shootFromEntity(bullet_t *bullet, entity_t *shootingEntity);
 
+/**
+ * @brief function to set the barriers position
+ * @param game pointer to the game
+ */
+void setBarriers(barrier_t barriers[BARRIERS]);
+
+/**
+ * @brief function to set the aliens position
+ * @param game pointer to the game
+ */
+void setAliens(alienFormation_t *aliens);
+
+/**
+ * @brief function to set the shape of a barrier
+ * @param barrier pointer to the barrier type entity
+ */
+void setBarrierShape(barrier_t *barrier);
+
+/**
+ * @brief function to get the column aligned with the ship's x position
+ * @param aliens aliens structure to get the column
+ * @param shipX ship's position in the X axis
+ * @return the column closest to the ship
+ */
+int getNearestColumnAlive(alienFormation_t aliens, short int shipX);
+
+/**
+ * @brief function to get the nearest row alive to the ship
+ * @param aliens is the aliens structure to get the row from
+ * @param column is the column of aliens to check
+ * @return the row with an alive alien closest to the ship
+ */
+int getNearestRowAlive(alienFormation_t aliens, int column);
+
+/**
+ * @brief function to get the first column with an alive alien from left to right
+ * @param aliens alien formation to get the column from
+ * @return first column with an alive alien starting from 0
+ */
+int getFirstColumnAlive(alienFormation_t aliens);
+
+/**
+ * @brief function to get the first row with an alive alien from left to right
+ * @param aliens alien formation to get the row from
+ * @return first row with an alive alien starting from 0
+ */
+int getLastColumnAlive(alienFormation_t aliens);
+
+
 /*******************************************************************************
  ******************************************************************************/
 

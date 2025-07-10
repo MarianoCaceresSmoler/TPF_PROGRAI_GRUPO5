@@ -143,6 +143,124 @@ void shootFromEntity(bullet_t *bullet, entity_t *shootingEntity)
 	bullet->entity.isAlive = 1;
 }
 
+void setBarriers(barrier_t barriers[BARRIERS])
+{
+	int i, j, k;
+	// set barriers to initial position
+	for (k = 0; k < BARRIERS; k++)
+	{
+		for (i = 0; i < BARRIER_HEIGHT; i++)
+		{
+			for (j = 0; j < BARRIER_WIDTH; j++)
+			{
+				setEntity(&barriers[k].pixel[i][j].entity, BARRIERS_INITIAL_X + k * BARRIERS_SEPARATION + j * BARRIER_PIXEL_WIDTH, BARRIERS_INITIAL_Y + i * BARRIER_PIXEL_HEIGHT);
+				setBarrierShape(&barriers[k]);
+			}
+		}
+	}
+}
+
+void setAliens(alienFormation_t *aliens)
+{
+	int i, j;
+	for (i = 0; i < ALIENS_ROWS; i++)
+	{
+		for (j = 0; j < ALIENS_COLS; j++)
+		{
+			setEntity(&aliens->alien[i][j].entity, ALIENS_INITIAL_X + j * ALIEN_X_SEPARATION, ALIENS_INITIAL_Y + i * ALIEN_Y_SEPARATION);
+		}
+	}
+}
+
+void setBarrierShape(barrier_t *barrier)
+{
+	int i, j;
+	for (i = 0; i < BARRIER_HEIGHT; i++)
+	{
+		for (j = 0; j < BARRIER_WIDTH; j++)
+		{
+			barrier->pixel[i][j].entity.isAlive = 1;
+		}
+	}
+
+	#ifdef PLATFORM_RPI
+	barrier->pixel[0][0].entity.isAlive = 0;
+	barrier->pixel[0][3].entity.isAlive = 0;
+	barrier->pixel[2][1].entity.isAlive = 0;
+	barrier->pixel[2][2].entity.isAlive = 0;
+	#else
+	barrier->pixel[0][0].entity.isAlive = 0;
+	barrier->pixel[0][5].entity.isAlive = 0;
+	barrier->pixel[3][1].entity.isAlive = 0;
+	barrier->pixel[3][2].entity.isAlive = 0;
+	barrier->pixel[3][3].entity.isAlive = 0;
+	barrier->pixel[3][4].entity.isAlive = 0;
+	#endif
+}
+
+int getNearestColumnAlive(alienFormation_t aliens, short int shipX)
+{
+	int i, nearestColumn = -1;
+
+	for (i = 0; i < ALIENS_COLS && nearestColumn == -1; i++)
+	{
+		if (aliens.alien[0][i].entity.x + ALIEN_X_SEPARATION >= shipX + SHIP_WIDTH / 2 &&
+			aliens.alien[0][i].entity.x <= shipX + SHIP_WIDTH / 2)
+		{
+			nearestColumn = i;
+		}
+	}
+
+	return nearestColumn;
+}
+
+int getNearestRowAlive(alienFormation_t aliens, int column)
+{
+	int row, nearestRow = -1;
+	for (row = ALIENS_ROWS - 1; row > 0 && nearestRow == -1; row--)
+	{
+		if (aliens.alien[row][column].entity.isAlive)
+		{
+			nearestRow = row;
+		}
+	}
+	return nearestRow;
+}
+
+int getFirstColumnAlive(alienFormation_t aliens)
+{
+	int i, j, firstColumn = -1;
+	for (j = 0; j < ALIENS_COLS && firstColumn == -1; j++)
+	{
+		for (i = 0; i < ALIENS_ROWS && firstColumn == -1; i++)
+		{
+			if (aliens.alien[i][j].entity.isAlive)
+			{
+				firstColumn = j;
+			}
+		}
+	}
+
+	return firstColumn;
+}
+
+int getLastColumnAlive(alienFormation_t aliens)
+{
+	int i, j, lastColumn = -1;
+	for (j = ALIENS_COLS - 1; j > 0 && lastColumn == -1; j--)
+	{
+		for (i = 0; i < ALIENS_ROWS && lastColumn == -1; i++)
+		{
+			if (aliens.alien[i][j].entity.isAlive)
+			{
+				lastColumn = j;
+			}
+		}
+	}
+
+	return lastColumn;
+}
+
 /*******************************************************************************
  *******************************************************************************
                         LOCAL FUNCTION DEFINITIONS

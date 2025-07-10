@@ -132,6 +132,12 @@ static double crossfadeStartTime = 0.0;
  *******************************************************************************
  ******************************************************************************/
 
+ALLEGRO_EVENT_QUEUE *getEventQueue(void)
+{
+	return eventQueue;
+}
+
+
 void initGraphics(void)
 {
 	// Initialize Allegro

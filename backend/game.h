@@ -44,6 +44,7 @@ typedef struct
     char rightKeyPressed       : 1;
     char shootKeyPressed       : 1;
     char pauseKeyPressed       : 1;
+    char upKeyPressed          : 1;
     char resumeKeyPressed      : 1;
     char restartKeyPressed     : 1;
     char exitKeyPressed        : 1;
@@ -136,12 +137,6 @@ void gameEnd(game_t *game);
  * @param game pointer to the game information
  */
 void gameReset(game_t *game);
-
-/**
- * @brief function to update the score
- * @param game pointer to the game information, points the number of points to add
- */
-void incrementScore(game_t *game, int points);
 
 /**
  * @brief general function to update the game's objects information

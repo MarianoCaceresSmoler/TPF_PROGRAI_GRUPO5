@@ -47,6 +47,8 @@
 void initGraphics(void);
 void cleanupGraphics(void);
 
+ALLEGRO_EVENT_QUEUE *getEventQueue(void);
+
 /**
  * @brief functions to render the game screens
  * @param game copy of the game object

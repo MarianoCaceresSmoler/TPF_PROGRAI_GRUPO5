@@ -88,24 +88,6 @@ static int getFirstColumnAlive(alienFormation_t aliens);
  */
 static int getLastColumnAlive(alienFormation_t aliens);
 
-/**
- * @brief function to set the barriers position
- * @param game pointer to the game
- */
-static void setBarriers(game_t *game);
-
-/**
- * @brief function to set the aliens position
- * @param game pointer to the game
- */
-static void setAliens(game_t *game);
-
-/**
- * @brief function to set the shape of a barrier
- * @param barrier pointer to the barrier type entity
- */
-static void setBarrierShape(barrier_t *barrier);
-
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -126,6 +108,7 @@ static void setBarrierShape(barrier_t *barrier);
 
 void gameInit(game_t *game)
 {
+	// initialize rand seed
 	srand(time(NULL));
 
 	// initialize entities
@@ -161,18 +144,20 @@ void gameInit(game_t *game)
 
 void levelInit(game_t *game)
 {
-	// reset bullets to standby position
+	// set bullets to standby position
 	setEntity(&game->shipBullet.entity, STANDBY_POSITION, STANDBY_POSITION);
 	setEntity(&game->alienBullet.entity, STANDBY_POSITION, STANDBY_POSITION);
 
-	// set entities to initial position
+	// set ship to initial position
 	setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
 	game->ship.canShoot = 1;
 
 	game->mothership.entity.isAlive = 0;
 
-	setAliens(game); // set aliens to initial position
+	// set aliens to initial position
+	setAliens(&game->aliens);
 
+	// set game status
 	game->status = GAME_LOADING;
 	game->loadingTimer = LOADING_TIME;
 	game->aliensRemaining = ALIENS_NUMBER;
@@ -181,7 +166,8 @@ void levelInit(game_t *game)
 	if (game->currentLevel > 1)
 		return;
 
-	setBarriers(game); // set barriers to initial position
+	// set barriers to initial position only on first level
+	setBarriers(game->barriers); 
 }
 
 void gamePause(game_t *game)
@@ -305,7 +291,6 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	// updates score if an alien is killed
 	if ((points = handleCollisions(game)))
 	{
-		// incrementScore(game, points);
 		game->score += points;
 
 		int powerUpType = rand() % POWERUP_TYPES;
@@ -498,112 +483,5 @@ static void updateEntityExplosion(entity_t *entity)
 	if (!entity->explosionTimer)
 	{
 		entity->isAlive = 0; // when the timer hits 0, the entity is no longer alive
-	}
-}
-
-static int getNearestColumnAlive(alienFormation_t aliens, short int shipX)
-{
-	int i, nearestColumn = -1;
-
-	for (i = 0; i < ALIENS_COLS && nearestColumn == -1; i++)
-	{
-		if (aliens.alien[0][i].entity.x + ALIEN_WIDTH >= shipX + SHIP_WIDTH / 2 &&
-			aliens.alien[0][i].entity.x <= shipX + SHIP_WIDTH / 2)
-		{
-			nearestColumn = i;
-		}
-	}
-
-	return nearestColumn;
-}
-
-static int getNearestRowAlive(alienFormation_t aliens, int column)
-{
-	int row, nearestRow = -1;
-	for (row = ALIENS_ROWS - 1; row > 0 && nearestRow == -1; row--)
-	{
-		if (aliens.alien[row][column].entity.isAlive)
-		{
-			nearestRow = row;
-		}
-	}
-	return nearestRow;
-}
-
-static int getFirstColumnAlive(alienFormation_t aliens)
-{
-	int i, j, firstColumn = -1;
-	for (j = 0; j < ALIENS_COLS && firstColumn == -1; j++)
-	{
-		for (i = 0; i < ALIENS_ROWS && firstColumn == -1; i++)
-		{
-			if (aliens.alien[i][j].entity.isAlive)
-			{
-				firstColumn = j;
-			}
-		}
-	}
-
-	return firstColumn;
-}
-
-static int getLastColumnAlive(alienFormation_t aliens)
-{
-	int i, j, lastColumn = -1;
-	for (j = ALIENS_COLS - 1; j > 0 && lastColumn == -1; j--)
-	{
-		for (i = 0; i < ALIENS_ROWS && lastColumn == -1; i++)
-		{
-			if (aliens.alien[i][j].entity.isAlive)
-			{
-				lastColumn = j;
-			}
-		}
-	}
-
-	return lastColumn;
-}
-
-static void setBarriers(game_t *game)
-{
-	int i, j, k;
-	// set barriers to initial position
-	for (k = 0; k < BARRIERS; k++)
-	{
-		for (i = 0; i < BARRIER_HEIGHT; i++)
-		{
-			for (j = 0; j < BARRIER_WIDTH; j++)
-			{
-				setEntity(&game->barriers[k].pixel[i][j].entity, BARRIERS_INITIAL_X + k * BARRIERS_SEPARATION + j * BARRIER_PIXEL_WIDTH, BARRIERS_INITIAL_Y + i * BARRIER_PIXEL_HEIGHT);
-				setBarrierShape(&game->barriers[k]);
-			}
-		}
-	}
-}
-
-static void setAliens(game_t *game)
-{
-	int i, j;
-	for (i = 0; i < ALIENS_ROWS; i++)
-	{
-		for (j = 0; j < ALIENS_COLS; j++)
-		{
-			setEntity(&game->aliens.alien[i][j].entity, ALIENS_INITIAL_X + j * ALIEN_X_SEPARATION, ALIENS_INITIAL_Y + i * ALIEN_Y_SEPARATION);
-		}
-	}
-}
-
-static void setBarrierShape(barrier_t *barrier)
-{
-	int i, j;
-	for (i = 0; i < BARRIER_HEIGHT; i++)
-	{
-		for (j = 0; j < BARRIER_WIDTH; j++)
-		{
-			if ((i == 0 && (j == 0 || j == 5)) || (i == 3 && (j >= 1 && j <= 4))) // determines barrier shape
-				barrier->pixel[i][j].entity.isAlive = 0;
-			else
-				barrier->pixel[i][j].entity.isAlive = 1;
-		}
 	}
 }
