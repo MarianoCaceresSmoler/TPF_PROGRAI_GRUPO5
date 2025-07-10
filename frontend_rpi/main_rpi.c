@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
-   @main_pc.c
-   @Main program for the PC version of the game.
+   @main_rpi.c
+   @Main program for the RPI version of the game.
    @Grupo_5
   ******************************************************************************/
 
