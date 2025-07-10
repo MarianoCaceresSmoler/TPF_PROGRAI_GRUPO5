@@ -12,8 +12,9 @@
 
 #include <allegro5/allegro.h>
 #include "../backend/game.h"
-#include "render_pc.h"
 #include "../backend/config.h"
+#include "render_pc.h"
+#include "input_pc.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -85,9 +86,6 @@ void setInput(inputStatus_t *inputStatus, int keycode)
     case ALLEGRO_KEY_RIGHT:
         inputStatus->rightKeyPressed = true;
         break;
-    case ALLEGRO_KEY_UP:
-        inputStatus->upKeyPressed = true;
-        break;
     case ALLEGRO_KEY_SPACE:
         inputStatus->shootKeyPressed = true;
         break;
@@ -118,9 +116,6 @@ void clearInput(inputStatus_t *inputStatus, int keycode)
         break;
     case ALLEGRO_KEY_RIGHT:
         inputStatus->rightKeyPressed = false;
-        break;
-    case ALLEGRO_KEY_UP:
-        inputStatus->upKeyPressed = false;
         break;
     case ALLEGRO_KEY_SPACE:
         inputStatus->shootKeyPressed = false;

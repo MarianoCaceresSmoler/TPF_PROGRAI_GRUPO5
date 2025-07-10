@@ -11,7 +11,7 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
- #include "../backend/game.h"
+#include "../backend/game.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE

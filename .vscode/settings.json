@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "unistd.h": "c",
+        "render_rpi.h": "c",
+        "pthread.h": "c"
+    }
+}

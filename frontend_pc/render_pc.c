@@ -422,11 +422,6 @@ void renderGameOver(game_t game)
 	al_flip_display();
 }
 
-ALLEGRO_EVENT_QUEUE *getEventQueue(void)
-{
-	return eventQueue;
-}
-
 /*******************************************************************************
  *******************************************************************************
 						LOCAL FUNCTION DEFINITIONS

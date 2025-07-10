@@ -1,16 +1,17 @@
 /***************************************************************************//**
-  @file     +Nombre del archivo (ej: template.h)+
-  @brief    +Descripcion del archivo+
-  @author   +Nombre del autor (ej: Salvador Allende)+
+  @render_rpi.h
+  @Render frontend
+  @Grupo_5
  ******************************************************************************/
 
-#ifndef RENDER_H
-#define RENDER_H
+#ifndef RENDER_RPI_H
+#define RENDER_RPI_H
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
+ #include "../backend/game.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -42,17 +43,23 @@
 */
 // +ej: char lcd_goto (int fil, int col);+
 
-void render_game(game_t *game);  // Dibuja todo
-void draw_ship(ship_t *ship);
-void draw_aliens(alienFormation_t *aliens);
-void draw_bullets(bullet_t bullets[]);
-void draw_barriers(barrier_t barriers[]);
-void draw_score(int score);
-void init_graphics();
-void cleanup_graphics();
+/**
+ * @brief function to init the display
+ */
+void initGraphics(game_t * game);
 
+
+void cleanupGraphics(void);
+
+/**
+ * @brief functions to render the game screens
+ * @param game copy of the game object
+ */
+void renderGame(game_t game);
+void renderMenu(game_t game);
+void renderGameOver(game_t game);
 
 /*******************************************************************************
  ******************************************************************************/
 
-#endif // RENDER_H
+#endif // RENDER_RPI_H

@@ -55,12 +55,6 @@ void renderGame(game_t game);
 void renderMenu(game_t game);
 void renderGameOver(game_t game);
 
-/**
- * @brief function to get allegro event queue
- * @return allegro event queue
- */
-ALLEGRO_EVENT_QUEUE * getEventQueue(void);
-
 
 /*******************************************************************************
  ******************************************************************************/
