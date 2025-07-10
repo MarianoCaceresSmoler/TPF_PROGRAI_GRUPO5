@@ -19,16 +19,23 @@ else
     OUTPUT := game_pc
 endif
 
+
 $(info Compiling for: $(PLATFORM))
 
-OBJS := entities.o game.o physics.o  scores.o audio_${PLATFORM}.o input_${PLATFORM}.o main_${PLATFORM}.o render_${PLATFORM}.o
+ifeq ($(UNAME_M),armv7l)
+	OBJS := entities.o game.o physics.o scores.o audio_${PLATFORM}.o input_${PLATFORM}.o main_${PLATFORM}.o render_${PLATFORM}.o ../../libs/joydisp/joydrv.o ../../libs/joydisp/disdrv.o
+	INCLUDES := -I../../libs/joydisp
+	LINKS := -I../../libs/joydisp -I/usr/local/include -L/usr/local/lib -lSDL2 -lpthread
+else
+	OBJS := entities.o game.o physics.o scores.o audio_${PLATFORM}.o input_${PLATFORM}.o main_${PLATFORM}.o render_${PLATFORM}.o
+	INCLUDES := 
+	LINKS := -lallegro -lallegro_primitives -lallegro_font -lallegro_ttf -lallegro_image -lallegro_audio -lallegro_acodec -lallegro_video -lpthread
+endif
 
 # FALTA DEFINIR BIEN LAS DEPENDENCIAS PARA CADA TARGET
 
-ALLEGRO_LINKS := -lallegro -lallegro_primitives -lallegro_font -lallegro_ttf -lallegro_image -lallegro_audio -lallegro_acodec -lallegro_video
-
 program: ${OBJS}
-	${CC} ${OBJS} ${OPTIONS} -o ${OUTPUT} ${ALLEGRO_LINKS} ${PLATFORM_FLAG}
+	${CC} ${OBJS} ${OPTIONS} -o ${OUTPUT} ${LINKS} ${PLATFORM_FLAG}
 
 game.o: ${BACKEND_DIR}/game.c ${BACKEND_DIR}/game.h ${BACKEND_DIR}/config.h ${BACKEND_DIR}/entities.h ${BACKEND_DIR}/physics.h ${BACKEND_DIR}/scores.h
 	${CC} ${BACKEND_DIR}/game.c -c ${OPTIONS} ${PLATFORM_FLAG}
@@ -46,13 +53,13 @@ main_${PLATFORM}.o: ${FRONTEND_DIR}/main_${PLATFORM}.c ${FRONTEND_DIR}/render_${
 	${CC} ${FRONTEND_DIR}/main_${PLATFORM}.c -c ${OPTIONS} ${PLATFORM_FLAG}
 
 audio_${PLATFORM}.o: ${FRONTEND_DIR}/audio_${PLATFORM}.c ${FRONTEND_DIR}/audio_${PLATFORM}.h
-	${CC} ${FRONTEND_DIR}/audio_${PLATFORM}.c -c ${OPTIONS} ${PLATFORM_FLAG}
+	${CC} ${FRONTEND_DIR}/audio_${PLATFORM}.c -c ${OPTIONS} ${PLATFORM_FLAG} ${INCLUDES}
 
 input_${PLATFORM}.o: ${FRONTEND_DIR}/input_${PLATFORM}.c ${FRONTEND_DIR}/input_${PLATFORM}.h ${BACKEND_DIR}/game.h ${FRONTEND_DIR}/render_${PLATFORM}.h
-	${CC} ${FRONTEND_DIR}/input_${PLATFORM}.c -c ${OPTIONS} ${PLATFORM_FLAG}
+	${CC} ${FRONTEND_DIR}/input_${PLATFORM}.c -c ${OPTIONS} ${PLATFORM_FLAG} ${INCLUDES}
 
 render_${PLATFORM}.o: ${FRONTEND_DIR}/render_${PLATFORM}.c ${FRONTEND_DIR}/render_${PLATFORM}.h ${BACKEND_DIR}/entities.h ${BACKEND_DIR}/game.h ${BACKEND_DIR}/config.h
-	${CC} ${FRONTEND_DIR}/render_${PLATFORM}.c -c ${OPTIONS} ${PLATFORM_FLAG}
+	${CC} ${FRONTEND_DIR}/render_${PLATFORM}.c -c ${OPTIONS} ${PLATFORM_FLAG} ${INCLUDES}
 
 clean:
 	rm *.o ${OUTPUT}

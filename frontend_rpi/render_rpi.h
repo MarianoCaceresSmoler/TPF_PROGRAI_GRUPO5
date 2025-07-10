@@ -44,20 +44,16 @@
 // +ej: char lcd_goto (int fil, int col);+
 
 /**
- * @brief function to init the display
+ * @brief function to init and clear the display
+ * @param game pointer to game used in main
  */
 void initGraphics(game_t * game);
 
-
+/**
+ * @brief function to cleanup graphics
+ */
 void cleanupGraphics(void);
 
-/**
- * @brief functions to render the game screens
- * @param game copy of the game object
- */
-void renderGame(game_t game);
-void renderMenu(game_t game);
-void renderGameOver(game_t game);
 
 /*******************************************************************************
  ******************************************************************************/
