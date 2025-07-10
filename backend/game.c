@@ -220,6 +220,7 @@ void gameReset(game_t *game)
 {
 	levelInit(game);
 	game->ship.livesLeft = SHIP_LIVES;
+	game->score = 0;
 	game->ship.entity.explosionTimer = 0;
 	game->aliens.canShoot = 0;
 	game->ship.canShoot = 1;
@@ -395,8 +396,6 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 
 	if (moveInterval < ALIEN_MIN_MOVE_INTERVAL)
 		moveInterval = ALIEN_MIN_MOVE_INTERVAL; // to not surpass the min move interval
-
-	printf("ticks: %d moveinterval: %d \n", gameTicks, moveInterval);
 
 	if (gameTicks % moveInterval != 0)
 		return;

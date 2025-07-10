@@ -107,14 +107,7 @@ int main(void)
 		if (al_get_next_event(getEventQueue(), &ev))
 		{
 			if (ev.type == ALLEGRO_EVENT_TIMER)
-			{
-				if (currentPoints != game.score || currentLives != game.ship.livesLeft) // Updates points when score changes and plays explosion sound
-				{
-					playExplosionSound();
-					currentPoints = game.score;
-					currentLives = game.ship.livesLeft;
-				}
-
+			{				
 				switch (game.status)
 				{
 				case GAME_MENU:
@@ -152,6 +145,16 @@ int main(void)
 					break;
 
 				case GAME_RUNNING:
+
+					if (currentPoints != game.score || currentLives != game.ship.livesLeft) // Updates points when score changes and plays explosion sound
+					{
+						printf("points saved: %d game points: %d \n", currentPoints, game.score);
+						printf("lives saved: %d ship lives: %d \n", currentLives, game.ship.livesLeft);
+
+						playExplosionSound();
+						currentPoints = game.score;
+						currentLives = game.ship.livesLeft;
+					}
 
 					if(!isGameplayMusicPlaying)
 					{
@@ -202,6 +205,8 @@ int main(void)
 					else if (inputStatus.restartKeyPressed)
 					{
 						// Restarts game
+						currentPoints = 0;
+						currentLives = SHIP_LIVES;
 						gameReset(&game);
 					}
 					else if (inputStatus.exitKeyPressed)
@@ -233,6 +238,8 @@ int main(void)
 
 					if (inputStatus.restartKeyPressed)
 					{
+						currentPoints = 0;
+						currentLives = SHIP_LIVES;
 						gameReset(&game);						
 						gameoverSoundPlayed = false;
 					}
