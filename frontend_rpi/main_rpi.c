@@ -1,6 +1,6 @@
 /***************************************************************************/ /**
-   @main_pc.c
-   @Main program for the PC version of the game.
+   @main_rpi.c
+   @Main program for the RPI version of the game.
    @Grupo_5
   ******************************************************************************/
 
@@ -10,12 +10,11 @@
 // +Incluir el header propio (ej: #include "template.h")+
 
 #include <stdio.h>
-#include <allegro5/allegro.h>
 #include "../backend/game.h"
 #include "../backend/config.h"
-#include "render_pc.h"
-#include "input_pc.h"
-#include "audio_pc.h"
+#include "render_rpi.h"
+#include "input_rpi.h"
+#include "audio_rpi.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -76,6 +75,9 @@ int main(void)
 	bool programRunning = true;
 	ALLEGRO_EVENT ev;
 	inputStatus_t inputStatus = {false, false, false, false, false, false, false, false};
+
+	initInput(&inputStatus);
+
 
 	// For audio management
 	bool isMenuMusicPlaying = false;
@@ -266,6 +268,7 @@ int main(void)
 	// Cleanup allegro when program ends
 	cleanupGraphics();
 	cleanupAudio();
+	clearInput();
 	printf("\nProgram finished successfully.\n\n");
 	return 0;
 }

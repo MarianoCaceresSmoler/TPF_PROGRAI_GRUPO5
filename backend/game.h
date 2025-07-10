@@ -43,7 +43,6 @@ typedef struct
     char leftKeyPressed        : 1;
     char rightKeyPressed       : 1;
     char shootKeyPressed       : 1;
-    char upKeyPressed          : 1;
     char pauseKeyPressed       : 1;
     char resumeKeyPressed      : 1;
     char restartKeyPressed     : 1;
@@ -74,7 +73,8 @@ typedef struct
 
     // game variables and info
     gameStatus_t status;
-    char nameTag[4];
+    char nameTag[MAX_NAME_CHARS + 1];
+    int loadingTimer;
     int score;
     int scoreRank;
     int currentLevel;

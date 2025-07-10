@@ -1,33 +1,40 @@
-/***************************************************************************/ /**
-	@render_pc.h
-    @Render frontend
+/***************************************************************************//**
+	@input_rpi.h
+    @Management of user inputs
     @Grupo_5
-  ******************************************************************************/
+ ******************************************************************************/
 
-#ifndef RENDER_PC_H
-#define RENDER_PC_H
+#ifndef INPUT_RPI_H
+#define INPUT_RPI_H
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
-#include <allegro5/allegro.h>
-#include "../backend/entities.h"
 #include "../backend/game.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
+
+
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
+
+ // To control the movement of the ship
+// typedef struct {
+//     int leftPressed;
+//     int rightPressed;
+// } input_state_t;
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
 
 // +ej: extern unsigned int anio_actual;+
+
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
@@ -38,25 +45,21 @@
  * @param param1 Descripcion parametro 1
  * @param param2 Descripcion parametro 2
  * @return Descripcion valor que devuelve
- */
+*/
 // +ej: char lcd_goto (int fil, int col);+
 
 /**
- * @brief functions to create and detroy allegro graphics
- */
-void initGraphics(void);
-void cleanupGraphics(void);
+ * @brief function to init input system
+ * @param pointer to input status used in main
+*/
+void initInput(inputStatus_t *inputStatus);
 
 /**
- * @brief functions to render the game screens
- * @param game copy of the game object
- */
-void renderGame(game_t game);
-void renderMenu(game_t game);
-void renderGameOver(game_t game);
-
+ * @brief function to finish inputs loop
+*/
+void clearInput(void);
 
 /*******************************************************************************
  ******************************************************************************/
 
-#endif // RENDER_PC_H
+#endif // INPUT_RPI_H

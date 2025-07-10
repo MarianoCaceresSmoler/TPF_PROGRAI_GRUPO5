@@ -12,7 +12,9 @@
 
 #include <allegro5/allegro.h>
 #include "../backend/game.h"
+#include "../backend/config.h"
 #include "render_pc.h"
+#include "input_pc.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -52,6 +54,27 @@
  *******************************************************************************
  ******************************************************************************/
 
+void setUserName(game_t *game, int keycode)
+{
+    static int charIndex = 0;
+
+    // allows backspace
+    if (keycode == ALLEGRO_KEY_BACKSPACE && charIndex > 0)
+    {
+        game->nameTag[--charIndex] = '_';
+    }
+
+    if (charIndex >= MAX_NAME_CHARS) // validates name max characters
+        return;
+
+    // only letters from A to Z
+    if (keycode >= ALLEGRO_KEY_A && keycode <= ALLEGRO_KEY_Z)
+    {
+        game->nameTag[charIndex++] = 'A' + (keycode - ALLEGRO_KEY_A);
+    }
+
+}
+
 void setInput(inputStatus_t *inputStatus, int keycode)
 {
 
@@ -62,9 +85,6 @@ void setInput(inputStatus_t *inputStatus, int keycode)
         break;
     case ALLEGRO_KEY_RIGHT:
         inputStatus->rightKeyPressed = true;
-        break;
-    case ALLEGRO_KEY_UP:
-        inputStatus->upKeyPressed = true;
         break;
     case ALLEGRO_KEY_SPACE:
         inputStatus->shootKeyPressed = true;
@@ -96,9 +116,6 @@ void clearInput(inputStatus_t *inputStatus, int keycode)
         break;
     case ALLEGRO_KEY_RIGHT:
         inputStatus->rightKeyPressed = false;
-        break;
-    case ALLEGRO_KEY_UP:
-        inputStatus->upKeyPressed = false;
         break;
     case ALLEGRO_KEY_SPACE:
         inputStatus->shootKeyPressed = false;

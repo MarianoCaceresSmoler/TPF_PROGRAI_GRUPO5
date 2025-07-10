@@ -11,7 +11,7 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
- #include "../backend/game.h"
+#include "../backend/game.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -49,10 +49,16 @@
 // +ej: char lcd_goto (int fil, int col);+
 
 /**
+ * @brief function to set the user name
+ * @param game pointer to the game
+ * @param keycode the key the user enter 
+*/
+void setUserName(game_t *game, int keycode);
+
+/**
  * @brief function to updates input status
  * @param inputStatus pointer to the input status general struct
  * @param keycode the key to update 
- * @return user input
 */
 void setInput(inputStatus_t * inputStatus, int keycode);
 void clearInput(inputStatus_t *inputStatus, int keycode);

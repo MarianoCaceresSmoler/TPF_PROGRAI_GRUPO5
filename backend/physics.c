@@ -105,8 +105,8 @@ static int checkEntitiesCollision(entity_t entityA, entity_t entityB)
     return (
         entityA.x <= entityB.x + entityB.width &&
         entityA.x + entityA.width >= entityB.x &&
-        entityA.y <= entityB.y + entityB.height &&
-        entityA.y + entityA.height >= entityB.y);
+        entityA.y < entityB.y + entityB.height &&
+        entityA.y + entityA.height > entityB.y);
 }
 
 static int checkBulletHitsAliens(game_t *game)
