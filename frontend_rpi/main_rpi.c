@@ -10,6 +10,9 @@
 // +Incluir el header propio (ej: #include "template.h")+
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>	 // usleep()
+#include <pthread.h> // Threads
 
 #include "../backend/game.h"
 #include "../backend/config.h"
@@ -20,6 +23,8 @@
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
+
+#define FRAME_TIME_MS (1000 / FPS) // ~33 ms por frame
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -65,15 +70,15 @@
 
 int main(void)
 {
-	game_t game;
-	gameInit(&game);
-	// initAudio();
-	initGraphics(&game);
 
 	bool programRunning = true;
+	game_t game;
 	inputStatus_t inputStatus = {false, false, false, false, false, false, false, false};
 
+	gameInit(&game);
+	initGraphics(&game);
 	initInput(&inputStatus);
+	// initAudio();
 
 	// // For audio management
 	// bool isMenuMusicPlaying = false;
@@ -88,7 +93,6 @@ int main(void)
 		switch (game.status)
 		{
 		case GAME_MENU:
-			printf("game menu");
 
 			// if (!isMenuMusicPlaying) // Inits menu music only when game starts
 			// {
@@ -101,11 +105,16 @@ int main(void)
 				// stopMenuMusic();
 				// isMenuMusicPlaying = false;
 				levelInit(&game);
+				resetInputFlags(&inputStatus);
 			}
+			else if (inputStatus.exitKeyPressed)
+			{
+				programRunning = false;
+			}
+			
 			break;
 
 		case GAME_LOADING:
-			printf("game loading");
 
 			if (game.loadingTimer > 0)
 				game.loadingTimer--;
@@ -119,7 +128,6 @@ int main(void)
 			break;
 
 		case GAME_RUNNING:
-			printf("game running");
 
 			// if (currentPoints != game.score || currentLives != game.ship.livesLeft) // Updates points when score changes and plays explosion sound
 			// {
@@ -148,11 +156,17 @@ int main(void)
 			// 	isMothershipSoundPlaying = false;
 			// }
 
+			if (inputStatus.pauseKeyPressed)
+			{
+				game.status = GAME_PAUSED;
+			}
+
 			gameUpdate(&game, inputStatus);
+			resetInputFlags(&inputStatus);
+
 			break;
 
 		case GAME_PAUSED:
-			printf("game paused");
 
 			// if (isGameplayMusicPlaying) // Stops gameplay music when paused
 			// {
@@ -172,6 +186,7 @@ int main(void)
 				// resumeGameplayMusic();
 				// isGameplayMusicPlaying = true;
 				gameResume(&game);
+				resetInputFlags(&inputStatus);
 			}
 			else if (inputStatus.restartKeyPressed)
 			{
@@ -179,17 +194,17 @@ int main(void)
 				// currentPoints = 0;
 				// currentLives = SHIP_LIVES;
 				gameReset(&game);
+				resetInputFlags(&inputStatus);
 			}
 			else if (inputStatus.exitKeyPressed)
 			{
 				programRunning = false;
+				resetInputFlags(&inputStatus);
 			}
 
 			break;
 
 		case GAME_END:
-
-			printf("game end");
 
 			// if (isGameplayMusicPlaying)
 			// {
@@ -214,21 +229,26 @@ int main(void)
 				// currentPoints = 0;
 				// currentLives = SHIP_LIVES;
 				gameReset(&game);
+				resetInputFlags(&inputStatus);
+
 				// gameoverSoundPlayed = false;
 			}
 			else if (inputStatus.exitKeyPressed)
 			{
 				programRunning = false;
+				resetInputFlags(&inputStatus);
 			}
 
 			break;
+
 		default:
 			programRunning = false;
 			printf("Error: Invalid game status.\n");
 			break;
 		}
 
-		resetInputFlags(&inputStatus);
+		// Delay to keep the FPS
+		usleep(FRAME_TIME_MS * 1000); // convert to us
 	}
 
 	// Cleanup when program ends

@@ -50,7 +50,7 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight);
  * @brief function to update a bullet type entity
  * @param bullet pointer to the bullet type entity
  */
-static void updateBullet(bullet_t *bullet);
+static void updateBullet(bullet_t *bullet, int tickCounter);
 
 /**
  * @brief function to update an alienformation type entity
@@ -72,21 +72,21 @@ static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[P
  */
 static void updateEntityExplosion(entity_t *entity);
 
-static int getNearestColumnAlive(alienFormation_t aliens, short int shipX);
+// static int getNearestColumnAlive(alienFormation_t aliens, short int shipX);
 
-static int getNearestRowAlive(alienFormation_t aliens, int column);
+// static int getNearestRowAlive(alienFormation_t aliens, int column);
 
 /**
  * @brief function to get the first column with at least one alien alive
  * @param aliens pointer to the alien formation
  */
-static int getFirstColumnAlive(alienFormation_t aliens);
+// static int getFirstColumnAlive(alienFormation_t aliens);
 
 /**
  * @brief function to get the last column with at least one alien alive
  * @param aliens pointer to the alien formation
  */
-static int getLastColumnAlive(alienFormation_t aliens);
+// static int getLastColumnAlive(alienFormation_t aliens);
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -253,7 +253,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		game->ship.canShoot = true;
 
 	if (game->shipBullet.entity.isAlive)
-		updateBullet(&game->shipBullet);
+		updateBullet(&game->shipBullet, game->tickCounter);
 	else if (game->ship.canShoot && input.shootKeyPressed)
 	{
 		shootFromEntity(&game->shipBullet, &game->ship.entity);
@@ -264,7 +264,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		game->aliens.canShoot = true;
 
 	if (game->alienBullet.entity.isAlive)
-		updateBullet(&game->alienBullet);
+		updateBullet(&game->alienBullet, game->tickCounter);
 	else if (game->aliens.canShoot)
 	{
 		int alienColumnToShoot = getNearestColumnAlive(game->aliens, game->ship.entity.x);
@@ -335,7 +335,7 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 	}
 }
 
-static void updateBullet(bullet_t *bullet)
+static void updateBullet(bullet_t *bullet, int tickCounter)
 {
 	if (bullet->entity.isAlive == false)
 		return;
@@ -346,7 +346,12 @@ static void updateBullet(bullet_t *bullet)
 		return;
 	}
 
-	moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
+	#ifdef PLATFORM_RPI
+		if(tickCounter % BULLET_MOVE_INTERVAL == 0)
+		moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
+	#else
+		moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
+	#endif
 }
 
 static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemaining)

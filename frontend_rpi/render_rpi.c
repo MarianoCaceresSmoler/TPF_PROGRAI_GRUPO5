@@ -27,6 +27,8 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
+#define CHECK_IS_IN_DISPLAY(x, y) (((x) >= 0) && ((x) < DISP_CANT_X_DOTS) && ((y) > 0) && ((y) < DISP_CANT_Y_DOTS))
+
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
@@ -79,32 +81,6 @@ static void drawBarriers(barrier_t barriers[BARRIERS]);
  */
 static void drawHUD(int score, int lives, int level);
 
-/**
- * @brief private function to draw a character
- * @param c the character
- * @param x position in x
- * @param y position in y
- */
-void drawChar(char c, int x, int y);
-
-/**
- * @brief private function to draw text
- * @param text the text to draw
- * @param x position in x
- * @param y position in y
- */
-void drawText(const char *text, int x, int y);
-
-/**
- * @brief private function to draw blinking text
- * @param text the text to draw
- * @param x position in x
- * @param y position in y
- * @param times the number of times the text will blink
- * @param delay the delay between each blink
- */
-void blinkText(const char *text, int x, int y, int times, int delay);
-
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -121,188 +97,86 @@ static bool stopRenderThread = false;
 static game_t *globalGameStatus = NULL;
 static pthread_t renderThread;
 
-const unsigned char font5x5[26][5] = {
+const uint8_t font3x5[26][5] = {
     // A
-    {0b01110,
-     0b10001,
-     0b11111,
-     0b10001,
-     0b10001},
+    {0b010,
+     0b101,
+     0b111,
+     0b101,
+     0b101},
 
     // B
-    {0b11110,
-     0b10001,
-     0b11110,
-     0b10001,
-     0b11110},
+    {0b110,
+     0b101,
+     0b110,
+     0b101,
+     0b110},
 
     // C
-    {0b01110,
-     0b10001,
-     0b10000,
-     0b10001,
-     0b01110},
+    {0b011,
+     0b100,
+     0b100,
+     0b100,
+     0b011},
 
     // D
-    {0b11110,
-     0b10001,
-     0b10001,
-     0b10001,
-     0b11110},
+    {0b110,
+     0b101,
+     0b101,
+     0b101,
+     0b110},
 
     // E
-    {0b11111,
-     0b10000,
-     0b11110,
-     0b10000,
-     0b11111},
+    {0b111,
+     0b100,
+     0b110,
+     0b100,
+     0b111},
 
     // F
-    {0b11111,
-     0b10000,
-     0b11110,
-     0b10000,
-     0b10000},
+    {0b111,
+     0b100,
+     0b110,
+     0b100,
+     0b100},
 
     // G
-    {0b01110,
-     0b10000,
-     0b10111,
-     0b10001,
-     0b01110},
+    {0b011,
+     0b100,
+     0b101,
+     0b101,
+     0b011},
 
     // H
-    {0b10001,
-     0b10001,
-     0b11111,
-     0b10001,
-     0b10001},
+    {0b101,
+     0b101,
+     0b111,
+     0b101,
+     0b101},
 
     // I
-    {0b01110,
-     0b00100,
-     0b00100,
-     0b00100,
-     0b01110},
+    {0b111,
+     0b010,
+     0b010,
+     0b010,
+     0b111},
 
     // J
-    {0b00001,
-     0b00001,
-     0b00001,
-     0b10001,
-     0b01110},
+    {0b001,
+     0b001,
+     0b001,
+     0b101,
+     0b010},
 
-    // K
-    {0b10001,
-     0b10010,
-     0b11100,
-     0b10010,
-     0b10001},
-
-    // L
-    {0b10000,
-     0b10000,
-     0b10000,
-     0b10000,
-     0b11111},
-
-    // M
-    {0b10001,
-     0b11011,
-     0b10101,
-     0b10001,
-     0b10001},
-
-    // N
-    {0b10001,
-     0b11001,
-     0b10101,
-     0b10011,
-     0b10001},
-
-    // O
-    {0b01110,
-     0b10001,
-     0b10001,
-     0b10001,
-     0b01110},
-
-    // P
-    {0b11110,
-     0b10001,
-     0b11110,
-     0b10000,
-     0b10000},
-
-    // Q
-    {0b01110,
-     0b10001,
-     0b10001,
-     0b10011,
-     0b01111},
-
-    // R
-    {0b11110,
-     0b10001,
-     0b11110,
-     0b10010,
-     0b10001},
-
-    // S
-    {0b01111,
-     0b10000,
-     0b01110,
-     0b00001,
-     0b11110},
-
-    // T
-    {0b11111,
-     0b00100,
-     0b00100,
-     0b00100,
-     0b00100},
-
-    // U
-    {0b10001,
-     0b10001,
-     0b10001,
-     0b10001,
-     0b01110},
-
-    // V
-    {0b10001,
-     0b10001,
-     0b10001,
-     0b01010,
-     0b00100},
-
-    // W
-    {0b10001,
-     0b10001,
-     0b10101,
-     0b11011,
-     0b10001},
-
-    // X
-    {0b10001,
-     0b01010,
-     0b00100,
-     0b01010,
-     0b10001},
-
-    // Y
-    {0b10001,
-     0b01010,
-     0b00100,
-     0b00100,
-     0b00100},
+    // ...
 
     // Z
-    {0b11111,
-     0b00010,
-     0b00100,
-     0b01000,
-     0b11111}};
+    {0b111,
+     0b001,
+     0b010,
+     0b100,
+     0b111},
+};
 
 /*******************************************************************************
  *******************************************************************************
@@ -324,6 +198,7 @@ void initGraphics(game_t *game)
 void cleanupGraphics(void)
 {
     stopRenderThread = true;
+    pthread_join(renderThread, NULL);
     disp_clear();
     disp_update();
 }
@@ -357,7 +232,6 @@ static void *render(void *arg)
     }
 
     return NULL;
-
 }
 
 static void renderLoading(void)
@@ -377,25 +251,16 @@ static void renderGame(void)
 
 static void renderMenu(void)
 {
-    if (globalGameStatus->status == GAME_MENU)
-    {
-        blinkText("SPACE", 0, 0, 3, 500);
-        blinkText("INVADERS", 0, 8, 3, 500);
-        blinkText("HOLD BUTTON TO PLAY", 0, 8, 3, 500);
-    }
-    else if (globalGameStatus->status == GAME_PAUSED)
-    {
-        blinkText("DOWN + BUTTON TO EXIT", 0, 0, 3, 500);
-        blinkText("UP + BUTTON TO RESTART", 0, 8, 3, 500);
-    }
+    // HACER
+    dcoord_t coord = {.x = 0, .y = 0};
+    disp_write(coord, D_ON);
 }
 
 static void renderGameOver(void)
 {
-    blinkText("SPACE", 0, 0, 3, 500);
-    blinkText("INVADERS", 0, 8, 3, 500);
-    blinkText("DOWN + BUTTON TO EXIT", 0, 0, 3, 500);
-    blinkText("UP + BUTTON TO RESTART", 0, 8, 3, 500);
+    // HACER
+    dcoord_t coord = {.x = 0, .y = 0};
+    disp_write(coord, D_ON);
 }
 
 void drawObject(int x, int y, int width, int height)
@@ -407,7 +272,7 @@ void drawObject(int x, int y, int width, int height)
             int px = x + col;
             int py = y + row;
 
-            if (px >= DISP_CANT_X_DOTS || py >= DISP_CANT_Y_DOTS)
+            if (!CHECK_IS_IN_DISPLAY(px, py))
                 continue;
 
             dcoord_t coord = {.x = px, .y = py};
@@ -424,9 +289,7 @@ static void drawShip(ship_t ship)
         int y = ship.entity.y;
 
         if (ship.invencibilityTicks % 2 == 0) // ticks mode if ship is invincible after being shooted
-        {
             drawObject(x, y, SHIP_WIDTH, SHIP_HEIGHT);
-        }
     }
 }
 
@@ -464,7 +327,6 @@ static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw)
             alien_t alien = aliens.alien[i][j];
 
             drawObject(alien.entity.x, alien.entity.y, ALIEN_WIDTH, ALIEN_HEIGHT);
-
             drawn++;
         }
     }
@@ -480,6 +342,7 @@ static void drawMothership(mothership_t mothership)
         drawObject(x, y, MOTHERSHIP_WIDTH, MOTHERSHIP_HEIGHT);
     }
 }
+
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
 {
     int x, y;
@@ -490,6 +353,7 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
     {
         x = shipBullet.entity.x;
         y = shipBullet.entity.y;
+
         drawObject(x, y, BULLET_WIDTH, BULLET_HEIGHT);
     }
 
@@ -499,6 +363,7 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
     {
         x = alienBullet.entity.x;
         y = alienBullet.entity.y;
+
         drawObject(x, y, BULLET_WIDTH, BULLET_HEIGHT);
     }
 }
@@ -518,8 +383,11 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
                 // Only draws if the pixel is alive
                 if (pixel.isAlive)
                 {
-                    dcoord_t coord = {.x = pixel.x, .y = pixel.y};
-                    disp_write(coord, D_ON);
+                    if (CHECK_IS_IN_DISPLAY(pixel.x, pixel.y))
+                    {
+                        dcoord_t coord = {.x = pixel.x, .y = pixel.y};
+                        disp_write(coord, D_ON);
+                    }
                 }
             }
         }
@@ -529,43 +397,4 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
 static void drawHUD(int score, int lives, int level)
 {
     // HACER
-}
-
-void drawChar(char c, int x, int y)
-{
-    if (c < 'A' || c > 'Z')
-        return; // Solo letras mayúsculas
-
-    int index = c - 'A'; // 'A' está en font5x5[0]
-    for (int row = 0; row < 5; row++)
-    {
-        uint8_t line = font5x5[index][row];
-        for (int col = 0; col < 5; col++)
-        {
-            if (line & (1 << (4 - col))) // Bit activo
-            {
-                drawObject(x + col, y + row, 1, 1); // Un pixel
-            }
-        }
-    }
-}
-
-void drawText(const char *text, int x, int y)
-{
-    int spacing = 6; // 5 de letra + 1 espacio
-    for (int i = 0; text[i] != '\0'; i++)
-    {
-        drawChar(text[i], x + i * spacing, y);
-    }
-}
-
-void blinkText(const char *text, int x, int y, int times, int delay)
-{
-    for (int i = 0; i < times; i++)
-    {
-        drawText(text, x, y);
-        SDL_Delay(delay);
-        disp_clear();
-        SDL_Delay(delay);
-    }
 }

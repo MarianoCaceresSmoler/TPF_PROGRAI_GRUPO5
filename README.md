@@ -9,18 +9,19 @@ Back+Front:
 - Cambiar funciones de game para que el front solo tenga que llamar a gameUpdate(meter gameReset, gamePause, gameResume, etc. en gameUpdate y sacarlas del main)
 
 Backend:
+- Hacer logica powerups
 - Arreglar el trackeo de los aliens para disparar (se rompio cuando cambiamos el tamano)
 - Revisar formato, y prolijidad del codigo (constantes, macros, etc)
 - Validacion en funciones
-- Revisar que cosas faltan en el config de la raspi
 
 Frontend:
 - Arreglar error en pantalla de gameover cuando no se hace ningun punto
 - Mostrar datos del juego en gameplay (falta si hay algun powerup activo)
-- Hacer que la mothership vaya cambiando de color
 
-ADICIONALES:
-- Potenciadores o powerups:
-    (congelar aliens, bala que atraviese, puntos dobles, reconstruir barreras, 
-    subir aliens al principio, bala mas rapida, etc.)
-    YA ESTA HECHA LA LOGICA DE ENTIDADES POWERUP, SOLO FALTA VER QUE HACE CADA UNO
+Raspi:
+- Hacer menu de inicio y pausa, y pantalla gameover
+- Dibujar HUD en gameplay
+- Arreglar logica inputs cuando (arranca el juego)
+- Arreglar movimiento mothership (se mueve demasiado rapido)
+- Arreglar movimiento aliens (no llegan a los bordes)
+- Ver si ponemos o no espacio entre los aliens

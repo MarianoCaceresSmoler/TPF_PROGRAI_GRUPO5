@@ -45,7 +45,6 @@ typedef struct
     char upKeyPressed          : 1;
     char shootKeyPressed       : 1;
     char pauseKeyPressed       : 1;
-    char upKeyPressed          : 1;
     char resumeKeyPressed      : 1;
     char restartKeyPressed     : 1;
     char exitKeyPressed        : 1;
