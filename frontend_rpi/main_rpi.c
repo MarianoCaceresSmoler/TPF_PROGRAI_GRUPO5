@@ -25,6 +25,7 @@
  ******************************************************************************/
 
 #define FRAME_TIME_MS (1000 / FPS) // ~33 ms por frame
+#define FRAME_TIME_US (FRAME_TIME_MS * 1000)
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -78,15 +79,15 @@ int main(void)
 	gameInit(&game);
 	initGraphics(&game);
 	initInput(&inputStatus);
-	// initAudio();
+	initializeAudio();
 
-	// // For audio management
-	// bool isMenuMusicPlaying = false;
-	// bool isGameplayMusicPlaying = false;
-	// bool isMothershipSoundPlaying = false;
-	// bool gameoverSoundPlayed = false;
-	// int currentPoints = 0;
-	// int currentLives = SHIP_LIVES;
+	// For audio management
+	bool isGameplayMusicPlaying = false;
+	bool isMothershipSoundPlaying = false;
+	bool gameoverSoundPlayed = false;
+	bool isFirstTry = true;
+	int currentPoints = 0;
+	int currentLives = SHIP_LIVES;
 
 	while (programRunning)
 	{
@@ -94,16 +95,8 @@ int main(void)
 		{
 		case GAME_MENU:
 
-			// if (!isMenuMusicPlaying) // Inits menu music only when game starts
-			// {
-			// 	playMenuMusic();
-			// 	isMenuMusicPlaying = true;
-			// }
-
 			if (inputStatus.resumeKeyPressed)
 			{
-				// stopMenuMusic();
-				// isMenuMusicPlaying = false;
 				levelInit(&game);
 				resetInputFlags(&inputStatus);
 			}
@@ -111,7 +104,7 @@ int main(void)
 			{
 				programRunning = false;
 			}
-			
+
 			break;
 
 		case GAME_LOADING:
@@ -120,8 +113,16 @@ int main(void)
 				game.loadingTimer--;
 			else
 			{
-				// playGameplayMusic();
-				// isGameplayMusicPlaying = true;
+				if (isFirstTry)
+				{
+					playGameMusic();
+					isFirstTry = false;
+				}
+				else
+				{
+					resumeMusic();
+				}
+				isGameplayMusicPlaying = true;
 				game.status = GAME_RUNNING;
 			}
 
@@ -129,70 +130,66 @@ int main(void)
 
 		case GAME_RUNNING:
 
-			// if (currentPoints != game.score || currentLives != game.ship.livesLeft) // Updates points when score changes and plays explosion sound
-			// {
+			if (!isGameplayMusicPlaying)
+			{
+				resumeMusic();
+				isGameplayMusicPlaying = true;
+			}
 
-			// 	playExplosionSound();
-			// 	currentPoints = game.score;
-			// 	currentLives = game.ship.livesLeft;
-			// }
+			if (currentPoints != game.score || currentLives != game.ship.livesLeft) // Updates points when score changes and plays explosion sound
+			{
+				playExplosionSound();
+				currentPoints = game.score;
+				currentLives = game.ship.livesLeft;
+			}
 
-			// if (!isGameplayMusicPlaying)
-			// {
-			// 	resumeGameplayMusic();
-			// 	isGameplayMusicPlaying = true;
-			// }
+			if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
+				playShootSound();
 
-			// if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
-			// 	playShootSound();
-			// if (game.mothership.entity.isAlive && !isMothershipSoundPlaying) // Plays mothership sound when it appears
-			// {
-			// 	playMothershipSound();
-			// 	isMothershipSoundPlaying = true;
-			// }
-			// else if (!game.mothership.entity.isAlive && isMothershipSoundPlaying)
-			// {
-			// 	stopMothershipSound();
-			// 	isMothershipSoundPlaying = false;
-			// }
+			if (game.mothership.entity.isAlive && !isMothershipSoundPlaying) // Plays mothership sound when it appears
+			{
+				playMothershipSound();
+				isMothershipSoundPlaying = true;
+			}
+			else if (!game.mothership.entity.isAlive && isMothershipSoundPlaying)
+			{
+				isMothershipSoundPlaying = false;
+			}
 
 			if (inputStatus.pauseKeyPressed)
 			{
 				game.status = GAME_PAUSED;
 			}
-
-			gameUpdate(&game, inputStatus);
-			resetInputFlags(&inputStatus);
+			else
+			{
+				gameUpdate(&game, inputStatus);
+				resetInputFlags(&inputStatus);
+			}
 
 			break;
 
 		case GAME_PAUSED:
 
-			// if (isGameplayMusicPlaying) // Stops gameplay music when paused
-			// {
-			// 	stopGameplayMusic();
-			// 	isGameplayMusicPlaying = false;
-			// }
+			stopMusic();
+			isGameplayMusicPlaying = false;
 
-			// if (isMothershipSoundPlaying)
-			// {
-			// 	stopMothershipSound();
-			// 	isMothershipSoundPlaying = false;
-			// }
+			if (isMothershipSoundPlaying)
+				isMothershipSoundPlaying = false;
 
 			if (inputStatus.resumeKeyPressed)
 			{
 				// Resumes game
-				// resumeGameplayMusic();
-				// isGameplayMusicPlaying = true;
+				if (game.mothership.entity.isAlive)
+					isMothershipSoundPlaying = true;
+
 				gameResume(&game);
 				resetInputFlags(&inputStatus);
 			}
 			else if (inputStatus.restartKeyPressed)
 			{
 				// Restarts game
-				// currentPoints = 0;
-				// currentLives = SHIP_LIVES;
+				currentPoints = 0;
+				currentLives = SHIP_LIVES;
 				gameReset(&game);
 				resetInputFlags(&inputStatus);
 			}
@@ -206,32 +203,31 @@ int main(void)
 
 		case GAME_END:
 
-			// if (isGameplayMusicPlaying)
-			// {
-			// 	stopGameplayMusic(); // Stops gameplay music when game ends
-			// 	isGameplayMusicPlaying = false;
-			// }
+			if (isGameplayMusicPlaying)
+			{
+				stopMusic(); // Stops gameplay music when game ends
+				isGameplayMusicPlaying = false;
 
-			// if (isMothershipSoundPlaying)
-			// {
-			// 	stopMothershipSound();
-			// 	isMothershipSoundPlaying = false;
-			// }
+				if (isMothershipSoundPlaying)
+					isMothershipSoundPlaying = false;
+				
+			}
 
-			// if (!gameoverSoundPlayed) // Plays gameover sound only when game ends
-			// {
-			// 	playGameoverSound();
-			// 	gameoverSoundPlayed = true;
-			// }
+			if (!gameoverSoundPlayed) // Plays gameover sound only when game ends
+			{
+				playGameoverSound();
+				gameoverSoundPlayed = true;
+			}
 
 			if (inputStatus.restartKeyPressed)
 			{
-				// currentPoints = 0;
-				// currentLives = SHIP_LIVES;
+				currentPoints = 0;
+				currentLives = SHIP_LIVES;
+
 				gameReset(&game);
 				resetInputFlags(&inputStatus);
 
-				// gameoverSoundPlayed = false;
+				gameoverSoundPlayed = false;
 			}
 			else if (inputStatus.exitKeyPressed)
 			{
@@ -248,13 +244,13 @@ int main(void)
 		}
 
 		// Delay to keep the FPS
-		usleep(FRAME_TIME_MS * 1000); // convert to us
+		usleep(FRAME_TIME_US); // convert to us to delay
 	}
 
 	// Cleanup when program ends
 	cleanupGraphics();
-	// cleanupAudio();
-	clearInput();
+	cleanupAudio();
+	cleanupInput();
 	printf("\nProgram finished successfully.\n\n");
 
 	return 0;

@@ -63,7 +63,7 @@ void resetInputFlags(inputStatus_t * inputStatus);
 /**
  * @brief function to finish inputs loop
 */
-void clearInput(void);
+void cleanupInput(void);
 
 /*******************************************************************************
  ******************************************************************************/

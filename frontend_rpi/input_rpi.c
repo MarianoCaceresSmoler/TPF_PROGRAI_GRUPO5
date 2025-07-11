@@ -28,7 +28,7 @@
 
 #define JOY_THRESHOLD 30    // range for movement
 #define INPUT_REFRESH_MS 16 // refresh input every 16ms
-#define LONG_PRESS_MS 1000  // 1 sec
+#define LONG_PRESS_MS 500
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -80,7 +80,7 @@ void initInput(inputStatus_t *inputStatus)
     pthread_create(&inputThread, NULL, updateInput, NULL); // creates thread for inputs
 }
 
-void clearInput()
+void cleanupInput()
 {
     stopInputThread = true;
     pthread_join(inputThread, NULL); // waits for thread to finish
@@ -92,9 +92,9 @@ void resetInputFlags(inputStatus_t *inputStatus)
     inputStatus->resumeKeyPressed = false;
     inputStatus->restartKeyPressed = false;
     inputStatus->exitKeyPressed = false;
-    globalInputStatus->leftKeyPressed = false;
-    globalInputStatus->rightKeyPressed = false;
-    globalInputStatus->shootKeyPressed = false;
+    inputStatus->leftKeyPressed = false;
+    inputStatus->rightKeyPressed = false;
+    inputStatus->shootKeyPressed = false;
 }
 
 /*******************************************************************************
@@ -105,7 +105,7 @@ void resetInputFlags(inputStatus_t *inputStatus)
 
 static void *updateInput(void *arg)
 {
-    bool shootButtonPressed = false;
+    bool shootButtonPressed = false, gameStarted = false, gameRunning = false;
     unsigned int shootPressTime = 0, pressDuration;
 
     while (!stopInputThread)
@@ -157,18 +157,32 @@ static void *updateInput(void *arg)
             }
             else
             {
-                // pauses or resumes the game
-                if (globalInputStatus->pauseKeyPressed)
+                if (!gameStarted)
                 {
+                    // To start the game
                     globalInputStatus->resumeKeyPressed = true;
                     globalInputStatus->pauseKeyPressed = false;
+                    gameStarted = true;
+                    gameRunning = true;
                     printf("resume pressed\n");
                 }
                 else
                 {
-                    globalInputStatus->pauseKeyPressed = true;
-                    globalInputStatus->resumeKeyPressed = false;
-                    printf("pause pressed\n");
+                    // pauses or resumes the game
+                    if (!gameRunning)
+                    {
+                        globalInputStatus->resumeKeyPressed = true;
+                        globalInputStatus->pauseKeyPressed = false;
+                        gameRunning = true;
+                        printf("resume pressed\n");
+                    }
+                    else
+                    {
+                        globalInputStatus->pauseKeyPressed = true;
+                        globalInputStatus->resumeKeyPressed = false;
+                        gameRunning = false;
+                        printf("pause pressed\n");
+                    }
                 }
             }
         }
