@@ -83,6 +83,7 @@ int main(void)
 
 	// For audio management
 	bool isGameplayMusicPlaying = false;
+	bool isMothershipSoundPlaying = false;
 	bool gameoverSoundPlayed = false;
 	bool isFirstTry = true;
 	int currentPoints = 0;
@@ -160,10 +161,15 @@ int main(void)
 			if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
 				playShootSound();
 
-			if (game.mothership.entity.isAlive) // Plays mothership sound when it is on display
+			if (game.mothership.entity.isAlive && !isMothershipSoundPlaying) // Plays mothership sound when it appears on display
 			{
 				playMothershipSound();
+				isMothershipSoundPlaying = true;
 			}
+			else if(!game.mothership.entity.isAlive && isMothershipSoundPlaying)
+			{
+				isMothershipSoundPlaying = false;
+			}			
 
 			if (inputStatus.pauseKeyPressed)
 			{
@@ -233,6 +239,11 @@ int main(void)
 				resetInputFlags(&inputStatus);
 			}
 
+			break;
+
+		case GAME_ERROR:
+			programRunning = false;
+			printf("Error: game error status.\n");
 			break;
 
 		default:

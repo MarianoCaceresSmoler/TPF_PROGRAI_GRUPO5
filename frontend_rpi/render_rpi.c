@@ -61,7 +61,7 @@ static void renderGameOver(void);
  * @param width width of the object
  * @param height height of the object
  */
-void drawObject(int x, int y, int width, int height);
+static void drawObject(int x, int y, int width, int height);
 
 /**
  * @brief private functions to draw the differents elements in display
@@ -81,6 +81,22 @@ static void drawBarriers(barrier_t barriers[BARRIERS]);
  */
 static void drawHUD(int score, int lives, int level);
 
+/**
+ * @brief private function to draw a character
+ * @param c the character to draw
+ * @param x the x position
+ * @param y the y position
+ */
+static void drawChar(char c, int x, int y);
+
+/**
+ * @brief private function to draw text
+ * @param text the text to draw
+ * @param x the x position
+ * @param y the y position
+ */
+static void drawText(const char* text, int x, int y);
+
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -97,7 +113,7 @@ static bool stopRenderThread = false;
 static game_t *globalGameStatus = NULL;
 static pthread_t renderThread;
 
-const uint8_t font3x5[26][5] = {
+const uint8_t font3x5_letters[26][5] = {
     // A
     {0b010,
      0b101,
@@ -168,15 +184,206 @@ const uint8_t font3x5[26][5] = {
      0b101,
      0b010},
 
-    // ...
+    // K
+    {0b101,
+     0b101,
+     0b110,
+     0b101,
+     0b101},
+
+    // L
+    {0b100,
+     0b100,
+     0b100,
+     0b100,
+     0b111},
+
+    // M
+    {0b101,
+     0b111,
+     0b111,
+     0b101,
+     0b101},
+
+    // N
+    {0b101,
+     0b111,
+     0b111,
+     0b111,
+     0b101},
+
+    // O
+    {0b010,
+     0b101,
+     0b101,
+     0b101,
+     0b010},
+
+    // P
+    {0b110,
+     0b101,
+     0b110,
+     0b100,
+     0b100},
+
+    // Q
+    {0b010,
+     0b101,
+     0b101,
+     0b111,
+     0b011},
+
+    // R
+    {0b110,
+     0b101,
+     0b110,
+     0b101,
+     0b101},
+
+    // S
+    {0b011,
+     0b100,
+     0b010,
+     0b001,
+     0b110},
+
+    // T
+    {0b111,
+     0b010,
+     0b010,
+     0b010,
+     0b010},
+
+    // U
+    {0b101,
+     0b101,
+     0b101,
+     0b101,
+     0b111},
+
+    // V
+    {0b101,
+     0b101,
+     0b101,
+     0b101,
+     0b010},
+
+    // W
+    {0b101,
+     0b101,
+     0b111,
+     0b111,
+     0b101},
+
+    // X
+    {0b101,
+     0b101,
+     0b010,
+     0b101,
+     0b101},
+
+    // Y
+    {0b101,
+     0b101,
+     0b010,
+     0b010,
+     0b010},
 
     // Z
     {0b111,
      0b001,
      0b010,
      0b100,
-     0b111},
+     0b111}
 };
+
+
+const uint8_t font3x5_digits[12][5] = {
+    // 0
+    {0b111,
+     0b101,
+     0b101,
+     0b101,
+     0b111},
+
+    // 1
+    {0b010,
+     0b110,
+     0b010,
+     0b010,
+     0b111},
+
+    // 2
+    {0b111,
+     0b001,
+     0b111,
+     0b100,
+     0b111},
+
+    // 3
+    {0b111,
+     0b001,
+     0b111,
+     0b001,
+     0b111},
+
+    // 4
+    {0b101,
+     0b101,
+     0b111,
+     0b001,
+     0b001},
+
+    // 5
+    {0b111,
+     0b100,
+     0b111,
+     0b001,
+     0b111},
+
+    // 6
+    {0b111,
+     0b100,
+     0b111,
+     0b101,
+     0b111},
+
+    // 7
+    {0b111,
+     0b001,
+     0b010,
+     0b010,
+     0b010},
+
+    // 8
+    {0b111,
+     0b101,
+     0b111,
+     0b101,
+     0b111},
+
+    // 9
+    {0b111,
+     0b101,
+     0b111,
+     0b001,
+     0b111},
+
+    // :
+    {0b000,
+     0b010,
+     0b000,
+     0b010,
+     0b000},
+
+    // space
+    {0b000,
+     0b000,
+     0b000,
+     0b000,
+     0b000}
+};
+
 
 /*******************************************************************************
  *******************************************************************************
@@ -258,12 +465,26 @@ static void renderMenu(void)
 
 static void renderGameOver(void)
 {
-    // HACER
-    dcoord_t coord = {.x = 0, .y = 0};
-    disp_write(coord, D_ON);
+    if (globalGameStatus->status == GAME_END)
+    {
+        int finalScore = globalGameStatus->score;
+        int finalLevel = globalGameStatus->currentLevel;
+
+        // Convertir a string
+        char scoreStr[6];
+        char levelStr[6];
+
+        sprintf(scoreStr, "S:%d", finalScore);
+        sprintf(levelStr, "L:%d", finalLevel);
+
+        // Mostrar score arriba, level abajo
+        drawText(scoreStr, 0, 2);   // Y=2 deja margen arriba
+        drawText(levelStr, 0, 9);   // Y=9 para segunda línea
+    }
 }
 
-void drawObject(int x, int y, int width, int height)
+
+static void drawObject(int x, int y, int width, int height)
 {
     for (int row = 0; row < height; row++)
     {
@@ -397,4 +618,40 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
 static void drawHUD(int score, int lives, int level)
 {
     // HACER
+}
+
+static void drawChar(char c, int x, int y) {
+
+    const uint8_t* matrixChar = NULL;
+    int col, row;
+
+    if (c >= 'A' && c <= 'Z') {
+        matrixChar = font3x5_letters[c - 'A'];
+    } else if (c >= '0' && c <= '9') {
+        matrixChar = font3x5_digits[c - '0'];
+    } else if (c == ':') {
+        matrixChar = font3x5_digits[10];
+    } else if (c == ' ') {
+        matrixChar = font3x5_digits[11];
+    } else {
+        return; // not a printable character
+    }
+
+    // Draws the pixels of the character
+    for (row = 0; row < 5; row++) {
+        for (col = 0; col < 3; col++) {
+            if (matrixChar[row] & (1 << (2 - col))) {
+                dcoord_t coord = {.x = x + col, .y = y + row};
+                disp_write(coord, D_ON);
+            }
+        }
+    }
+}
+
+static void drawText(const char* text, int x, int y) {
+    while (*text) {
+        drawChar(*text, x, y);
+        x += 4; // 3 width + 1 space
+        text++;
+    }
 }
