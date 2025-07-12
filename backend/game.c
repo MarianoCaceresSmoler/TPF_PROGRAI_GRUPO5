@@ -62,7 +62,7 @@ static void updateAliens(alienFormation_t *aliens, int tickCounter, int aliensRe
  * @brief function to update a mothership type entity
  * @param bullet pointer to the mothership type entity
  */
-static void updateMothership(mothership_t *mothership);
+static void updateMothership(mothership_t *mothership, int tickCounter);
 
 static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES]);
 
@@ -147,6 +147,14 @@ void levelInit(game_t *game)
 	// set bullets to standby position
 	setEntity(&game->shipBullet.entity, STANDBY_POSITION, STANDBY_POSITION);
 	setEntity(&game->alienBullet.entity, STANDBY_POSITION, STANDBY_POSITION);
+
+	int i;
+	for (i = 0; i < POWERUP_TYPES; i++)
+	{
+		setEntity(&game->powerUp[i].entity, STANDBY_POSITION, STANDBY_POSITION);
+		game->activePowerUp[i] = false;
+	}
+	
 
 	// set ship to initial position
 	setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
@@ -292,7 +300,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	updatePowerUps(game->powerUp, game->activePowerUp);
 
 	if (game->mothership.entity.isAlive)
-		updateMothership(&game->mothership);
+		updateMothership(&game->mothership, game->tickCounter);
 	else if (game->tickCounter % MOTHERSHIP_TIMER == 0 && rand() % 100 < MOTHERSHIP_CHANCE)
 	{
 		game->mothership.direction = (rand() % 2 == 0) ? MOVING_RIGHT : MOVING_LEFT;
@@ -328,12 +336,12 @@ static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
 		if (ship->invencibilityTicks > 0)
 			ship->invencibilityTicks--;
 
-		if (moveLeft && !moveRight && ship->entity.x > SHIP_MOVE_RATE)
+		if (moveLeft && !moveRight && ship->entity.x > SHIP_LEFT_X_BORDER)
 		{
 			moveEntityX(&ship->entity, -SHIP_MOVE_RATE);
 			ship->direction = MOVING_LEFT;
 		}
-		else if (moveRight && !moveLeft && ship->entity.x < SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
+		else if (moveRight && !moveLeft && ship->entity.x < SHIP_RIGHT_X_BORDER)
 		{
 			moveEntityX(&ship->entity, SHIP_MOVE_RATE);
 			ship->direction = MOVING_RIGHT;
@@ -422,7 +430,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 	switch (aliens->direction)
 	{
 	case MOVING_RIGHT:
-		if (aliens->alien[0][lastColumn].entity.x < SCREEN_SIZE - ALIEN_WIDTH - ALIEN_X_MOVE_RATE)
+		if (aliens->alien[0][lastColumn].entity.x < ALIENS_X_RIGHT_BORDER) 
 		{
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
@@ -438,7 +446,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 		break;
 
 	case MOVING_LEFT:
-		if (aliens->alien[0][firstColumn].entity.x > ALIEN_X_MOVE_RATE)
+		if (aliens->alien[0][firstColumn].entity.x > ALIENS_X_LEFT_BORDER)
 		{
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
@@ -473,8 +481,14 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 	}
 }
 
-static void updateMothership(mothership_t *mothership)
+static void updateMothership(mothership_t *mothership, int tickCounter)
 {
+	#ifdef PLATFORM_RPI
+	if(tickCounter % MOTHERSHIP_MOVE_INTERVAL != 0)
+		return;
+	#endif
+
+	
 	if (mothership->entity.explosionTimer > 0)
 		updateEntityExplosion(&mothership->entity);
 	else if (mothership->entity.isAlive && mothership->entity.x >= MOTHERSHIP_LEFT_INITIAL_X && mothership->entity.x <= MOTHERSHIP_RIGHT_INITIAL_X)

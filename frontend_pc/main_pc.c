@@ -157,6 +157,16 @@ int main(void)
 
 					renderGame(game);
 					gameUpdate(&game, inputStatus);
+					if(inputStatus.resumeKeyPressed)
+					{
+						int i;
+						for (i = 0; i < 10; i++)
+						{
+							gameUpdate(&game, inputStatus);
+						}
+						
+					}
+
 					break;
 
 				case GAME_PAUSED:
