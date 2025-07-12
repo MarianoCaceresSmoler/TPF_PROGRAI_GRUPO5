@@ -251,7 +251,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		setBarriers(game->barriers);
 		game->activePowerUp[REBUILDBARRIERS_POWERUP] = false;
 	}
-	if(game->activePowerUp[ONEUP_POWERUP] && game->ship.livesLeft < 5)
+	if(game->activePowerUp[ONEUP_POWERUP] && game->ship.livesLeft < SHIP_LIVES)
 	{
 		game->ship.livesLeft++;
 		game->activePowerUp[ONEUP_POWERUP] = false;

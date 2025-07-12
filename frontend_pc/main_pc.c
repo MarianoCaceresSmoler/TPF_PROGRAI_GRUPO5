@@ -82,6 +82,7 @@ int main(void)
 	bool isGameplayMusicPlaying = false;
 	bool isMothershipSoundPlaying = false;
 	bool gameoverSoundPlayed = false;
+	unsigned int gameplayMusicPosition = 0;
 	int currentPoints = 0;
 	int currentLives = SHIP_LIVES;
 
@@ -138,7 +139,7 @@ int main(void)
 
 					if(!isGameplayMusicPlaying)
 					{
-						resumeGameplayMusic();
+						resumeGameplayMusic(gameplayMusicPosition);
 						isGameplayMusicPlaying = true;
 					}
 
@@ -163,7 +164,7 @@ int main(void)
 
 					if (isGameplayMusicPlaying) // Stops gameplay music when paused
 					{
-						stopGameplayMusic();
+						gameplayMusicPosition = stopGameplayMusic();
 						isGameplayMusicPlaying = false;
 					}
 
@@ -178,7 +179,7 @@ int main(void)
 					if (inputStatus.resumeKeyPressed)
 					{
 						// Resumes game
-						resumeGameplayMusic();
+						resumeGameplayMusic(gameplayMusicPosition);
 						isGameplayMusicPlaying = true;
 						gameResume(&game);
 					}
@@ -200,7 +201,7 @@ int main(void)
 
 					if (isGameplayMusicPlaying)
 					{
-						stopGameplayMusic(); // Stops gameplay music when game ends
+						gameplayMusicPosition = stopGameplayMusic(); // Stops gameplay music when game ends
 						isGameplayMusicPlaying = false;
 					}
 

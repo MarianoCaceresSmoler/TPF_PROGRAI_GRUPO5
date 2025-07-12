@@ -124,14 +124,20 @@ void stopMenuMusic(void)
     }
 }
 
-void stopGameplayMusic(void)
+unsigned int stopGameplayMusic(void)
 {
+    unsigned int position = al_get_sample_instance_position(gameMusicInstance);
+
     al_set_sample_instance_playing(gameMusicInstance, false);
+    return position; // returns the positin in which the music was paused
 }
 
-void resumeGameplayMusic(void)
+void resumeGameplayMusic(unsigned int position)
 {
+    // resumes gameplay music from the position it was paused
+    al_set_sample_instance_position(gameMusicInstance, position);
     al_set_sample_instance_playing(gameMusicInstance, true);
+
 }
 
 void playGameplayMusic(void)
@@ -139,8 +145,7 @@ void playGameplayMusic(void)
     if (gameMusicInstance)
     {
         al_set_sample_instance_playmode(gameMusicInstance, ALLEGRO_PLAYMODE_LOOP);
-        resumeGameplayMusic();
-        // al_play_sample_instance(gameMusicInstance);
+        al_play_sample_instance(gameMusicInstance);
     }
 }
 
