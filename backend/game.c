@@ -187,12 +187,6 @@ void gameEnd(game_t *game)
 {
 	game->status = GAME_END;
 
-	if (game->score <= 0)
-	{
-		game->scoreRank = 0;
-		return;
-	}
-
 	score_t score;
 	score.score = game->score;
 

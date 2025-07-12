@@ -404,7 +404,7 @@ void renderGameOver(game_t game)
 	// Highscores table
 	for (i = 0; i < MAX_SCORES; i++)
 	{
-		snprintf(highScoreBuffer, sizeof(highScoreBuffer), "%s %d", game.highScores[i].tag, game.highScores[i].score);
+		sprintf(highScoreBuffer, "%s %d", game.highScores[i].tag, game.highScores[i].score);
 
 		if (game.scoreRank == i + 1)
 		{
