@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include <pthread.h>
 #include <SDL2/SDL.h> // to use delays
 
@@ -28,6 +29,12 @@
  ******************************************************************************/
 
 #define CHECK_IS_IN_DISPLAY(x, y) (((x) >= 0) && ((x) < DISP_CANT_X_DOTS) && ((y) > 0) && ((y) < DISP_CANT_Y_DOTS))
+
+#define CHAR_WIDTH 3
+#define CHAR_SEPARATION 1
+#define CHAR_WIDTH_PIXELS (CHAR_WIDTH + CHAR_SEPARATION)
+#define CHAR_HEIGHT 5
+
 #define ANIMATION_DURATION (ONE_SECOND * 4)
 #define ANIMATION_FRAME_DURATION (ANIMATION_DURATION / 6)
 
@@ -799,8 +806,8 @@ static void drawHUD(int score, int lives, int level)
     // HACER
 }
 
-static void drawChar(char c, int x, int y) {
-
+static void drawChar(char c, int x, int y) 
+{
     const uint8_t* matrixChar = NULL;
     int col, row;
 
@@ -827,10 +834,29 @@ static void drawChar(char c, int x, int y) {
     }
 }
 
-static void drawText(const char* text, int x, int y) {
-    while (*text) {
+static int drawText(const char* text, int x, int y) 
+{
+    int characters = 0;
+    while (*text) 
+    {
         drawChar(*text, x, y);
         x += 4; // 3 width + 1 space
         text++;
+        characters++;
     }
+    return characters;
+}
+
+static void swipeText(const char * text, int x, int y)
+{
+    int i, j, length = strlen(text);
+    static int offset = CHAR_WIDTH_PIXELS * length;
+    char bitmap[CHAR_HEIGHT][CHAR_WIDTH_PIXELS * 20]; // 20 characters of text
+
+
+    for (i = x; i < SCREEN_WIDTH - CHAR_WIDTH; i += 4)
+    {
+        drawChar(text, i, j);
+    }
+
 }
