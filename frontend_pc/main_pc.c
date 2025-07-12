@@ -172,6 +172,7 @@ int main(void)
 
 					renderGame(game);
 					gameUpdate(&game, inputStatus);
+					
 					break;
 
 				case GAME_PAUSED:

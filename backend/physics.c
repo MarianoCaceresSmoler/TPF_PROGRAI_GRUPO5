@@ -103,8 +103,8 @@ static int checkEntitiesCollision(entity_t entityA, entity_t entityB)
 {
     // Check if the entities are colliding
     return (
-        entityA.x <= entityB.x + entityB.width &&
-        entityA.x + entityA.width >= entityB.x &&
+        entityA.x < entityB.x + entityB.width &&
+        entityA.x + entityA.width > entityB.x &&
         entityA.y < entityB.y + entityB.height &&
         entityA.y + entityA.height > entityB.y);
 }
@@ -143,7 +143,7 @@ static void checkBulletHitsShip(game_t *game)
     if(game->ship.invencibilityTicks > 0)
         return;
     
-    if (game->alienBullet.entity.isAlive && game->ship.livesLeft > 0 && game->ship.entity.isAlive) // check collision only if the entitys are alive
+    if (game->alienBullet.entity.isAlive && game->ship.livesLeft > 0 && game->ship.entity.isAlive) // check collision only if the entities are alive
     {
         if (checkEntitiesCollision(game->alienBullet.entity, game->ship.entity))
         {

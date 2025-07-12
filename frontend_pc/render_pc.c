@@ -73,11 +73,6 @@ static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POW
 static void drawAliensPoints();
 
 /**
- * @brief private function to draw powerups functions in menu
- */
-static void drawPowerUpsMenu();
-
-/**
  * @brief private function to draw HUD during gameplay
  * @param score the actual score
  * @param lives the lives left

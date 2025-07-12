@@ -27,7 +27,6 @@
  ******************************************************************************/
 
 #define JOY_THRESHOLD 30    // range for movement
-#define INPUT_REFRESH_MS 16 // refresh input every 16ms
 #define LONG_PRESS_MS 500
 
 /*******************************************************************************
@@ -186,8 +185,6 @@ static void *updateInput(void *arg)
                 }
             }
         }
-
-        SDL_Delay(INPUT_REFRESH_MS); // waits to read the input again
     }
 
     return NULL;
