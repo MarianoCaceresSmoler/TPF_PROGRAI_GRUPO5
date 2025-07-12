@@ -26,7 +26,7 @@
 
 #define MOTHERSHIP_CHANCE 20 // % of mothership chance
 #define MOTHERSHIP_TIMER 150 // Interval between every mothership appareance chance
-#define POWERUP_CHANCE 10 // % of power up chanche everytime an enemy dies
+#define POWERUP_CHANCE 15 // % of power up chanche everytime an enemy dies
 
 #define MAX_SCORES 10 // Number of scores displayed on screen
 
@@ -104,12 +104,13 @@
 #define ALIEN_MAX_MOVE_INTERVAL 30
 #define ALIEN_MIN_MOVE_INTERVAL 10
 #define MOTHERSHIP_MOVE_RATE 1
+#define MOTHERSHIP_MOVE_INTERVAL 14
 #define BULLET_MOVE_RATE 1
 #define BULLET_MOVE_INTERVAL 10
-#define MOTHERSHIP_MOVE_INTERVAL 14
 #define SHIP_MOVE_INTERVAL 2
 #define SHIP_MOVE_RATE 1
 #define POWERUP_MOVE_RATE 1
+#define POWERUP_MOVE_INTERVAL 15
 
 #define SHIP_LEFT_X_BORDER (0)
 #define SHIP_RIGHT_X_BORDER (SCREEN_SIZE - SHIP_WIDTH)

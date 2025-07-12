@@ -65,7 +65,7 @@ static void drawAliensLoading(alienFormation_t alienFormation, int aliensToDraw)
 static void drawMothership(mothership_t mothership);
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
 static void drawBarriers(barrier_t barriers[BARRIERS]);
-static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES]);
+static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES]);
 
 /**
  * @brief private function to draw aliens/mothership points in menu
@@ -310,7 +310,7 @@ void renderGame(game_t game)
 		drawAliens(game.aliens, game.activePowerUp);
 		drawBullets(game.shipBullet, game.alienBullet);
 		drawBarriers(game.barriers);
-		drawPowerUps(game.powerUp, game.activePowerUp);
+		drawPowerUps(game.powerUp);
 		drawMothership(game.mothership);
 		drawHUD(game.score, game.ship.livesLeft, game.currentLevel);
 	}
@@ -968,7 +968,7 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
 	}
 }
 
-static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES])
+static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES])
 {
 	int i;
 

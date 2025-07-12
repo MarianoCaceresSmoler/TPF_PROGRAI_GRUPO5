@@ -20,10 +20,6 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-// defines tickrate of the aliens depending on the game ticks and the number of aliens remaining
-
-#define TICKS_TO_MOVE_ALIENS(gameTicks, aliensRemaining) (ALIEN_MAX_MOVE_TICKRATE - ((gameTicks) / 3000) - ((ALIENS_NUMBER - (aliensRemaining)) / 5))
-
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
@@ -73,8 +69,10 @@ static void updateMothership(mothership_t *mothership, int tickCounter);
  * @brief function to update every powerUp type entity
  * @param powerUp is an array with the powerUp structures to update
  * @param activePowerUp is an array with every active or inactive powerUp
+ * @param tickCounter the current game tick
+
  */
-static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES]);
+static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES], int tickCounter);
 
 /**
  * @brief function to update an entity explosion/live state
@@ -148,7 +146,6 @@ void levelInit(game_t *game)
 		setEntity(&game->powerUp[i].entity, STANDBY_POSITION, STANDBY_POSITION);
 		game->activePowerUp[i] = false;
 	}
-	
 
 	// set ship to initial position
 	setEntity(&game->ship.entity, SHIP_INITIAL_X, SHIP_INITIAL_Y);
@@ -170,7 +167,7 @@ void levelInit(game_t *game)
 		return;
 
 	// set barriers to initial position only on first level
-	setBarriers(game->barriers); 
+	setBarriers(game->barriers);
 }
 
 void gamePause(game_t *game)
@@ -243,12 +240,12 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		}
 	}
 
-	if(game->activePowerUp[REBUILDBARRIERS_POWERUP])
+	if (game->activePowerUp[REBUILDBARRIERS_POWERUP])
 	{
 		setBarriers(game->barriers);
 		game->activePowerUp[REBUILDBARRIERS_POWERUP] = false;
 	}
-	if(game->activePowerUp[ONEUP_POWERUP] && game->ship.livesLeft < SHIP_MAX_LIVES)
+	if (game->activePowerUp[ONEUP_POWERUP] && game->ship.livesLeft < SHIP_MAX_LIVES)
 	{
 		game->ship.livesLeft++;
 		game->activePowerUp[ONEUP_POWERUP] = false;
@@ -273,7 +270,6 @@ void gameUpdate(game_t *game, inputStatus_t input)
 
 	static int ticksSinceLastShot = 0;
 
-	
 	if (game->alienBullet.entity.isAlive)
 		updateBullet(&game->alienBullet, game->tickCounter);
 	else if (game->aliens.canShoot && game->activePowerUp[FREEZE_POWERUP] == false)
@@ -293,7 +289,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 
 	updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining, game->activePowerUp);
 
-	updatePowerUps(game->powerUp, game->activePowerUp);
+	updatePowerUps(game->powerUp, game->activePowerUp, game->tickCounter);
 
 	if (game->mothership.entity.isAlive)
 		updateMothership(&game->mothership, game->tickCounter);
@@ -312,9 +308,8 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		if (game->powerUp[powerUpType].entity.isAlive == false && game->activePowerUp[powerUpType] == false && rand() % 100 < POWERUP_CHANCE)
 			setEntity(&game->powerUp[powerUpType].entity, rand() % (SCREEN_SIZE - POWERUP_WIDTH), POWERUP_INITIAL_Y);
 	}
-	
-	game->tickCounter++;
 
+	game->tickCounter++;
 }
 
 /*******************************************************************************
@@ -326,10 +321,10 @@ void gameUpdate(game_t *game, inputStatus_t input)
 static void updateShip(ship_t *ship, bool moveLeft, bool moveRight, int tickCounter)
 {
 	#ifdef PLATFORM_RPI
-	if(tickCounter % SHIP_MOVE_INTERVAL != 0)
-		return;
+		if (tickCounter % SHIP_MOVE_INTERVAL != 0)
+			return;
 	#endif
-	
+
 	if (ship->entity.explosionTimer > 0)
 	{
 		ship->canShoot = 0;
@@ -369,9 +364,11 @@ static void updateBullet(bullet_t *bullet, int tickCounter)
 	}
 
 	#ifdef PLATFORM_RPI
-	if(tickCounter % BULLET_MOVE_INTERVAL == 0)
+		if (tickCounter % BULLET_MOVE_INTERVAL != 0)
+		return;
 	#endif
-		moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
+	
+	moveEntityY(&bullet->entity, bullet->direction * BULLET_MOVE_RATE);
 }
 
 static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemaining, int activePowerUp[POWERUP_TYPES])
@@ -391,7 +388,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 	firstColumn = getFirstColumnAlive(*aliens);
 	lastColumn = getLastColumnAlive(*aliens);
 
-	if(activePowerUp[ALIENRETREAT_POWERUP])
+	if (activePowerUp[ALIENRETREAT_POWERUP])
 	{
 		int retreatMoveRate = -(aliens->alien[0][0].entity.y - ALIENS_INITIAL_Y);
 		for (i = 0; i < ALIENS_ROWS; i++)
@@ -400,13 +397,12 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 			{
 				moveEntityY(&aliens->alien[i][j].entity, retreatMoveRate);
 			}
-			
 		}
 		activePowerUp[ALIENRETREAT_POWERUP] = false;
 	}
 
 	// rowToMove is used to move the alien rows separately
-	if(gameTicks == 0) 
+	if (gameTicks == 0)
 		rowToMove = ALIENS_ROWS;
 
 	// aliens velocity adjust
@@ -425,7 +421,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 
 	if (gameTicks % moveInterval != 0 || activePowerUp[FREEZE_POWERUP])
 		return;
-	
+
 	if (rowToMove == 0)
 		rowToMove = ALIENS_ROWS - 1;
 	else
@@ -434,7 +430,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 	switch (aliens->direction)
 	{
 	case MOVING_RIGHT:
-		if (aliens->alien[0][lastColumn].entity.x < ALIENS_X_RIGHT_BORDER) 
+		if (aliens->alien[0][lastColumn].entity.x < ALIENS_X_RIGHT_BORDER)
 		{
 			for (i = 0; i < ALIENS_COLS; i++)
 			{
@@ -464,7 +460,7 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 			rowToMove++;
 		}
 		break;
-	
+
 	case MOVING_DOWN:
 		for (i = 0; i < ALIENS_COLS; i++)
 		{
@@ -488,11 +484,10 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 static void updateMothership(mothership_t *mothership, int tickCounter)
 {
 	#ifdef PLATFORM_RPI
-	if(tickCounter % MOTHERSHIP_MOVE_INTERVAL != 0)
-		return;
+		if (tickCounter % MOTHERSHIP_MOVE_INTERVAL != 0)
+			return;
 	#endif
 
-	
 	if (mothership->entity.explosionTimer > 0)
 		updateEntityExplosion(&mothership->entity);
 	else if (mothership->entity.isAlive && mothership->entity.x >= MOTHERSHIP_LEFT_INITIAL_X && mothership->entity.x <= MOTHERSHIP_RIGHT_INITIAL_X)
@@ -501,8 +496,9 @@ static void updateMothership(mothership_t *mothership, int tickCounter)
 		mothership->entity.isAlive = false;
 }
 
-static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES])
+static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES], int tickCounter)
 {
+
 	int i;
 	for (i = 0; i < POWERUP_TYPES; i++)
 	{
@@ -519,7 +515,13 @@ static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[P
 			if (powerUp[i].entity.x < 0 || powerUp[i].entity.x > SCREEN_SIZE || powerUp[i].entity.y < 0 || powerUp[i].entity.y > SCREEN_SIZE)
 				powerUp[i].entity.isAlive = 0;
 			else
+			{
+				#ifdef PLATFORM_RPI
+					if (tickCounter % POWERUP_MOVE_INTERVAL != 0)
+						return;
+				#endif
 				moveEntityY(&powerUp[i].entity, POWERUP_MOVE_RATE);
+			}
 		}
 	}
 }

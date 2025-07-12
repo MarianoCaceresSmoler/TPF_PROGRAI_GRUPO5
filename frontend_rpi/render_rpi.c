@@ -50,11 +50,11 @@
 /**
  * @brief private functions to render the different parts of the game
  */
-static void *render(void *arg);
-static void renderLoading(void);
-static void renderGame(void);
-static void renderMenu(void);
-static void renderGameOver(void);
+static void *render(void *gamearg);
+static void renderLoading(game_t *game);
+static void renderGame(game_t *game);
+static void renderMenu(game_t *game);
+static void renderGameOver(game_t *game);
 
 /**
  * @brief draws an object in display
@@ -81,15 +81,14 @@ static void drawAliens(alienFormation_t aliens);
 static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw);
 static void drawMothership(mothership_t mothership);
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
+static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES]);
 static void drawBarriers(barrier_t barriers[BARRIERS]);
 
 /**
  * @brief private function to draw HUD during gameplay
- * @param score the actual score
  * @param lives the lives left
- * @param level the actual level
  */
-static void drawHUD(int score, int lives, int level);
+static void drawHUD(int lives);
 
 /**
  * @brief private function to draw a character
@@ -105,7 +104,7 @@ static void drawChar(char c, int x, int y);
  * @param x the x position
  * @param y the y position
  */
-static void drawText(const char* text, int x, int y);
+static void drawText(const char *text, int x, int y);
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -119,280 +118,278 @@ static void drawText(const char* text, int x, int y);
 
 // +ej: static int temperaturas_actuales[4];+
 
-static bool stopRenderThread = false;
-static game_t *globalGameStatus = NULL;
 static pthread_t renderThread;
+static bool stopRenderThread = false;
 
-const uint8_t font3x5_letters[26][5] = {
-    // A
-    {0b010,
-     0b101,
-     0b111,
-     0b101,
-     0b101},
+const uint8_t font3x5_letters[26][5] =
+    {
+        // A
+        {0b010,
+         0b101,
+         0b111,
+         0b101,
+         0b101},
 
-    // B
-    {0b110,
-     0b101,
-     0b110,
-     0b101,
-     0b110},
+        // B
+        {0b110,
+         0b101,
+         0b110,
+         0b101,
+         0b110},
 
-    // C
-    {0b011,
-     0b100,
-     0b100,
-     0b100,
-     0b011},
+        // C
+        {0b011,
+         0b100,
+         0b100,
+         0b100,
+         0b011},
 
-    // D
-    {0b110,
-     0b101,
-     0b101,
-     0b101,
-     0b110},
+        // D
+        {0b110,
+         0b101,
+         0b101,
+         0b101,
+         0b110},
 
-    // E
-    {0b111,
-     0b100,
-     0b110,
-     0b100,
-     0b111},
+        // E
+        {0b111,
+         0b100,
+         0b110,
+         0b100,
+         0b111},
 
-    // F
-    {0b111,
-     0b100,
-     0b110,
-     0b100,
-     0b100},
+        // F
+        {0b111,
+         0b100,
+         0b110,
+         0b100,
+         0b100},
 
-    // G
-    {0b011,
-     0b100,
-     0b101,
-     0b101,
-     0b011},
+        // G
+        {0b011,
+         0b100,
+         0b101,
+         0b101,
+         0b011},
 
-    // H
-    {0b101,
-     0b101,
-     0b111,
-     0b101,
-     0b101},
+        // H
+        {0b101,
+         0b101,
+         0b111,
+         0b101,
+         0b101},
 
-    // I
-    {0b111,
-     0b010,
-     0b010,
-     0b010,
-     0b111},
+        // I
+        {0b111,
+         0b010,
+         0b010,
+         0b010,
+         0b111},
 
-    // J
-    {0b001,
-     0b001,
-     0b001,
-     0b101,
-     0b010},
+        // J
+        {0b001,
+         0b001,
+         0b001,
+         0b101,
+         0b010},
 
-    // K
-    {0b101,
-     0b101,
-     0b110,
-     0b101,
-     0b101},
+        // K
+        {0b101,
+         0b101,
+         0b110,
+         0b101,
+         0b101},
 
-    // L
-    {0b100,
-     0b100,
-     0b100,
-     0b100,
-     0b111},
+        // L
+        {0b100,
+         0b100,
+         0b100,
+         0b100,
+         0b111},
 
-    // M
-    {0b101,
-     0b111,
-     0b111,
-     0b101,
-     0b101},
+        // M
+        {0b101,
+         0b111,
+         0b111,
+         0b101,
+         0b101},
 
-    // N
-    {0b101,
-     0b111,
-     0b111,
-     0b111,
-     0b101},
+        // N
+        {0b101,
+         0b111,
+         0b111,
+         0b111,
+         0b101},
 
-    // O
-    {0b010,
-     0b101,
-     0b101,
-     0b101,
-     0b010},
+        // O
+        {0b010,
+         0b101,
+         0b101,
+         0b101,
+         0b010},
 
-    // P
-    {0b110,
-     0b101,
-     0b110,
-     0b100,
-     0b100},
+        // P
+        {0b110,
+         0b101,
+         0b110,
+         0b100,
+         0b100},
 
-    // Q
-    {0b010,
-     0b101,
-     0b101,
-     0b111,
-     0b011},
+        // Q
+        {0b010,
+         0b101,
+         0b101,
+         0b111,
+         0b011},
 
-    // R
-    {0b110,
-     0b101,
-     0b110,
-     0b101,
-     0b101},
+        // R
+        {0b110,
+         0b101,
+         0b110,
+         0b101,
+         0b101},
 
-    // S
-    {0b011,
-     0b100,
-     0b010,
-     0b001,
-     0b110},
+        // S
+        {0b011,
+         0b100,
+         0b010,
+         0b001,
+         0b110},
 
-    // T
-    {0b111,
-     0b010,
-     0b010,
-     0b010,
-     0b010},
+        // T
+        {0b111,
+         0b010,
+         0b010,
+         0b010,
+         0b010},
 
-    // U
-    {0b101,
-     0b101,
-     0b101,
-     0b101,
-     0b111},
+        // U
+        {0b101,
+         0b101,
+         0b101,
+         0b101,
+         0b111},
 
-    // V
-    {0b101,
-     0b101,
-     0b101,
-     0b101,
-     0b010},
+        // V
+        {0b101,
+         0b101,
+         0b101,
+         0b101,
+         0b010},
 
-    // W
-    {0b101,
-     0b101,
-     0b111,
-     0b111,
-     0b101},
+        // W
+        {0b101,
+         0b101,
+         0b111,
+         0b111,
+         0b101},
 
-    // X
-    {0b101,
-     0b101,
-     0b010,
-     0b101,
-     0b101},
+        // X
+        {0b101,
+         0b101,
+         0b010,
+         0b101,
+         0b101},
 
-    // Y
-    {0b101,
-     0b101,
-     0b010,
-     0b010,
-     0b010},
+        // Y
+        {0b101,
+         0b101,
+         0b010,
+         0b010,
+         0b010},
 
-    // Z
-    {0b111,
-     0b001,
-     0b010,
-     0b100,
-     0b111}
-};
+        // Z
+        {0b111,
+         0b001,
+         0b010,
+         0b100,
+         0b111}};
 
+const uint8_t font3x5_digits[12][5] =
+    {
+        // 0
+        {0b111,
+         0b101,
+         0b101,
+         0b101,
+         0b111},
 
-const uint8_t font3x5_digits[12][5] = {
-    // 0
-    {0b111,
-     0b101,
-     0b101,
-     0b101,
-     0b111},
+        // 1
+        {0b010,
+         0b110,
+         0b010,
+         0b010,
+         0b111},
 
-    // 1
-    {0b010,
-     0b110,
-     0b010,
-     0b010,
-     0b111},
+        // 2
+        {0b111,
+         0b001,
+         0b111,
+         0b100,
+         0b111},
 
-    // 2
-    {0b111,
-     0b001,
-     0b111,
-     0b100,
-     0b111},
+        // 3
+        {0b111,
+         0b001,
+         0b111,
+         0b001,
+         0b111},
 
-    // 3
-    {0b111,
-     0b001,
-     0b111,
-     0b001,
-     0b111},
+        // 4
+        {0b101,
+         0b101,
+         0b111,
+         0b001,
+         0b001},
 
-    // 4
-    {0b101,
-     0b101,
-     0b111,
-     0b001,
-     0b001},
+        // 5
+        {0b111,
+         0b100,
+         0b111,
+         0b001,
+         0b111},
 
-    // 5
-    {0b111,
-     0b100,
-     0b111,
-     0b001,
-     0b111},
+        // 6
+        {0b111,
+         0b100,
+         0b111,
+         0b101,
+         0b111},
 
-    // 6
-    {0b111,
-     0b100,
-     0b111,
-     0b101,
-     0b111},
+        // 7
+        {0b111,
+         0b001,
+         0b010,
+         0b010,
+         0b010},
 
-    // 7
-    {0b111,
-     0b001,
-     0b010,
-     0b010,
-     0b010},
+        // 8
+        {0b111,
+         0b101,
+         0b111,
+         0b101,
+         0b111},
 
-    // 8
-    {0b111,
-     0b101,
-     0b111,
-     0b101,
-     0b111},
+        // 9
+        {0b111,
+         0b101,
+         0b111,
+         0b001,
+         0b111},
 
-    // 9
-    {0b111,
-     0b101,
-     0b111,
-     0b001,
-     0b111},
+        // :
+        {0b000,
+         0b010,
+         0b000,
+         0b010,
+         0b000},
 
-    // :
-    {0b000,
-     0b010,
-     0b000,
-     0b010,
-     0b000},
-
-    // space
-    {0b000,
-     0b000,
-     0b000,
-     0b000,
-     0b000}
-};
+        // space
+        {0b000,
+         0b000,
+         0b000,
+         0b000,
+         0b000}};
 
 
 /*******************************************************************************
@@ -405,9 +402,7 @@ void initGraphics(game_t *game)
 {
     disp_init();
 
-    globalGameStatus = game; // to get the game status frame to frame
-
-    pthread_create(&renderThread, NULL, render, NULL); // creates thread for rendering
+    pthread_create(&renderThread, NULL, render, game); // creates thread for rendering
 
     disp_clear();
 }
@@ -426,20 +421,22 @@ void cleanupGraphics(void)
  *******************************************************************************
  ******************************************************************************/
 
-static void *render(void *arg)
+static void *render(void *gamearg)
 {
+    game_t *game = (game_t *)gamearg;
+
     while (!stopRenderThread)
     {
         disp_clear(); // first clears all the leds
 
-        if (globalGameStatus->status == GAME_LOADING)
-            renderLoading();
-        else if (globalGameStatus->status == GAME_RUNNING)
-            renderGame();
-        else if (globalGameStatus->status == GAME_MENU || globalGameStatus->status == GAME_PAUSED)
-            renderMenu();
-        else if (globalGameStatus->status == GAME_END)
-            renderGameOver();
+        if (game->status == GAME_LOADING)
+            renderLoading(game);
+        else if (game->status == GAME_RUNNING)
+            renderGame(game);
+        else if (game->status == GAME_MENU || game->status == GAME_PAUSED)
+            renderMenu(game);
+        else if (game->status == GAME_END)
+            renderGameOver(game);
         else
             cleanupGraphics();
 
@@ -451,48 +448,47 @@ static void *render(void *arg)
     return NULL;
 }
 
-static void renderLoading(void)
+static void renderLoading(game_t *game)
 {
-    drawAliensLoading(globalGameStatus->aliens, LOADING_TIME - globalGameStatus->loadingTimer);
+    drawAliensLoading(game->aliens, LOADING_TIME - game->loadingTimer);
 }
 
-static void renderGame(void)
+static void renderGame(game_t *game)
 {
-    drawShip(globalGameStatus->ship);
-    drawAliens(globalGameStatus->aliens);
-    drawMothership(globalGameStatus->mothership);
-    drawBullets(globalGameStatus->shipBullet, globalGameStatus->alienBullet);
-    drawBarriers(globalGameStatus->barriers);
-    drawHUD(globalGameStatus->score, globalGameStatus->ship.livesLeft, globalGameStatus->currentLevel);
+    drawShip(game->ship);
+    drawAliens(game->aliens);
+    drawMothership(game->mothership);
+    drawBullets(game->shipBullet, game->alienBullet);
+    drawBarriers(game->barriers);
+    drawPowerUps(game->powerUp);
+    drawHUD(game->ship.livesLeft);
 }
 
-static void renderMenu(void)
+static void renderMenu(game_t *game)
 {
-    // HACER
-    if (globalGameStatus->status == GAME_MENU)
+    if (game->status == GAME_MENU)
     {
         static int animationTicks = ANIMATION_DURATION;
-        if (animationTicks > 0) 
+        if (animationTicks > 0)
         {
             drawStartAnimation(animationTicks);
             animationTicks--;
         }
         else
             drawStartMenu();
-
     }
-    else if (globalGameStatus->status == GAME_PAUSED)
+    else if (game->status == GAME_PAUSED)
     {
         drawPauseMenu();
     }
 }
 
-static void renderGameOver(void)
+static void renderGameOver(game_t *game)
 {
-    if (globalGameStatus->status == GAME_END)
+    if (game->status == GAME_END)
     {
-        int finalScore = globalGameStatus->score;
-        int finalLevel = globalGameStatus->currentLevel;
+        int finalScore = game->score;
+        int finalLevel = game->currentLevel;
 
         // Convertir a string
         char scoreStr[6];
@@ -502,11 +498,10 @@ static void renderGameOver(void)
         sprintf(levelStr, "L:%d", finalLevel);
 
         // Mostrar score arriba, level abajo
-        drawText(scoreStr, 0, 2);   // Y=2 deja margen arriba
-        drawText(levelStr, 0, 9);   // Y=9 para segunda línea
+        drawText(scoreStr, 0, 2); // Y=2 deja margen arriba
+        drawText(levelStr, 0, 9); // Y=9 para segunda línea
     }
 }
-
 
 static void drawObject(int x, int y, int width, int height)
 {
@@ -539,13 +534,13 @@ static void drawStartAnimation(int animationTicks)
         drawFrame2();
     else if (frames < ONE_SECOND * 3 / 4)
         drawFrame3();
-    else 
+    else
         drawFrame4();
 }
 
 static void drawFrame1()
 {
-    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] ={
+    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -554,7 +549,7 @@ static void drawFrame1()
         {0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
         {0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0},
-        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0}, 
+        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
         {0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0},
         {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0},
         {0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0},
@@ -567,17 +562,17 @@ static void drawFrame1()
 
     for (i = 0; i < SCREEN_HEIGHT; i++)
     {
-        for (j = 0; j < SCREEN_WIDTH; j ++)
+        for (j = 0; j < SCREEN_WIDTH; j++)
         {
             dcoord_t coord = {.x = j, .y = i};
-            disp_write(coord, matrix[i][j]? D_ON: D_OFF);
+            disp_write(coord, matrix[i][j] ? D_ON : D_OFF);
         }
     }
 }
 
 static void drawFrame2()
 {
-    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] ={
+    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -585,7 +580,7 @@ static void drawFrame2()
         {0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
         {0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0},
-        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0}, 
+        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
         {0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0},
         {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0},
         {0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0},
@@ -593,23 +588,22 @@ static void drawFrame2()
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    };
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
     int i, j;
 
     for (i = 0; i < SCREEN_HEIGHT; i++)
     {
-        for (j = 0; j < SCREEN_WIDTH; j ++)
+        for (j = 0; j < SCREEN_WIDTH; j++)
         {
             dcoord_t coord = {.x = j, .y = i};
-            disp_write(coord, matrix[i][j]? D_ON: D_OFF);
+            disp_write(coord, matrix[i][j] ? D_ON : D_OFF);
         }
     }
 }
 
 static void drawFrame3()
 {
-    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] ={
+    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -617,7 +611,7 @@ static void drawFrame3()
         {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
         {0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0},
-        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0}, 
+        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
         {0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0},
         {0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0},
         {0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0},
@@ -625,23 +619,22 @@ static void drawFrame3()
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    };
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
     int i, j;
 
     for (i = 0; i < SCREEN_HEIGHT; i++)
     {
-        for (j = 0; j < SCREEN_WIDTH; j ++)
+        for (j = 0; j < SCREEN_WIDTH; j++)
         {
             dcoord_t coord = {.x = j, .y = i};
-            disp_write(coord, matrix[i][j]? D_ON: D_OFF);
+            disp_write(coord, matrix[i][j] ? D_ON : D_OFF);
         }
     }
 }
 
 static void drawFrame4()
 {
-    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] ={
+    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -650,7 +643,7 @@ static void drawFrame4()
         {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
         {0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0},
-        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0}, 
+        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
         {0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0},
         {0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0},
         {0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0},
@@ -663,22 +656,20 @@ static void drawFrame4()
 
     for (i = 0; i < SCREEN_HEIGHT; i++)
     {
-        for (j = 0; j < SCREEN_WIDTH; j ++)
+        for (j = 0; j < SCREEN_WIDTH; j++)
         {
             dcoord_t coord = {.x = j, .y = i};
-            disp_write(coord, matrix[i][j]? D_ON: D_OFF);
+            disp_write(coord, matrix[i][j] ? D_ON : D_OFF);
         }
     }
 }
 
 static void drawStartMenu()
 {
-
 }
 
 static void drawPauseMenu()
 {
-
 }
 
 static void drawShip(ship_t ship)
@@ -768,6 +759,23 @@ static void drawBullets(bullet_t shipBullet, bullet_t alienBullet)
     }
 }
 
+static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES])
+{
+    int i, x, y;
+
+    for (i = 0; i < POWERUP_TYPES; i++)
+    {
+        if (powerUps[i].entity.isAlive) // only displays the powerup if it is alive
+        {
+            // Position of the powerup
+            x = powerUps[i].entity.x;
+            y = powerUps[i].entity.y;
+
+            drawObject(x, y, POWERUP_WIDTH, POWERUP_HEIGHT); // draws the powerup            
+        }
+    }
+}
+
 static void drawBarriers(barrier_t barriers[BARRIERS])
 {
     int i, x, y;
@@ -794,32 +802,52 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
     }
 }
 
-static void drawHUD(int score, int lives, int level)
+static void drawHUD(int lives)
 {
-    // HACER
+    // Draw lives as points in the upper left part of the screen
+    int i;
+
+    for (i = 0; i < lives; i++)
+    {
+        dcoord_t coord = {.x = i * 2, .y = 0}; // *2 for separation
+        disp_write(coord, D_ON);
+    }
 }
 
-static void drawChar(char c, int x, int y) {
+static void drawChar(char c, int x, int y)
+{
 
-    const uint8_t* matrixChar = NULL;
+    const uint8_t *matrixChar = NULL;
     int col, row;
 
-    if (c >= 'A' && c <= 'Z') {
+    if (c >= 'A' && c <= 'Z')
+    {
         matrixChar = font3x5_letters[c - 'A'];
-    } else if (c >= '0' && c <= '9') {
+    }
+    else if (c >= '0' && c <= '9')
+    {
         matrixChar = font3x5_digits[c - '0'];
-    } else if (c == ':') {
+    }
+    else if (c == ':')
+    {
         matrixChar = font3x5_digits[10];
-    } else if (c == ' ') {
+    }
+    else if (c == ' ')
+    {
         matrixChar = font3x5_digits[11];
-    } else {
+    }
+    else
+    {
         return; // not a printable character
     }
 
     // Draws the pixels of the character
-    for (row = 0; row < 5; row++) {
-        for (col = 0; col < 3; col++) {
-            if (matrixChar[row] & (1 << (2 - col))) {
+    for (row = 0; row < 5; row++)
+    {
+        for (col = 0; col < 3; col++)
+        {
+            if (matrixChar[row] & (1 << (2 - col)))
+            {
                 dcoord_t coord = {.x = x + col, .y = y + row};
                 disp_write(coord, D_ON);
             }
@@ -827,8 +855,10 @@ static void drawChar(char c, int x, int y) {
     }
 }
 
-static void drawText(const char* text, int x, int y) {
-    while (*text) {
+static void drawText(const char *text, int x, int y)
+{
+    while (*text)
+    {
         drawChar(*text, x, y);
         x += 4; // 3 width + 1 space
         text++;
