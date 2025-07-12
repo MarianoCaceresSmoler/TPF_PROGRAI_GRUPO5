@@ -43,8 +43,9 @@
  * @param ship pointer to the ship type entity
  * @param moveLeft true if the left key is pressed, false otherwise
  * @param moveRight true if the right key is pressed, false otherwise
+ * @param tickCounter the current game tick
  */
-static void updateShip(ship_t *ship, bool moveLeft, bool moveRight);
+static void updateShip(ship_t *ship, bool moveLeft, bool moveRight, int tickCounter);
 
 /**
  * @brief function to update a bullet type entity
@@ -55,15 +56,24 @@ static void updateBullet(bullet_t *bullet, int tickCounter);
 /**
  * @brief function to update an alienformation type entity
  * @param aliens pointer to the alienformation type entity
+ * @param tickCounter the current game tick
+ * @param aliensRemaining the number of aliens alive in the level
+ * @param activePowerUp array with the state of every power up
  */
 static void updateAliens(alienFormation_t *aliens, int tickCounter, int aliensRemaining, int activePowerUp[POWERUP_TYPES]);
 
 /**
  * @brief function to update a mothership type entity
  * @param bullet pointer to the mothership type entity
+ * @param tickCounter the current game tick
  */
 static void updateMothership(mothership_t *mothership, int tickCounter);
 
+/**
+ * @brief function to update every powerUp type entity
+ * @param powerUp is an array with the powerUp structures to update
+ * @param activePowerUp is an array with every active or inactive powerUp
+ */
 static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POWERUP_TYPES]);
 
 /**
@@ -71,22 +81,6 @@ static void updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[P
  * @param entity pointer to the entity
  */
 static void updateEntityExplosion(entity_t *entity);
-
-// static int getNearestColumnAlive(alienFormation_t aliens, short int shipX);
-
-// static int getNearestRowAlive(alienFormation_t aliens, int column);
-
-/**
- * @brief function to get the first column with at least one alien alive
- * @param aliens pointer to the alien formation
- */
-// static int getFirstColumnAlive(alienFormation_t aliens);
-
-/**
- * @brief function to get the last column with at least one alien alive
- * @param aliens pointer to the alien formation
- */
-// static int getLastColumnAlive(alienFormation_t aliens);
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -212,12 +206,14 @@ void gameEnd(game_t *game)
 
 void gameReset(game_t *game)
 {
-	levelInit(game);
 	game->ship.livesLeft = SHIP_LIVES;
 	game->score = 0;
 	game->ship.entity.explosionTimer = 0;
 	game->aliens.canShoot = 0;
 	game->ship.canShoot = 1;
+	game->currentLevel = 1;
+	levelInit(game);
+
 }
 
 void gameUpdate(game_t *game, inputStatus_t input)
@@ -229,7 +225,6 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	}
 
 	int points = 0;
-	game->tickCounter++;
 
 	// updates game status
 	if (game->aliensRemaining == 0)
@@ -266,7 +261,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	}
 
 	// updates entities
-	updateShip(&game->ship, input.leftKeyPressed, input.rightKeyPressed);
+	updateShip(&game->ship, input.leftKeyPressed, input.rightKeyPressed, game->tickCounter);
 
 	if (game->shipBullet.entity.isAlive == false)
 		game->ship.canShoot = true;
@@ -282,6 +277,9 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	if (game->alienBullet.entity.isAlive == false && game->tickCounter > ONE_SECOND * 3)
 		game->aliens.canShoot = true;
 
+	static int ticksSinceLastShot = 0;
+
+	
 	if (game->alienBullet.entity.isAlive)
 		updateBullet(&game->alienBullet, game->tickCounter);
 	else if (game->aliens.canShoot && game->activePowerUp[FREEZE_POWERUP] == false)
@@ -289,9 +287,13 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		int alienColumnToShoot = getNearestColumnAlive(game->aliens, game->ship.entity.x);
 		int alienRowToShoot = getNearestRowAlive(game->aliens, alienColumnToShoot);
 
-		if (alienRowToShoot >= 0 && alienColumnToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
-			shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
+		ticksSinceLastShot++;
 
+		if (ticksSinceLastShot >= ALIENS_SHOOT_INTERVAL && alienRowToShoot >= 0 && alienColumnToShoot >= 0 && game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity.isAlive)
+		{
+			shootFromEntity(&game->alienBullet, &game->aliens.alien[alienRowToShoot][alienColumnToShoot].entity);
+			ticksSinceLastShot = 0;
+		}
 		game->aliens.canShoot = false;
 	}
 
@@ -316,6 +318,9 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		if (game->powerUp[powerUpType].entity.isAlive == false && game->activePowerUp[powerUpType] == false && rand() % 100 < POWERUP_CHANCE)
 			setEntity(&game->powerUp[powerUpType].entity, rand() % (SCREEN_SIZE - POWERUP_WIDTH), POWERUP_INITIAL_Y);
 	}
+	
+	game->tickCounter++;
+
 }
 
 /*******************************************************************************
@@ -324,8 +329,13 @@ void gameUpdate(game_t *game, inputStatus_t input)
  *******************************************************************************
  ******************************************************************************/
 
-static void updateShip(ship_t *ship, bool moveLeft, bool moveRight)
+static void updateShip(ship_t *ship, bool moveLeft, bool moveRight, int tickCounter)
 {
+	#ifdef PLATFORM_RPI
+	if(tickCounter % SHIP_MOVE_INTERVAL != 0)
+		return;
+	#endif
+	
 	if (ship->entity.explosionTimer > 0)
 	{
 		ship->canShoot = 0;
