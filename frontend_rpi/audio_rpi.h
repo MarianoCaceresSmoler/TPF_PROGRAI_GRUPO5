@@ -51,6 +51,7 @@ void cleanupAudio(void);
  * @brief functions to reproduce sounds and music
  */
 void playExplosionSound(void);
+void playPowerUpSound(void);
 void playMothershipSound(void);
 void playShootSound(void);
 void playGameoverSound(void);

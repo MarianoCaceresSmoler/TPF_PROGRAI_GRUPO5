@@ -88,6 +88,8 @@ int main(void)
 	bool isFirstTry = true;
 	int currentPoints = 0;
 	int currentLives = SHIP_INITIAL_LIVES;
+	int currentPowerUps[POWERUP_TYPES] = {0, 0, 0, 0};
+	int i;
 
 	while (programRunning)
 	{
@@ -130,10 +132,23 @@ int main(void)
 
 		case GAME_RUNNING:
 
-			if (!isGameplayMusicPlaying)
+			if (!isGameplayMusicPlaying)  // resumes game music if it is paused
 			{
 				resumeMusic();
 				isGameplayMusicPlaying = true;
+			}
+
+			for (i = 0; i < POWERUP_TYPES; i++) // check if a powerup was collected to play powerup sound
+			{
+				if (currentPowerUps[i] != game.activePowerUp[i])
+				{
+					currentPowerUps[i] = game.activePowerUp[i];
+
+					if (currentPowerUps[i] == 1)
+					{
+						playPowerUpSound();
+					}
+				}
 			}
 
 			if (currentPoints != game.score || currentLives != game.ship.livesLeft) // Updates points when score changes and plays explosion sound
@@ -155,6 +170,7 @@ int main(void)
 			{
 				isMothershipSoundPlaying = false;
 			}
+
 
 			if (inputStatus.pauseKeyPressed)
 			{
@@ -210,7 +226,6 @@ int main(void)
 
 				if (isMothershipSoundPlaying)
 					isMothershipSoundPlaying = false;
-				
 			}
 
 			if (!gameoverSoundPlayed) // Plays gameover sound only when game ends

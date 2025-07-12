@@ -20,6 +20,7 @@
  ******************************************************************************/
 
 #define EXPLOSION "frontend_rpi/assets/audio/explosion.wav"
+#define POWER_UP "frontend_rpi/assets/audio/powerup.wav"
 #define GAME_OVER "frontend_rpi/assets/audio/gameover.wav"
 #define MOTHERSHIP "frontend_rpi/assets/audio/mothership.wav"
 #define SHOOT "frontend_rpi/assets/audio/shoot.wav"
@@ -54,6 +55,7 @@
 // +ej: static int temperaturas_actuales[4];+
 
 static Audio *explosion = NULL;
+static Audio *powerUp = NULL;
 static Audio *mothership = NULL;
 static Audio *shoot = NULL;
 static Audio *gameOver = NULL;
@@ -76,6 +78,7 @@ void initializeAudio(void)
 
 	// Create sound audios
 	explosion = createAudio(EXPLOSION, 0, SDL_MIX_MAXVOLUME / 2);
+	powerUp = createAudio(POWER_UP, 0, SDL_MIX_MAXVOLUME / 2);
 	mothership = createAudio(MOTHERSHIP, 0, SDL_MIX_MAXVOLUME / 2);
 	shoot = createAudio(SHOOT, 0, SDL_MIX_MAXVOLUME / 2);
 	gameOver = createAudio(GAME_OVER, 0, SDL_MIX_MAXVOLUME / 2);
@@ -92,6 +95,8 @@ void cleanupAudio(void)
 	// Important to free audio after ending Simple-SDL2-Audio because they might be referenced still
 	if (explosion)
 		freeAudio(explosion);
+	if (powerUp)
+		freeAudio(powerUp);
 	if (mothership)
 		freeAudio(mothership);
 	if (shoot)
@@ -112,6 +117,12 @@ void playExplosionSound(void)
 {
 	if (playerStatus() == READY && musicStatus() == PLAYING)
 		playSoundFromMemory(explosion, SDL_MIX_MAXVOLUME);
+}
+
+void playPowerUpSound(void)
+{
+	if (playerStatus() == READY && musicStatus() == PLAYING)
+		playSoundFromMemory(powerUp, SDL_MIX_MAXVOLUME);
 }
 
 void playMothershipSound(void)
