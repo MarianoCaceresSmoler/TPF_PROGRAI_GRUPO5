@@ -57,7 +57,6 @@
  *******************************************************************************
  ******************************************************************************/
 
-
 /*******************************************************************************
  *******************************************************************************
 						LOCAL FUNCTION DEFINITIONS
@@ -84,14 +83,16 @@ int main(void)
 	bool gameoverSoundPlayed = false;
 	unsigned int gameplayMusicPosition = 0;
 	int currentPoints = 0;
-	int currentLives = SHIP_LIVES;
+	int currentLives = SHIP_INITIAL_LIVES;
+	int currentPowerUps[POWERUP_TYPES] = {0, 0, 0, 0};
+	int i;
 
 	while (programRunning)
 	{
 		if (al_get_next_event(getEventQueue(), &ev))
 		{
 			if (ev.type == ALLEGRO_EVENT_TIMER)
-			{				
+			{
 				switch (game.status)
 				{
 				case GAME_MENU:
@@ -108,7 +109,7 @@ int main(void)
 					{
 						// Changes background music and inits level
 						stopMenuMusic();
-						isMenuMusicPlaying = false;	
+						isMenuMusicPlaying = false;
 
 						levelInit(&game);
 					}
@@ -116,16 +117,16 @@ int main(void)
 
 				case GAME_LOADING:
 
-						renderGame(game);
-						if (game.loadingTimer > 0)
-							game.loadingTimer--;
-						else
-						{
-							playGameplayMusic();
-							isGameplayMusicPlaying = true;
-							game.status = GAME_RUNNING;			
-						}		
-						
+					renderGame(game);
+					if (game.loadingTimer > 0)
+						game.loadingTimer--;
+					else
+					{
+						playGameplayMusic();
+						isGameplayMusicPlaying = true;
+						game.status = GAME_RUNNING;
+					}
+
 					break;
 
 				case GAME_RUNNING:
@@ -137,10 +138,23 @@ int main(void)
 						currentLives = game.ship.livesLeft;
 					}
 
-					if(!isGameplayMusicPlaying)
+					if (!isGameplayMusicPlaying) // resumes game music if it is paused
 					{
 						resumeGameplayMusic(gameplayMusicPosition);
 						isGameplayMusicPlaying = true;
+					}
+
+					for (i = 0; i < POWERUP_TYPES; i++) // check if a powerup was collected to play powerup sound
+					{
+						if (currentPowerUps[i] != game.activePowerUp[i])
+						{
+							currentPowerUps[i] = game.activePowerUp[i];
+
+							if (currentPowerUps[i] == 1)
+							{
+								playPowerUpSound();
+							}
+						}
 					}
 
 					if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
@@ -175,7 +189,7 @@ int main(void)
 					}
 
 					renderMenu(game);
-					
+
 					if (inputStatus.resumeKeyPressed)
 					{
 						// Resumes game
@@ -187,7 +201,7 @@ int main(void)
 					{
 						// Restarts game
 						currentPoints = 0;
-						currentLives = SHIP_LIVES;
+						currentLives = SHIP_INITIAL_LIVES;
 						gameReset(&game);
 					}
 					else if (inputStatus.exitKeyPressed)
@@ -205,7 +219,7 @@ int main(void)
 						isGameplayMusicPlaying = false;
 					}
 
-					if(isMothershipSoundPlaying)
+					if (isMothershipSoundPlaying)
 					{
 						stopMothershipSound();
 						isMothershipSoundPlaying = false;
@@ -220,8 +234,8 @@ int main(void)
 					if (inputStatus.restartKeyPressed)
 					{
 						currentPoints = 0;
-						currentLives = SHIP_LIVES;
-						gameReset(&game);						
+						currentLives = SHIP_INITIAL_LIVES;
+						gameReset(&game);
 						gameoverSoundPlayed = false;
 					}
 					else if (inputStatus.exitKeyPressed)
@@ -247,7 +261,7 @@ int main(void)
 					game.status = GAME_PAUSED;
 				else if (inputStatus.exitKeyPressed)
 					programRunning = false;
-				else if(game.status == GAME_MENU)
+				else if (game.status == GAME_MENU)
 					setUserName(&game, ev.keyboard.keycode);
 			}
 			else if (ev.type == ALLEGRO_EVENT_KEY_UP)

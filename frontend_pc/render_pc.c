@@ -60,7 +60,7 @@ static void loadImages(void);
  */
 static void renderBackgroundVideo();
 static void drawShip(ship_t ship);
-static void drawAliens(alienFormation_t alienFormation);
+static void drawAliens(alienFormation_t alienFormation, int activePowerUp[POWERUP_TYPES]);
 static void drawAliensLoading(alienFormation_t alienFormation, int aliensToDraw);
 static void drawMothership(mothership_t mothership);
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
@@ -71,6 +71,11 @@ static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[POW
  * @brief private function to draw aliens/mothership points in menu
  */
 static void drawAliensPoints();
+
+/**
+ * @brief private function to draw powerups functions in menu
+ */
+static void drawPowerUpsMenu();
 
 /**
  * @brief private function to draw HUD during gameplay
@@ -136,7 +141,6 @@ ALLEGRO_EVENT_QUEUE *getEventQueue(void)
 {
 	return eventQueue;
 }
-
 
 void initGraphics(void)
 {
@@ -296,11 +300,11 @@ void renderGame(game_t game)
 
 	if (game.status == GAME_LOADING)
 	{
-		if(game.loadingTimer == LOADING_TIME)
+		if (game.loadingTimer == LOADING_TIME)
 			al_set_timer_speed(timer, 1.0 / (FPS * 2));
-		else if(game.loadingTimer == 1)
+		else if (game.loadingTimer == 1)
 			al_set_timer_speed(timer, 1.0 / FPS);
-		
+
 		renderBackgroundVideo();
 		drawAliensLoading(game.aliens, LOADING_TIME - game.loadingTimer);
 	}
@@ -308,7 +312,7 @@ void renderGame(game_t game)
 	{
 		renderBackgroundVideo();
 		drawShip(game.ship);
-		drawAliens(game.aliens);
+		drawAliens(game.aliens, game.activePowerUp);
 		drawBullets(game.shipBullet, game.alienBullet);
 		drawBarriers(game.barriers);
 		drawPowerUps(game.powerUp, game.activePowerUp);
@@ -702,7 +706,7 @@ static void drawShip(ship_t ship)
 	}
 }
 
-static void drawAliens(alienFormation_t aliens)
+static void drawAliens(alienFormation_t aliens, int activePowerUp[POWERUP_TYPES])
 {
 	int i, j;
 
@@ -767,14 +771,6 @@ static void drawAliens(alienFormation_t aliens)
 						default:
 							break;
 						}
-
-						al_draw_scaled_bitmap(
-							bitmap,
-							0, 0,
-							al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap),
-							alienEntity.x, alienEntity.y,
-							ALIEN_WIDTH, ALIEN_HEIGHT,
-							0);
 					}
 					else
 					{
@@ -798,7 +794,21 @@ static void drawAliens(alienFormation_t aliens)
 						default:
 							break;
 						}
+					}
 
+					if (activePowerUp[FREEZE_POWERUP]) // if the aliens are frozen, draw them with a blue tinted
+					{
+						al_draw_tinted_scaled_bitmap(
+							bitmap,
+							al_map_rgba_f(0.0, 0.0, 1.0, 1.0), // blue tint with full opacity
+							0, 0,
+							al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap),
+							alienEntity.x, alienEntity.y,
+							ALIEN_WIDTH, ALIEN_HEIGHT,
+							0);
+					}
+					else
+					{
 						al_draw_scaled_bitmap(
 							bitmap,
 							0, 0,
@@ -815,43 +825,54 @@ static void drawAliens(alienFormation_t aliens)
 
 static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw)
 {
-    int i,j, drawn = 0;
+	int i, j, drawn = 0;
 
-    for (i = ALIENS_ROWS -1; i >= 0; i--)
-    {
-        for (j = 0; j < ALIENS_COLS; j++)
-        {
-            if (drawn >= aliensToDraw)
+	for (i = ALIENS_ROWS - 1; i >= 0; i--)
+	{
+		for (j = 0; j < ALIENS_COLS; j++)
+		{
+			if (drawn >= aliensToDraw)
 			{
 				aliensToDraw++;
 				return; // Termina cuando llega al límite
 			}
 
-            entity_t alienEntity = aliens.alien[i][j].entity;
-            unsigned char alienType = aliens.alien[i][j].alienType;
+			entity_t alienEntity = aliens.alien[i][j].entity;
+			unsigned char alienType = aliens.alien[i][j].alienType;
 
-            ALLEGRO_BITMAP *bitmap = NULL;
-            switch (alienType)
-            {
-            case 0: bitmap = alien0BitMap; break;
-            case 1: bitmap = alien1BitMap; break;
-            case 2: bitmap = alien2BitMap; break;
-            case 3: bitmap = alien3BitMap; break;
-            case 4: bitmap = alien4BitMap; break;
-            default: continue;
-            }
+			ALLEGRO_BITMAP *bitmap = NULL;
+			switch (alienType)
+			{
+			case 0:
+				bitmap = alien0BitMap;
+				break;
+			case 1:
+				bitmap = alien1BitMap;
+				break;
+			case 2:
+				bitmap = alien2BitMap;
+				break;
+			case 3:
+				bitmap = alien3BitMap;
+				break;
+			case 4:
+				bitmap = alien4BitMap;
+				break;
+			default:
+				continue;
+			}
 
-            al_draw_scaled_bitmap(
-                bitmap,
-                0, 0,
-                al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap),
-                alienEntity.x, alienEntity.y,
-                ALIEN_WIDTH, ALIEN_HEIGHT,
-                0);
+			al_draw_scaled_bitmap(
+				bitmap,
+				0, 0,
+				al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap),
+				alienEntity.x, alienEntity.y,
+				ALIEN_WIDTH, ALIEN_HEIGHT,
+				0);
 
-            drawn++;
-        }
-    }
+			drawn++;
+		}
+	}
 }
 
 static void drawMothership(mothership_t mothership)
@@ -967,17 +988,6 @@ static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES], int activePowerUp[PO
 				al_get_bitmap_height(powerUpBitmaps[powerUps[i].type]),
 				powerUps[i].entity.x, powerUps[i].entity.y,
 				POWERUP_WIDTH, POWERUP_HEIGHT,
-				0);
-		}
-		if (activePowerUp[i] == true)
-		{
-			al_draw_scaled_bitmap(
-				powerUpBitmaps[powerUps[i].type],
-				0, 0,
-				al_get_bitmap_width(powerUpBitmaps[powerUps[i].type]),
-				al_get_bitmap_height(powerUpBitmaps[powerUps[i].type]),
-				HUD_POWERUP_X + i * HUD_POWERUP_WIDTH * 2, HUD_POWERUP_Y,
-				HUD_POWERUP_WIDTH, HUD_POWERUP_HEIGHT,
 				0);
 		}
 	}

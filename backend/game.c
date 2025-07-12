@@ -205,7 +205,7 @@ void gameEnd(game_t *game)
 void gameReset(game_t *game)
 {
 	levelInit(game);
-	game->ship.livesLeft = SHIP_LIVES;
+	game->ship.livesLeft = SHIP_INITIAL_LIVES;
 	game->score = 0;
 	game->ship.entity.explosionTimer = 0;
 	game->aliens.canShoot = 0;
@@ -227,7 +227,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 	if (game->aliensRemaining == 0)
 	{
 		game->currentLevel++;
-		if (game->ship.livesLeft < SHIP_LIVES)
+		if (game->ship.livesLeft < SHIP_MAX_LIVES)
 			game->ship.livesLeft++;
 
 		levelInit(game);
@@ -251,7 +251,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		setBarriers(game->barriers);
 		game->activePowerUp[REBUILDBARRIERS_POWERUP] = false;
 	}
-	if(game->activePowerUp[ONEUP_POWERUP] && game->ship.livesLeft < SHIP_LIVES)
+	if(game->activePowerUp[ONEUP_POWERUP] && game->ship.livesLeft < SHIP_MAX_LIVES)
 	{
 		game->ship.livesLeft++;
 		game->activePowerUp[ONEUP_POWERUP] = false;
@@ -365,6 +365,7 @@ static void updateBullet(bullet_t *bullet, int tickCounter)
 static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemaining, int activePowerUp[POWERUP_TYPES])
 {
 	int firstColumn = -1, lastColumn = ALIENS_COLS - 1, i, j;
+	static int rowToMove;
 
 	for (i = 0; i < ALIENS_ROWS; i++)
 	{
@@ -393,7 +394,8 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 	}
 
 	// rowToMove is used to move the alien rows separately
-	static int rowToMove = ALIENS_ROWS;
+	if(gameTicks == 0) 
+		rowToMove = ALIENS_ROWS;
 
 	// aliens velocity adjust
 	float aliensFactor = (float)(ALIENS_NUMBER - aliensRemaining) / (ALIENS_NUMBER - 1); // 0 at start, 1 when 1 alien left
@@ -412,8 +414,6 @@ static void updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRema
 	if (gameTicks % moveInterval != 0 || activePowerUp[FREEZE_POWERUP])
 		return;
 	
-	printf("Alien move interval: %d\n", moveInterval);
-
 	if (rowToMove == 0)
 		rowToMove = ALIENS_ROWS - 1;
 	else

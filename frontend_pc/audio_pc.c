@@ -52,6 +52,7 @@ static void loadAudioAssets(void); // To load audio assets with saved files
 static ALLEGRO_SAMPLE *sndShoot = NULL;
 static ALLEGRO_SAMPLE *sndExplosion = NULL;
 static ALLEGRO_SAMPLE *sndMothership = NULL;
+static ALLEGRO_SAMPLE *sndPowerUp = NULL;
 static ALLEGRO_SAMPLE *sndGameOver = NULL;
 static ALLEGRO_SAMPLE *bgGameMusic = NULL;
 static ALLEGRO_SAMPLE *bgMenuMusic = NULL;
@@ -98,6 +99,12 @@ void playExplosionSound(void)
         al_play_sample(sndExplosion, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 }
 
+void playPowerUpSound(void)
+{
+    if (sndPowerUp)
+        al_play_sample(sndPowerUp, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+}
+
 void playShipDiedSound(void)
 {
     if (sndExplosion)
@@ -137,7 +144,6 @@ void resumeGameplayMusic(unsigned int position)
     // resumes gameplay music from the position it was paused
     al_set_sample_instance_position(gameMusicInstance, position);
     al_set_sample_instance_playing(gameMusicInstance, true);
-
 }
 
 void playGameplayMusic(void)
@@ -170,11 +176,15 @@ void cleanupAudio(void)
         al_destroy_sample(sndShoot);
         sndShoot = NULL;
     }
-
     if (sndExplosion)
     {
         al_destroy_sample(sndExplosion);
         sndExplosion = NULL;
+    }
+    if (sndPowerUp)
+    {
+        al_destroy_sample(sndPowerUp);
+        sndPowerUp = NULL;
     }
     if (sndMothership)
     {
@@ -220,6 +230,9 @@ static void loadAudioAssets(void)
     sndExplosion = al_load_sample("frontend_pc/assets/audio/explosion.wav");
     if (!sndExplosion)
         fprintf(stderr, "Error loading explosion.wav\n");
+    sndPowerUp = al_load_sample("frontend_pc/assets/audio/powerup.wav");
+    if (!sndExplosion)
+        fprintf(stderr, "Error loading powerup.wav\n");
     sndGameOver = al_load_sample("frontend_pc/assets/audio/gameover.wav");
     if (!sndGameOver)
         fprintf(stderr, "Error loading gameover.wav\n");

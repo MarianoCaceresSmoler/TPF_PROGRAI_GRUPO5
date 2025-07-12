@@ -59,6 +59,7 @@ void cleanupAudio(void);
 void playShootSound(void);
 void playExplosionSound(void);
 void playMothershipSound(void);
+void playPowerUpSound(void);
 void playShipDiedSound(void);
 void playGameoverSound(void);
 void playMenuMusic(void);

@@ -87,7 +87,7 @@ int main(void)
 	bool gameoverSoundPlayed = false;
 	bool isFirstTry = true;
 	int currentPoints = 0;
-	int currentLives = SHIP_LIVES;
+	int currentLives = SHIP_INITIAL_LIVES;
 
 	while (programRunning)
 	{
@@ -189,7 +189,7 @@ int main(void)
 			{
 				// Restarts game
 				currentPoints = 0;
-				currentLives = SHIP_LIVES;
+				currentLives = SHIP_INITIAL_LIVES;
 				gameReset(&game);
 				resetInputFlags(&inputStatus);
 			}
@@ -222,7 +222,7 @@ int main(void)
 			if (inputStatus.restartKeyPressed)
 			{
 				currentPoints = 0;
-				currentLives = SHIP_LIVES;
+				currentLives = SHIP_INITIAL_LIVES;
 
 				gameReset(&game);
 				resetInputFlags(&inputStatus);

@@ -66,7 +66,7 @@ static alien_t createAlien(int type);
 
 ship_t createShip()
 {
-	ship_t ship = {{STANDBY_POSITION, STANDBY_POSITION, SHIP_HEIGHT, SHIP_WIDTH, 1}, STILL, SHIP_LIVES, 1};
+	ship_t ship = {{STANDBY_POSITION, STANDBY_POSITION, SHIP_HEIGHT, SHIP_WIDTH, 1}, STILL, SHIP_INITIAL_LIVES, 1};
 	return ship;
 }
 

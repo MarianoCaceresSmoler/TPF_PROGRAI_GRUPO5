@@ -148,7 +148,8 @@
 
 #endif
 
-#define SHIP_LIVES 3
+#define SHIP_INITIAL_LIVES 3
+#define SHIP_MAX_LIVES 5
 #define INVENCIBILITY_TICKS 30
 #define STANDBY_POSITION 2000 // logical position for inactive entities
 
@@ -159,7 +160,7 @@
 
 #define MOTHERSHIP_CHANCE 20 // %
 #define MOTHERSHIP_TIMER 150
-#define POWERUP_CHANCE 15 // %
+#define POWERUP_CHANCE 100 // %
 
 #define MAX_SCORES 10
 
