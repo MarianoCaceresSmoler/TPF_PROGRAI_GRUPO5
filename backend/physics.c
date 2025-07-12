@@ -293,7 +293,7 @@ static void checkPowerUpHitsShip(game_t *game)
             {
                 game->powerUp[i].entity.isAlive = 0;
                 game->activePowerUp[i] = true;
-                game->powerUp[i].ticksLeft = POWERUP_DURATION;
+                game->powerUp[i].ticksLeft = (i == FREEZE_POWERUP? FREEZE_POWERUP_DURATION: POWERUP_USES);
             }
         }
     }

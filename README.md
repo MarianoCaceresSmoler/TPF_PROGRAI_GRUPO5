@@ -10,13 +10,13 @@ Back+Front:
 
 Backend:
 - Hacer logica powerups
-- Arreglar el trackeo de los aliens para disparar (se rompio cuando cambiamos el tamano)
 - Revisar formato, y prolijidad del codigo (constantes, macros, etc)
 - Validacion en funciones
 
 Frontend:
 - Arreglar error en pantalla de gameover cuando no se hace ningun punto
 - Mostrar datos del juego en gameplay (falta si hay algun powerup activo)
+- Agregar sonido de 1-UP (suena la explosion cuando agarras powerUp de 1-UP)
 
 Raspi:
 - Hacer menu de inicio y pausa, y pantalla gameover

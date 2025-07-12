@@ -35,10 +35,10 @@ movingDirections_t;
 
 typedef enum 
 {
-	FREEZE_POWERUP,
-	ALIENRETREAT_POWERUP,
-	ONEUP_POWERUP,
-	REBUILDBARRIERS_POWERUP
+	FREEZE_POWERUP,			// celeste
+	ALIENRETREAT_POWERUP,	// rojo
+	ONEUP_POWERUP,			// verde
+	REBUILDBARRIERS_POWERUP	// amarillo
 }
 powerUpTypes_t;
 
@@ -64,7 +64,6 @@ typedef struct
 typedef struct
 {
 	entity_t entity;
-	unsigned short int moveRate;
 	unsigned char alienType;
 	unsigned char isMoving;
 } alien_t;

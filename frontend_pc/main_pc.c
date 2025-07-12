@@ -129,11 +129,8 @@ int main(void)
 
 				case GAME_RUNNING:
 
-					if (currentPoints != game.score || currentLives != game.ship.livesLeft) // Updates points when score changes and plays explosion sound
+					if (currentPoints != game.score || currentLives > game.ship.livesLeft) // Updates points when score changes and plays explosion sound
 					{
-						printf("points saved: %d game points: %d \n", currentPoints, game.score);
-						printf("lives saved: %d ship lives: %d \n", currentLives, game.ship.livesLeft);
-
 						playExplosionSound();
 						currentPoints = game.score;
 						currentLives = game.ship.livesLeft;

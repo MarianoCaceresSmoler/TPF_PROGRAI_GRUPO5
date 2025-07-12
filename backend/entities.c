@@ -204,8 +204,8 @@ int getNearestColumnAlive(alienFormation_t aliens, short int shipX)
 
 	for (i = 0; i < ALIENS_COLS && nearestColumn == -1; i++)
 	{
-		if (aliens.alien[0][i].entity.x + ALIEN_X_SEPARATION >= shipX + SHIP_WIDTH / 2 &&
-			aliens.alien[0][i].entity.x <= shipX + SHIP_WIDTH / 2)
+		if (aliens.alien[0][i].entity.x + ALIEN_WIDTH + ALIEN_X_SEPARATION / 2 >= shipX + SHIP_WIDTH / 2 &&
+			aliens.alien[0][i].entity.x - ALIEN_X_SEPARATION / 2 <= shipX + SHIP_WIDTH / 2)
 		{
 			nearestColumn = i;
 		}
@@ -217,7 +217,7 @@ int getNearestColumnAlive(alienFormation_t aliens, short int shipX)
 int getNearestRowAlive(alienFormation_t aliens, int column)
 {
 	int row, nearestRow = -1;
-	for (row = ALIENS_ROWS - 1; row > 0 && nearestRow == -1; row--)
+	for (row = ALIENS_ROWS - 1; row >= 0 && nearestRow == -1; row--)
 	{
 		if (aliens.alien[row][column].entity.isAlive)
 		{
@@ -269,7 +269,7 @@ int getLastColumnAlive(alienFormation_t aliens)
 
 static alien_t createAlien(int type)
 {
-	alien_t alien = {{STANDBY_POSITION, STANDBY_POSITION, ALIEN_HEIGHT, ALIEN_WIDTH, 1}, ALIEN_MOVE_RATE, type, 0};
+	alien_t alien = {{STANDBY_POSITION, STANDBY_POSITION, ALIEN_HEIGHT, ALIEN_WIDTH, 1}, type, 0};
 	return alien;
 }
 
