@@ -102,11 +102,18 @@ int handleCollisions(game_t *game)
 static int checkEntitiesCollision(entity_t entityA, entity_t entityB)
 {
     // Check if the entities are colliding
+    /*int wA = entityA.width <= 1? 0: entityA.width;
+    int wB = entityB.width <= 1? 0: entityB.width;*/
+    int hA = entityA.height <= 1? 0: entityA.height;
+    int hB = entityB.height <= 1? 0: entityB.height;
+
+
     return (
         entityA.x < entityB.x + entityB.width &&
         entityA.x + entityA.width > entityB.x &&
-        entityA.y < entityB.y + entityB.height &&
-        entityA.y + entityA.height > entityB.y);
+        entityA.y <= entityB.y + hB &&
+        entityA.y + hA >= entityB.y);
+
 }
 
 static int checkBulletHitsAliens(game_t *game)
@@ -218,7 +225,7 @@ static void checkBulletHitsBullet(game_t *game)
 {
     if (game->shipBullet.entity.isAlive && game->alienBullet.entity.isAlive) // check collision only if the entitys are alive
     {
-        if (checkEntitiesCollision(game->shipBullet.entity, game->alienBullet.entity))
+        if (checkEntitiesCollision(game->shipBullet.entity, game->alienBullet.entity) || (game->shipBullet.entity.x == game->alienBullet.entity.x && game->shipBullet.entity.y + BULLET_HEIGHT == game->alienBullet.entity.y))
         {
             // if collision detected, kill the bullets
             game->shipBullet.entity.isAlive = 0;

@@ -496,7 +496,7 @@ static void updateMothership(mothership_t *mothership, int tickCounter)
 	if (mothership->entity.explosionTimer > 0)
 		updateEntityExplosion(&mothership->entity);
 	else if (mothership->entity.isAlive && mothership->entity.x >= MOTHERSHIP_LEFT_INITIAL_X && mothership->entity.x <= MOTHERSHIP_RIGHT_INITIAL_X)
-		moveEntityX(&mothership->entity, mothership->direction * MOTHERSHIP_MOVE_RATE);
+		moveEntityX(&mothership->entity, mothership->direction * MOTHERSHIP_MOVE_RATE / 2);
 	else
 		mothership->entity.isAlive = false;
 }

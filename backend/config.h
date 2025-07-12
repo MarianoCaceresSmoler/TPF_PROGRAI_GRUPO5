@@ -15,6 +15,43 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
+#define SHIP_INITIAL_LIVES 3 // Initial number of lives for the player
+#define SHIP_MAX_LIVES 5 // Maximum number of lives for the player
+#define INVENCIBILITY_TICKS 30 // Ticks of invencibility after dying
+#define STANDBY_POSITION 2000 // Logical position for inactive entities
+
+#define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS) // Total number of aliens
+#define TIME_SPEED_WEIGHT 0.4
+#define ALIEN_COUNT_SPEED_WEIGHT (1 - TIME_SPEED_WEIGHT)
+
+#define MOTHERSHIP_CHANCE 20 // % of mothership chance
+#define MOTHERSHIP_TIMER 150 // Interval between every mothership appareance chance
+#define POWERUP_CHANCE 10 // % of power up chanche everytime an enemy dies
+
+#define MAX_SCORES 10 // Number of scores displayed on screen
+
+#define MAX_NAME_CHARS 3 // Number of characters to save as nametag
+
+#define MIN_MOTHERSHIP_POINTS 100 // Minimum amount of points the mothership can give
+#define MAX_MOTHERSHIP_POINTS 250 // Maximum amount of points the mothership can give
+#define ALIEN_TYPE_0_POINTS 50 // Points given by a type 0 alien
+#define ALIEN_TYPE_1_POINTS 40 // Points given by a type 1 alien
+#define ALIEN_TYPE_2_POINTS 30 // Points given by a type 2 alien
+#define ALIEN_TYPE_3_POINTS 20 // Points given by a type 3 alien
+#define ALIEN_TYPE_4_POINTS 10 // Points given by a type 4 alien
+
+#define EXPLOSION_TIMER 6 // Ticks of duration of the explosion
+#define MOTHERSHIP_EXPLOSION_TIMER 30 // Ticks of duration of the mothership explosion
+#define TOTAL_INPUTS 8 // Total number of inputs
+
+#define LOADING_TIME (ALIENS_NUMBER) // Time to load aliens on display
+
+#define FPS 30 // Frames per second 
+
+////////////////////////////////////////////////////////////////////////////////////////
+/////////// SPECIFIC PARAMETERS FOR DIFFERENT PLATFORMS ////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
 #ifdef PLATFORM_RPI
 
 #define SCREEN_WIDTH 16
@@ -34,7 +71,7 @@
 #define ALIEN_WIDTH 2
 #define ALIEN_HEIGHT 1
 #define BULLET_WIDTH 1
-#define BULLET_HEIGHT 2
+#define BULLET_HEIGHT 1
 #define POWERUP_WIDTH 2
 #define POWERUP_HEIGHT 2
 #define BARRIER_PIXEL_WIDTH 1
@@ -69,7 +106,7 @@
 #define MOTHERSHIP_MOVE_RATE 1
 #define BULLET_MOVE_RATE 1
 #define BULLET_MOVE_INTERVAL 10
-#define MOTHERSHIP_MOVE_INTERVAL 25
+#define MOTHERSHIP_MOVE_INTERVAL 14
 #define SHIP_MOVE_INTERVAL 2
 #define SHIP_MOVE_RATE 1
 #define POWERUP_MOVE_RATE 1
@@ -82,7 +119,9 @@
 #define POWERUP_TYPES 4
 #define POWERUP_USES 1
 #define ONE_SECOND 30 // ticks
-#define FREEZE_POWERUP_DURATION (ONE_SECOND * 8)
+#define FREEZE_POWERUP_DURATION (ONE_SECOND * 4)
+#define ALIENS_SHOOT_INTERVAL ONE_SECOND
+
 
 #define SCORE_FILE "backend/Files/HiScores_RPI"
 #define MAX_SCORE 99999
@@ -136,14 +175,14 @@
 #define SCORE_INITIAL_Y (SCREEN_HEIGHT/5)
 #define POWERUP_INITIAL_Y MOTHERSHIP_INITIAL_Y
 
-#define ALIEN_X_MOVE_RATE 16
+#define ALIEN_X_MOVE_RATE 22
 #define ALIEN_Y_MOVE_RATE 46
 #define ALIEN_MAX_MOVE_INTERVAL 12
 #define ALIEN_MIN_MOVE_INTERVAL 1
-#define MOTHERSHIP_MOVE_RATE 4
+#define MOTHERSHIP_MOVE_RATE 8
 #define BULLET_MOVE_RATE 15
 #define SHIP_MOVE_RATE 10
-#define POWERUP_MOVE_RATE 6
+#define POWERUP_MOVE_RATE 5
 
 #define SHIP_LEFT_X_BORDER (SHIP_MOVE_RATE)
 #define SHIP_RIGHT_X_BORDER (SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
@@ -153,47 +192,13 @@
 #define POWERUP_TYPES 4
 #define POWERUP_USES 1
 #define ONE_SECOND 30 // ticks
-#define FREEZE_POWERUP_DURATION (ONE_SECOND * 8)
+#define FREEZE_POWERUP_DURATION (ONE_SECOND * 6)
+#define ALIENS_SHOOT_INTERVAL (ONE_SECOND / 2)
 
-#define SCORE_FILE "backend/Files/HiScores_PC"
-#define MAX_SCORE 99999
+#define SCORE_FILE "backend/Files/HiScores_PC" // Path to the score file
+#define MAX_SCORE 99999 // Maximum score that can be saved
 
 #endif
-
-#define SHIP_INITIAL_LIVES 3
-#define SHIP_MAX_LIVES 5
-#define INVENCIBILITY_TICKS 30
-#define STANDBY_POSITION 2000 // logical position for inactive entities
-
-#define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS)
-#define ALIENS_SHOOT_RATE 5
-#define TIME_SPEED_WEIGHT 0.4
-#define ALIEN_COUNT_SPEED_WEIGHT (1 - TIME_SPEED_WEIGHT)
-#define ALIENS_SHOOT_INTERVAL 15
-
-#define MOTHERSHIP_CHANCE 20 // %
-#define MOTHERSHIP_TIMER 150
-#define POWERUP_CHANCE 10 // %
-
-#define MAX_SCORES 10
-
-#define MAX_NAME_CHARS 3
-
-#define MIN_MOTHERSHIP_POINTS 100
-#define MAX_MOTHERSHIP_POINTS 250
-#define ALIEN_TYPE_0_POINTS 50
-#define ALIEN_TYPE_1_POINTS 40
-#define ALIEN_TYPE_2_POINTS 30
-#define ALIEN_TYPE_3_POINTS 20
-#define ALIEN_TYPE_4_POINTS 10
-
-#define EXPLOSION_TIMER 6
-#define MOTHERSHIP_EXPLOSION_TIMER 30
-#define TOTAL_INPUTS 8
-
-#define LOADING_TIME (ALIENS_NUMBER)
-
-#define FPS 30
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
