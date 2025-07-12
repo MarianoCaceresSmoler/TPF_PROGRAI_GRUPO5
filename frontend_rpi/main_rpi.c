@@ -204,6 +204,7 @@ int main(void)
 			else if (inputStatus.exitKeyPressed)
 			{
 				programRunning = false;
+				game.status = GAME_END;
 				resetInputFlags(&inputStatus);
 			}
 

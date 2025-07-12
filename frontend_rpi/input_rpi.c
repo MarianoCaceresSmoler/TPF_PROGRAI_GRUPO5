@@ -54,7 +54,6 @@ static unsigned int getCurrentTimeMs(void); // to get current time in ms
 
 // +ej: static const int temperaturas_medias[4] = {23, 26, 24, 29};+
 
-static inputStatus_t *globalInputStatus = NULL;
 static pthread_t inputThread;
 static bool stopInputThread = false;
 
@@ -72,11 +71,8 @@ static bool stopInputThread = false;
 
 void initInput(inputStatus_t *inputStatus)
 {
-    globalInputStatus = inputStatus; // to be used in the input thread
-
     joy_init(); // inits hardware
-
-    pthread_create(&inputThread, NULL, updateInput, NULL); // creates thread for inputs
+    pthread_create(&inputThread, NULL, updateInput, inputStatus); // creates thread for inputs
 }
 
 void cleanupInput()
@@ -102,8 +98,10 @@ void resetInputFlags(inputStatus_t *inputStatus)
  *******************************************************************************
  ******************************************************************************/
 
-static void *updateInput(void *arg)
+static void *updateInput(void *inputStatus)
 {
+    inputStatus_t *status = (inputStatus_t *)inputStatus;
+
     bool shootButtonPressed = false, gameStarted = false, gameRunning = false;
     unsigned int shootPressTime = 0, pressDuration;
 
@@ -115,13 +113,11 @@ static void *updateInput(void *arg)
         if (joy.x < -JOY_THRESHOLD)
         {
 
-            globalInputStatus->leftKeyPressed = true;
-            printf("movement left\n");
+            status->leftKeyPressed = true;
         }
         else if (joy.x > JOY_THRESHOLD)
         {
-            globalInputStatus->rightKeyPressed = true;
-            printf("movement right\n");
+            status->rightKeyPressed = true;
         }
 
         // process button
@@ -133,14 +129,12 @@ static void *updateInput(void *arg)
             if (joy.y < -JOY_THRESHOLD)
             {
                 // Combination: down + button → exit
-                globalInputStatus->exitKeyPressed = true;
-                printf("exit pressed\n");
+                status->exitKeyPressed = true;
             }
             else if (joy.y > JOY_THRESHOLD)
             {
                 // Combinación: up + button → restart
-                globalInputStatus->restartKeyPressed = true;
-                printf("restart pressed\n");
+                status->restartKeyPressed = true;
             }
         }
         else if (joy.sw == J_NOPRESS && shootButtonPressed)
@@ -151,36 +145,32 @@ static void *updateInput(void *arg)
             if (pressDuration < LONG_PRESS_MS)
             {
                 // short duration press: shoot
-                globalInputStatus->shootKeyPressed = true;
-                printf("shoot pressed\n");
+                status->shootKeyPressed = true;
             }
             else
             {
                 if (!gameStarted)
                 {
                     // To start the game
-                    globalInputStatus->resumeKeyPressed = true;
-                    globalInputStatus->pauseKeyPressed = false;
+                    status->resumeKeyPressed = true;
+                    status->pauseKeyPressed = false;
                     gameStarted = true;
                     gameRunning = true;
-                    printf("resume pressed\n");
                 }
                 else
                 {
                     // pauses or resumes the game
                     if (!gameRunning)
                     {
-                        globalInputStatus->resumeKeyPressed = true;
-                        globalInputStatus->pauseKeyPressed = false;
+                        status->resumeKeyPressed = true;
+                        status->pauseKeyPressed = false;
                         gameRunning = true;
-                        printf("resume pressed\n");
                     }
                     else
                     {
-                        globalInputStatus->pauseKeyPressed = true;
-                        globalInputStatus->resumeKeyPressed = false;
+                        status->pauseKeyPressed = true;
+                        status->resumeKeyPressed = false;
                         gameRunning = false;
-                        printf("pause pressed\n");
                     }
                 }
             }
