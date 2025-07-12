@@ -64,9 +64,9 @@ void playGameoverSound(void);
 void playMenuMusic(void);
 void playGameplayMusic(void);
 void stopMenuMusic(void);
-void stopGameplayMusic(void);
+unsigned int stopGameplayMusic(void);
 void stopMothershipSound(void);
-void resumeGameplayMusic(void);
+void resumeGameplayMusic(unsigned int position);
 
 /*******************************************************************************
  ******************************************************************************/
