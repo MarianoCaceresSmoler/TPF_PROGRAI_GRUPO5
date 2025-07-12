@@ -28,6 +28,8 @@
  ******************************************************************************/
 
 #define CHECK_IS_IN_DISPLAY(x, y) (((x) >= 0) && ((x) < DISP_CANT_X_DOTS) && ((y) > 0) && ((y) < DISP_CANT_Y_DOTS))
+#define ANIMATION_DURATION (ONE_SECOND * 4)
+#define ANIMATION_FRAME_DURATION (ANIMATION_DURATION / 6)
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -62,6 +64,14 @@ static void renderGameOver(void);
  * @param height height of the object
  */
 static void drawObject(int x, int y, int width, int height);
+
+static void drawStartMenu();
+static void drawPauseMenu();
+static void drawStartAnimation(int animationTicks);
+static void drawFrame1();
+static void drawFrame2();
+static void drawFrame3();
+static void drawFrame4();
 
 /**
  * @brief private functions to draw the differents elements in display
@@ -459,8 +469,22 @@ static void renderGame(void)
 static void renderMenu(void)
 {
     // HACER
-    dcoord_t coord = {.x = 0, .y = 0};
-    disp_write(coord, D_ON);
+    if (globalGameStatus->status == GAME_MENU)
+    {
+        static int animationTicks = ANIMATION_DURATION;
+        if (animationTicks > 0) 
+        {
+            drawStartAnimation(animationTicks);
+            animationTicks--;
+        }
+        else
+            drawStartMenu();
+
+    }
+    else if (globalGameStatus->status == GAME_PAUSED)
+    {
+        drawPauseMenu();
+    }
 }
 
 static void renderGameOver(void)
@@ -500,6 +524,161 @@ static void drawObject(int x, int y, int width, int height)
             disp_write(coord, D_ON);
         }
     }
+}
+
+static void drawStartAnimation(int animationTicks)
+{
+    if (animationTicks == 0)
+        return;
+
+    int frames = animationTicks % ONE_SECOND;
+
+    if (frames < ONE_SECOND / 4)
+        drawFrame1();
+    else if (frames < ONE_SECOND / 2)
+        drawFrame2();
+    else if (frames < ONE_SECOND * 3 / 4)
+        drawFrame3();
+    else 
+        drawFrame4();
+}
+
+static void drawFrame1()
+{
+    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] ={
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0},
+        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0}, 
+        {0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0},
+        {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    };
+    int i, j;
+
+    for (i = 0; i < SCREEN_HEIGHT; i++)
+    {
+        for (j = 0; j < SCREEN_WIDTH; j ++)
+        {
+            dcoord_t coord = {.x = j, .y = i};
+            disp_write(coord, matrix[i][j]? D_ON: D_OFF);
+        }
+    }
+}
+
+static void drawFrame2()
+{
+    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] ={
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0},
+        {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0}, 
+        {0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0},
+        {0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    int i, j;
+
+    for (i = 0; i < SCREEN_HEIGHT; i++)
+    {
+        for (j = 0; j < SCREEN_WIDTH; j ++)
+        {
+            dcoord_t coord = {.x = j, .y = i};
+            disp_write(coord, matrix[i][j]? D_ON: D_OFF);
+        }
+    }
+}
+
+static void drawFrame3()
+{
+    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] ={
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+        {0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0},
+        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0}, 
+        {0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0},
+        {0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0},
+        {0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    int i, j;
+
+    for (i = 0; i < SCREEN_HEIGHT; i++)
+    {
+        for (j = 0; j < SCREEN_WIDTH; j ++)
+        {
+            dcoord_t coord = {.x = j, .y = i};
+            disp_write(coord, matrix[i][j]? D_ON: D_OFF);
+        }
+    }
+}
+
+static void drawFrame4()
+{
+    char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] ={
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+        {0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0},
+        {0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0}, 
+        {0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0},
+        {0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0},
+        {0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    };
+    int i, j;
+
+    for (i = 0; i < SCREEN_HEIGHT; i++)
+    {
+        for (j = 0; j < SCREEN_WIDTH; j ++)
+        {
+            dcoord_t coord = {.x = j, .y = i};
+            disp_write(coord, matrix[i][j]? D_ON: D_OFF);
+        }
+    }
+}
+
+static void drawStartMenu()
+{
+
+}
+
+static void drawPauseMenu()
+{
+
 }
 
 static void drawShip(ship_t ship)
