@@ -83,7 +83,7 @@ int main(void)
 
 	// For audio management
 	bool isGameplayMusicPlaying = false;
-	bool isMothershipSoundPlaying = false;
+	bool isMotherShipPlaying = false;
 	bool gameoverSoundPlayed = false;
 	bool isFirstTry = true;
 	int currentPoints = 0;
@@ -132,7 +132,7 @@ int main(void)
 
 		case GAME_RUNNING:
 
-			if (!isGameplayMusicPlaying)  // resumes game music if it is paused
+			if (!isGameplayMusicPlaying) // resumes game music if it is paused
 			{
 				resumeMusic();
 				isGameplayMusicPlaying = true;
@@ -161,15 +161,15 @@ int main(void)
 			if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
 				playShootSound();
 
-			if (game.mothership.entity.isAlive && !isMothershipSoundPlaying) // Plays mothership sound when it appears on display
+			if (game.mothership.entity.isAlive && !isMotherShipPlaying) // Plays mothership sound when it is on display
 			{
 				playMothershipSound();
-				isMothershipSoundPlaying = true;
+				isMotherShipPlaying = true;
 			}
-			else if(!game.mothership.entity.isAlive && isMothershipSoundPlaying)
+			else if (!game.mothership.entity.isAlive && isMotherShipPlaying)
 			{
-				isMothershipSoundPlaying = false;
-			}			
+				isMotherShipPlaying = false;
+			}
 
 			if (inputStatus.pauseKeyPressed)
 			{
@@ -254,14 +254,14 @@ int main(void)
 		}
 
 		// Delay to keep the FPS
-		usleep(FRAME_TIME_US); // convert to us to delay
+		usleep(FRAME_TIME_US);
 	}
 
 	// Cleanup when program ends
 	cleanupGraphics();
 	cleanupAudio();
 	cleanupInput();
-	printf("\nProgram finished successfully.\n\n");
+	printf("\nProgram finished.\n\n");
 
 	return 0;
 }

@@ -279,6 +279,6 @@ int main(void)
 	// Cleanup allegro when program ends
 	cleanupGraphics();
 	cleanupAudio();
-	printf("\nProgram finished successfully.\n\n");
+	printf("\nProgram finished.\n\n");
 	return 0;
 }

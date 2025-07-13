@@ -79,7 +79,7 @@ void initializeAudio(void)
 	// Create sound audios
 	explosion = createAudio(EXPLOSION, 0, SDL_MIX_MAXVOLUME / 2);
 	powerUp = createAudio(POWER_UP, 0, SDL_MIX_MAXVOLUME / 2);
-	mothership = createAudio(MOTHERSHIP, 0, SDL_MIX_MAXVOLUME / 2);
+	mothership = createAudio(MOTHERSHIP, 0, SDL_MIX_MAXVOLUME);
 	shoot = createAudio(SHOOT, 0, SDL_MIX_MAXVOLUME / 2);
 	gameOver = createAudio(GAME_OVER, 0, SDL_MIX_MAXVOLUME / 2);
 
