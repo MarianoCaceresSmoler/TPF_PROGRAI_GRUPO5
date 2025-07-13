@@ -14,6 +14,8 @@
 #include <SDL2/SDL.h>
 
 #include "audio.h"
+#include "audio_rpi.h"
+
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE

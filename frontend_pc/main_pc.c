@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <allegro5/allegro.h>
+
 #include "../backend/game.h"
 #include "../backend/config.h"
 #include "render_pc.h"

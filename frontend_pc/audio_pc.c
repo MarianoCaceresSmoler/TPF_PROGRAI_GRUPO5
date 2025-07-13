@@ -15,6 +15,8 @@
 #include <allegro5/allegro_acodec.h>
 #include <stdio.h>
 
+#include "audio_pc.h"
+
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/

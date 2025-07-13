@@ -13,7 +13,7 @@
 #include <allegro5/allegro.h>
 #include "../backend/game.h"
 #include "../backend/config.h"
-#include "render_pc.h"
+
 #include "input_pc.h"
 
 /*******************************************************************************
@@ -102,7 +102,6 @@ void setInput(inputStatus_t *inputStatus, int keycode)
         inputStatus->exitKeyPressed = true;
         break;
     default:
-        // anyKeyPressed = true; // Set flag to indicate any key was pressed
         break;
     }
 }
@@ -133,7 +132,6 @@ void clearInput(inputStatus_t *inputStatus, int keycode)
         inputStatus->exitKeyPressed = false;
         break;
     default:
-        // anyKeyPressed = true; // Set flag to indicate any key was pressed
         break;
     }
 }

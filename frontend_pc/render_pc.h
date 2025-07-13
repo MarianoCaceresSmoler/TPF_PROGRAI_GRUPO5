@@ -12,6 +12,7 @@
  ******************************************************************************/
 
 #include <allegro5/allegro.h>
+
 #include "../backend/entities.h"
 #include "../backend/game.h"
 
@@ -56,7 +57,6 @@ ALLEGRO_EVENT_QUEUE *getEventQueue(void);
 void renderGame(game_t game);
 void renderMenu(game_t game);
 void renderGameOver(game_t game);
-
 
 /*******************************************************************************
  ******************************************************************************/

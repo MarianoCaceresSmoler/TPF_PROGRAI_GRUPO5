@@ -10,9 +10,6 @@
  ******************************************************************************/
 // +Incluir el header propio (ej: #include "template.h")+
 
-#include "../backend/config.h"
-#include "../backend/entities.h"
-#include "render_pc.h"
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -20,6 +17,10 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_video.h>
+
+#include "../backend/config.h"
+#include "../backend/entities.h"
+#include "render_pc.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -795,7 +796,7 @@ static void drawAliens(alienFormation_t aliens, int activePowerUp[POWERUP_TYPES]
 					{
 						al_draw_tinted_scaled_bitmap(
 							bitmap,
-							al_map_rgba_f(0.0, 0.0, 1.0, 1.0), // blue tint with full opacity
+							al_map_rgba_f(0.5, 0.5, 0.0, 1.0), // blue tint with full opacity
 							0, 0,
 							al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap),
 							alienEntity.x, alienEntity.y,

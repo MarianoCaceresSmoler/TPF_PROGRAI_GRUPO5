@@ -17,9 +17,9 @@
 #include <SDL2/SDL.h> // to use delays
 #include <time.h>
 
-#include "joydrv.h"
 #include "../backend/config.h"
 #include "../backend/game.h"
+#include "joydrv.h"
 #include "input_rpi.h"
 
 /*******************************************************************************
