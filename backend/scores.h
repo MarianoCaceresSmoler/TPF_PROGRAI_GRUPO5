@@ -21,7 +21,7 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
-typedef struct 
+typedef struct // Structure to store the scores with their respective nametags
 {
 	char tag[MAX_NAME_CHARS + 1];
 	unsigned int score;
@@ -40,8 +40,8 @@ typedef struct
 
 /**
  * @brief updates score file with the new score
- * @param lastScore the score to update
- * @return the rank of the score in the top scores list, 0 if score is not in top 10
+ * @param lastScore the score to list
+ * @return the rank of the score in the top scores list, 0 if score is not in top 10, -1 if there was an error
  */
 int updateScoreRank(score_t lastScore);
 
@@ -56,7 +56,7 @@ int getHighScores(score_t scores[MAX_SCORES]);
 /**
  * @brief function to get the amount of points given by the type of alien killed
  * @param alien is the alien killed
- * @return int with the score the alien gives
+ * @return int with the score the alien gives, 0 if the alien is not in the list
  */
 int getAlienPoints(alien_t alien);
 

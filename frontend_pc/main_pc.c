@@ -67,10 +67,11 @@
 int main(void)
 {
 	// Allegro and game initialization
-	initAudio();
-	initGraphics();
 	game_t game;
 	gameInit(&game);
+
+	initAudio();
+	initGraphics();
 
 	// Allegro variables to manage the game loop and the inputs
 	bool programRunning = true;

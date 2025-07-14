@@ -14,8 +14,6 @@
 #include "config.h"
 #include "entities.h"
 #include "scores.h"
-#include <stdbool.h>
-
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -25,6 +23,7 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
+// Enum to clasify user inputs
 typedef enum
 {
     INPUT_NONE,
@@ -38,6 +37,7 @@ typedef enum
     INPUT_ANY
 } input_t;
 
+// Struct to hold user inputs
 typedef struct 
 {
     char leftKeyPressed        : 1;
@@ -50,6 +50,7 @@ typedef struct
     char exitKeyPressed        : 1;
 } inputStatus_t;
 
+// Enum to clasify game states
 typedef enum
 {
 	GAME_ERROR = -1,
@@ -60,6 +61,7 @@ typedef enum
     GAME_END
 } gameStatus_t;
 
+// General struct to control game information
 typedef struct 
 {
 	// game entities
@@ -72,7 +74,7 @@ typedef struct
     powerUp_t powerUp[POWERUP_TYPES];
     score_t highScores[MAX_SCORES];
 
-    // game variables and info
+    // game variables and state
     gameStatus_t status;
     char nameTag[MAX_NAME_CHARS + 1];
     int loadingTimer;
@@ -111,6 +113,7 @@ void gameInit(game_t *game);
 /**
  * @brief function to set the entities before a level starts
  * @param game pointer to the game information
+
  */
 void levelInit(game_t *game);
 

@@ -18,9 +18,9 @@
 #define SHIP_INITIAL_LIVES 3 // Initial number of lives for the player
 #define SHIP_MAX_LIVES 5 // Maximum number of lives for the player
 #define INVENCIBILITY_TICKS 30 // Ticks of invencibility after dying
+
 #define STANDBY_POSITION 2000 // Logical position for inactive entities
 
-#define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS) // Total number of aliens
 #define TIME_SPEED_WEIGHT 0.4
 #define ALIEN_COUNT_SPEED_WEIGHT (1 - TIME_SPEED_WEIGHT)
 
@@ -29,6 +29,7 @@
 #define POWERUP_CHANCE 15 // % of power up chanche everytime an enemy dies
 
 #define MAX_SCORES 10 // Number of scores displayed on screen
+#define MAX_SCORE 99999 // Maximum score that can be saved
 
 #define MAX_NAME_CHARS 3 // Number of characters to save as nametag
 
@@ -46,7 +47,7 @@
 
 #define LOADING_TIME (ALIENS_NUMBER) // Time to load aliens on display
 
-#define FPS 30 // Frames per second 
+#define FPS 30 // Frames per second to render
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /////////// SPECIFIC PARAMETERS FOR DIFFERENT PLATFORMS ////////////////////////////////
@@ -54,14 +55,17 @@
 
 #ifdef PLATFORM_RPI
 
+// Display dimensions
 #define SCREEN_WIDTH 16
 #define SCREEN_HEIGHT 16
-
 #define SCREEN_SIZE SCREEN_WIDTH
 
+// Total number of aliens
 #define ALIENS_ROWS 4
 #define ALIENS_COLS 4
+#define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS)
 
+// Objects dimensions
 #define SHIP_WIDTH 3
 #define SHIP_HEIGHT 1
 #define MOTHERSHIP_WIDTH 3
@@ -78,11 +82,10 @@
 #define BARRIER_PIXEL_HEIGHT 1
 #define BARRIER_WIDTH 4
 #define BARRIER_HEIGHT 3
-#define BARRIERS 3
 
-#define TITLE_WIDTH 8
-#define TITLE_HEIGHT 2
+#define BARRIERS 3 // Total number of barriers
 
+// Positions configurations for all entities
 #define SHIP_INITIAL_X 1
 #define SHIP_INITIAL_Y 15
 #define MOTHERSHIP_LEFT_INITIAL_X (0 - MOTHERSHIP_WIDTH)
@@ -90,8 +93,8 @@
 #define MOTHERSHIP_INITIAL_Y 0
 #define ALIENS_INITIAL_X 1
 #define ALIENS_INITIAL_Y 2
-#define ALIEN_X_SEPARATION 3 //REVISAR CUANDO VEAMOS FRONT DE LA RPI
-#define ALIEN_Y_SEPARATION 2 //REVISAR CUANDO VEAMOS FRONT DE LA RPI
+#define ALIEN_X_SEPARATION 3 
+#define ALIEN_Y_SEPARATION 2 
 #define BARRIERS_INITIAL_X 1
 #define BARRIERS_INITIAL_Y 11
 #define BARRIERS_SEPARATION 5
@@ -99,6 +102,7 @@
 #define SCORE_INITIAL_Y 0
 #define POWERUP_INITIAL_Y MOTHERSHIP_INITIAL_Y
 
+// Move rates and move intervals
 #define ALIEN_X_MOVE_RATE 1
 #define ALIEN_Y_MOVE_RATE 1
 #define ALIEN_MAX_MOVE_INTERVAL 30
@@ -112,31 +116,37 @@
 #define POWERUP_MOVE_RATE 1
 #define POWERUP_MOVE_INTERVAL 15
 
+// Borders configurations
 #define SHIP_LEFT_X_BORDER (0)
 #define SHIP_RIGHT_X_BORDER (SCREEN_SIZE - SHIP_WIDTH)
 #define ALIENS_X_LEFT_BORDER (0)
 #define ALIENS_X_RIGHT_BORDER (SCREEN_SIZE - ALIEN_WIDTH)
 
+// PowerUps configurations
 #define POWERUP_TYPES 4
 #define POWERUP_USES 1
 #define ONE_SECOND 30 // ticks
 #define FREEZE_POWERUP_DURATION (ONE_SECOND * 4)
+
+// For space between bullets
 #define ALIENS_SHOOT_INTERVAL ONE_SECOND
 
-
+// File for highscores
 #define SCORE_FILE "backend/Files/HiScores_RPI"
-#define MAX_SCORE 99999
 
-#else // platform pc
+#else // PLATFORM PC
 
+// Display dimensions
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
-
 #define SCREEN_SIZE SCREEN_WIDTH
 
+// Total number of aliens
 #define ALIENS_ROWS 5
 #define ALIENS_COLS 11
+#define ALIENS_NUMBER (ALIENS_COLS * ALIENS_ROWS)
 
+// Objects dimensions
 #define SHIP_WIDTH 108
 #define SHIP_HEIGHT 72
 #define MOTHERSHIP_WIDTH 120
@@ -156,10 +166,10 @@
 #define BARRIERS 6
 #define FONT_TEXT_SIZE 42
 #define FONT_GAME_SIZE 36
-
 #define TITLE_WIDTH 800
 #define TITLE_HEIGHT 200
 
+// Positions configurations for all entities
 #define SHIP_INITIAL_X (SCREEN_WIDTH / 9)
 #define SHIP_INITIAL_Y (SCREEN_HEIGHT - SHIP_HEIGHT * 2 - FONT_GAME_SIZE * 3 / 2)
 #define MOTHERSHIP_LEFT_INITIAL_X (0 - MOTHERSHIP_WIDTH)
@@ -176,6 +186,7 @@
 #define SCORE_INITIAL_Y (SCREEN_HEIGHT/5)
 #define POWERUP_INITIAL_Y MOTHERSHIP_INITIAL_Y
 
+// Move rates and move intervals
 #define ALIEN_X_MOVE_RATE 22
 #define ALIEN_Y_MOVE_RATE 46
 #define ALIEN_MAX_MOVE_INTERVAL 12
@@ -185,19 +196,23 @@
 #define SHIP_MOVE_RATE 10
 #define POWERUP_MOVE_RATE 5
 
+// Borders configurations
 #define SHIP_LEFT_X_BORDER (SHIP_MOVE_RATE)
 #define SHIP_RIGHT_X_BORDER (SCREEN_SIZE - SHIP_WIDTH - SHIP_MOVE_RATE)
 #define ALIENS_X_LEFT_BORDER (ALIEN_X_MOVE_RATE)
 #define ALIENS_X_RIGHT_BORDER (SCREEN_SIZE - ALIEN_WIDTH - ALIEN_X_MOVE_RATE)
 
+// PowerUps configurations
 #define POWERUP_TYPES 4
 #define POWERUP_USES 1
 #define ONE_SECOND 30 // ticks
 #define FREEZE_POWERUP_DURATION (ONE_SECOND * 6)
+
+// For space between bullets
 #define ALIENS_SHOOT_INTERVAL (ONE_SECOND / 2)
 
+// File for highscores
 #define SCORE_FILE "backend/Files/HiScores_PC" // Path to the score file
-#define MAX_SCORE 99999 // Maximum score that can be saved
 
 #endif
 

@@ -23,6 +23,7 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
+// Enum for directions of movement
 typedef enum
 {
 	MOVING_LEFT = -2, 
@@ -33,75 +34,85 @@ typedef enum
 } 
 movingDirections_t;
 
+// Enum for powerup types
 typedef enum 
 {
-	FREEZE_POWERUP,			// celeste
-	ALIENRETREAT_POWERUP,	// rojo
-	ONEUP_POWERUP,			// verde
-	REBUILDBARRIERS_POWERUP	// amarillo
+	FREEZE_POWERUP,			// blue
+	ALIENRETREAT_POWERUP,	// red
+	ONEUP_POWERUP,			// green
+	REBUILDBARRIERS_POWERUP	// yellow
 }
 powerUpTypes_t;
 
+// General struct for all entities (used for simplification in all elements )
 typedef struct
 {
-	short int x;
-	short int y;
-	unsigned short int height;
-	unsigned short int width;
-	unsigned char isAlive;
-	unsigned short int explosionTimer;
+	short int x; // position in x
+	short int y; // position in y
+	unsigned short int height; // height of the entity
+	unsigned short int width; // width of the entity
+	unsigned char isAlive; // to save if the entity is alive or not
+	unsigned short int explosionTimer; // used to animate the explosion of the entity
 } entity_t;
 
+// Ship player struct
 typedef struct 
 {
-	entity_t entity;
-	movingDirections_t direction;
-	unsigned char livesLeft				: 4;
-	unsigned char canShoot 				: 4;
-	unsigned char invencibilityTicks;
+	entity_t entity; // general entity struct
+	movingDirections_t direction; // to save the moving direction
+	unsigned char livesLeft				: 4; // to save the lives left, between 0 an SHIP_MAX_LIVES (set to 5)
+	unsigned char canShoot 				: 4; // 1 if yes, 0 if not
+	unsigned char invencibilityTicks; // to control invencibility mode after the ship is hit
 } ship_t;
 
+// Alien struct
 typedef struct
 {
-	entity_t entity;
-	unsigned char alienType;
-	unsigned char isMoving;
+	entity_t entity; // general entity struct
+	unsigned char alienType; // to save the alien type
+	unsigned char isMoving; // 1 if yes, 0 if not
 } alien_t;
 
+// Alien formation struct
 typedef struct
 {
-	alien_t alien[ALIENS_ROWS][ALIENS_COLS];
-	movingDirections_t direction;
-	unsigned char canShoot;
+	alien_t alien[ALIENS_ROWS][ALIENS_COLS]; // a matrix of aliens
+	movingDirections_t direction; // to save the moving	direction of the matrix
+	unsigned char canShoot; // 1 if yes, 0 if not
 } alienFormation_t;
 
+// Mothership struct
 typedef struct
 {
-	entity_t entity;
-	movingDirections_t direction;
+	entity_t entity; // general entity struct
+	movingDirections_t direction; // to save the moving direction
 } mothership_t;
 
+// Barrier pixel struct
 typedef struct
 {
-	entity_t entity;
+	entity_t entity; // only uses the general entity struct
 } barrierPixel_t;
 
+// Barrier struct
 typedef struct 
 {
-	barrierPixel_t pixel[BARRIER_HEIGHT][BARRIER_WIDTH];
+	barrierPixel_t pixel[BARRIER_HEIGHT][BARRIER_WIDTH]; // a matrix of barrier pixels
 } barrier_t;
 
+// Bullet struct
 typedef struct
 {
-	entity_t entity;
-	movingDirections_t direction;
+	entity_t entity; // general entity struct
+	movingDirections_t direction; // to save the moving direction
 } bullet_t;
 
+// PowerUp struct
 typedef struct
 {
-	entity_t entity;
-	powerUpTypes_t type;
-	int ticksLeft;
+	entity_t entity; // general entity struct
+	powerUpTypes_t type; // to save the power up type
+	int ticksLeft; // to save the time the powerup is active
 } powerUp_t;
 
 /*******************************************************************************
@@ -116,7 +127,7 @@ typedef struct
 
 /**
  * @brief function to create a ship type entity
- * @return returns an initialized ship in the standby position
+ * @return an initialized ship in the standby position
  */
 ship_t createShip();
 
@@ -124,33 +135,33 @@ ship_t createShip();
  * @brief function to create an alien formation type entity
  * @param rows amount of alien rows
  * @param columns amount of alien columns
- * @return returns an initialized alien formation in the standby position
+ * @return an initialized alien formation in the standby position
  */
 alienFormation_t createAlienFormation(int rows, int columns);
 
 /**
  * @brief function to create a mothership type entity
- * @return returns an initialized mothership in the standby position
+ * @return an initialized mothership in the standby position
  */
 mothership_t createMothership(); 
 
 /**
  * @brief function to create a barrier type entity
- * @return returns an initialized barrier in the standby position
+ * @return an initialized barrier in the standby position
  */
 barrier_t createBarrier();
 
 /**
  * @brief function to create a bullet type entity
  * @param direction negative is upwards, positive is downwards
- * @return returns an initialized bullet in the standby position
+ * @return an initialized bullet in the standby position
  */
 bullet_t createBullet(movingDirections_t direction);
 
 /**
  * @brief function to create a powerUp type entity
  * @param type powerUp type
- * @return returns an initializes powerUp in the standby position
+ * @return an initialized powerUp in the standby position
  */
 powerUp_t createPowerUp(powerUpTypes_t type); 
 
@@ -158,79 +169,85 @@ powerUp_t createPowerUp(powerUpTypes_t type);
  * @brief function to move an entity in the X axis
  * @param entity is a pointer to the entity
  * @param moveRate int with the amount of pixels to move
+ * @return 0 if the move was successful, -1 if there was an error
  */
-void moveEntityX(entity_t *entity, int moveRate);
+int moveEntityX(entity_t *entity, int moveRate);
 
 /**
  * @brief function to move an entity in the Y axis
  * @param entity is a pointer to the entity
  * @param moveRate int with the amount of pixels to move
+ * @return 0 if the move was successful, -1 if there was an error
  */
-void moveEntityY(entity_t *entity, int moveRate);
+int moveEntityY(entity_t *entity, int moveRate);
 
 /**
  * @brief general function to set an entity as alive, and set it in a position
  * @param entity pointer to the entity
  * @param x position x
  * @param y position y
+ * @return 0 if the entity was set successfully, -1 if there was an error
 */
-void setEntity(entity_t * entity, int x, int y); 
+int setEntity(entity_t * entity, int x, int y); 
 
 /**
- * @brief function to move an entity in the Y axis
+ * @brief function to shoot from an entity
  * @param bullet is a pointer to the bullet to shoot
- * @param shootingEntity is a pointer to the entity
+ * @param shootingEntity is a pointer to the entity that is shooting
+ * @return 0 if the shoot was executed, -1 if there was an error
  */
-void shootFromEntity(bullet_t *bullet, entity_t *shootingEntity);
+int shootFromEntity(bullet_t *bullet, entity_t *shootingEntity);
 
 /**
  * @brief function to set the barriers position
- * @param game pointer to the game
+ * @param barriers array of barriers to set
+ * @return 0 if the barriers were set successfully, -1 if there was an error
  */
-void setBarriers(barrier_t barriers[BARRIERS]);
+int setBarriers(barrier_t barriers[BARRIERS]);
 
 /**
  * @brief function to set the aliens position
- * @param game pointer to the game
+ * @param aliens pointer to the alien formation to set
+ * @return 0 if the aliens were set successfully, -1 if there was an error
  */
-void setAliens(alienFormation_t *aliens);
+int setAliens(alienFormation_t *aliens);
 
 /**
- * @brief function to set the shape of a barrier
- * @param barrier pointer to the barrier type entity
- */
-void setBarrierShape(barrier_t *barrier);
-
-/**
- * @brief function to get the column aligned with the ship's x position
+ * @brief function to get the nearest column aligned with the ship's x position
  * @param aliens aliens structure to get the column
  * @param shipX ship's position in the X axis
- * @return the column closest to the ship
+ * @return the column closest to the ship, or -1 if there are no aliens near
  */
 int getNearestColumnAlive(alienFormation_t aliens, short int shipX);
 
 /**
- * @brief function to get the nearest row alive to the ship
+ * @brief function to get the row alive nearest to the ship
  * @param aliens is the aliens structure to get the row from
  * @param column is the column of aliens to check
- * @return the row with an alive alien closest to the ship
+ * @return the row with an alive alien closest to the ship, or -1 if there are no aliens near
  */
 int getNearestRowAlive(alienFormation_t aliens, int column);
 
 /**
  * @brief function to get the first column with an alive alien from left to right
  * @param aliens alien formation to get the column from
- * @return first column with an alive alien starting from 0
+ * @return first column with an alive alien starting from 0, or -1 if there are no aliens
  */
 int getFirstColumnAlive(alienFormation_t aliens);
 
 /**
- * @brief function to get the first row with an alive alien from left to right
+ * @brief function to get the last column with an alive alien from left to right
  * @param aliens alien formation to get the row from
- * @return first row with an alive alien starting from 0
+ * @return first row with an alive alien starting from 0, or -1 if there are no aliens
  */
 int getLastColumnAlive(alienFormation_t aliens);
 
+/**
+ * @brief function to get the last row with an alive alien
+ * @param aliens alien formation to get the row from
+ * @return last row with an alive alien starting from 0, or -1 if there are no aliens
+ */
+int getLastRowAlive(alienFormation_t aliens);
 
 /*******************************************************************************
  ******************************************************************************/

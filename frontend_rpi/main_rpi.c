@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>	 // usleep()
 #include <pthread.h> // Threads
 
@@ -76,7 +77,8 @@ int main(void)
 	game_t game;
 	inputStatus_t inputStatus = {false, false, false, false, false, false, false, false};
 
-	gameInit(&game);
+	gameInit(&game);	
+	
 	initGraphics(&game);
 	initInput(&inputStatus);
 	initializeAudio();

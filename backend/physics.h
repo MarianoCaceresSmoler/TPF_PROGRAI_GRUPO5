@@ -37,7 +37,7 @@
 /**
  * @brief general function to handle all colisions
  * @param game pointer to the game information
- * @return the points acumulated if there was a collision with an alien
+ * @return the points acumulated if there was a collision with an alien, -1 if there was an error
 */
 int handleCollisions(game_t *game); 
 
