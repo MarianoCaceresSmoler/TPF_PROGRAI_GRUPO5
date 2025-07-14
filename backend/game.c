@@ -59,7 +59,7 @@ static int updateBullet(bullet_t *bullet, int tickCounter);
  * @param tickCounter the current game ticks
  * @param aliensRemaining the number of aliens alive in the level
  * @param activePowerUp array with the state of every power up
- * @return 0 if the alien formation was updated successfully, -1 otherwise
+ * @return 0 if the alien formation was updated successfully, 1 if the alien formation reached the bottom of the screen, -1 if there was an error
  */
 static int updateAliens(alienFormation_t *aliens, int tickCounter, int aliensRemaining, int activePowerUp[POWERUP_TYPES]);
 

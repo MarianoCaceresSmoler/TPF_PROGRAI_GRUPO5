@@ -26,14 +26,8 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define SCALE_X (SCREEN_WIDTH / LOGICAL_WIDTH)
-#define SCALE_Y (SCREEN_HEIGHT / LOGICAL_HEIGHT)
-#define CROSSFADE_TIME 0.5 // seconds
-#define BACKGROUND_VIDEO_DURATION 5
-#define HUD_POWERUP_WIDTH 48
-#define HUD_POWERUP_HEIGHT 48
-#define HUD_POWERUP_X (SCREEN_SIZE / 2 + 6 * HUD_POWERUP_WIDTH)
-#define HUD_POWERUP_Y (HUD_POWERUP_HEIGHT / 2)
+#define CROSSFADE_TIME 0.5 // background video crossfade time in seconds
+#define BACKGROUND_VIDEO_DURATION 5 // duration of background video between fades
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -53,8 +47,9 @@
 
 /**
  * @brief private function to load sprites
+ * @return 0 if success, -1 if failure loading images
  */
-static void loadImages(void);
+static int loadImages(void);
 
 /**
  * @brief private functions to draw objects in display
@@ -70,6 +65,8 @@ static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES]);
 
 /**
  * @brief private function to draw aliens/mothership points in menu
+ * @return 0 if success, -1 if failure drawing on display
+
  */
 static void drawAliensPoints();
 
@@ -78,6 +75,7 @@ static void drawAliensPoints();
  * @param score the actual score
  * @param lives the lives left
  * @param level the actual level
+ * @return 0 if success, -1 if failure drawing on display
  */
 static void drawHUD(int score, int lives, int level);
 
@@ -93,16 +91,20 @@ static void drawHUD(int score, int lives, int level);
 
 // +ej: static int temperaturas_actuales[4];+
 
+// General control variables
 static ALLEGRO_DISPLAY *display = NULL;
 static ALLEGRO_EVENT_QUEUE *eventQueue = NULL;
 static ALLEGRO_TIMER *timer = NULL;
 
+// Fonts
 static ALLEGRO_FONT *fontGameplay = NULL;
 static ALLEGRO_FONT *fontRetro = NULL;
 
+// Videos
 static ALLEGRO_VIDEO *backgroundVideo1;
 static ALLEGRO_VIDEO *backgroundVideo2;
 
+// Bitmaps for rendering elements on display
 static ALLEGRO_BITMAP *alien0BitMap = NULL;
 static ALLEGRO_BITMAP *alien1BitMap = NULL;
 static ALLEGRO_BITMAP *alien2BitMap = NULL;
@@ -123,7 +125,9 @@ static ALLEGRO_BITMAP *mothershipBitmap = NULL;
 static ALLEGRO_BITMAP *explosionBitmap = NULL;
 static ALLEGRO_BITMAP *titleBitmap = NULL;
 
-static int drawMenu = 1;
+static int drawMenu = 1; // to only draw menu once
+
+// To control the background video state
 static bool crossfading = false;
 static double crossfadeStartTime = 0.0;
 
@@ -133,53 +137,57 @@ static double crossfadeStartTime = 0.0;
  *******************************************************************************
  ******************************************************************************/
 
-ALLEGRO_EVENT_QUEUE *getEventQueue(void)
-{
-	return eventQueue;
-}
-
-void initGraphics(void)
+int initGraphics(void)
 {
 	// Initialize Allegro
 	if (!al_init())
 	{
-		fprintf(stderr, "Failed to initialize allegro!\n");
+		printf("Failed to initialize allegro!\n");
+		return -1;
 	}
 
+	// Initialize Allegro keyboard
 	if (!al_install_keyboard())
 	{
-		fprintf(stderr, "Failed to initialize the keyboard!\n");
+		printf("Failed to initialize the keyboard!\n");
+		return -1;
 	}
 
-	// al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+	// Creates display
 	display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 	if (!display)
 	{
-		fprintf(stderr, "Unable to create display \n");
+		printf("Unable to create display \n");
+		return -1;
 	}
 
+	// Creates the timer to control the game rendering speed
 	timer = al_create_timer(1.0 / FPS);
 	if (!timer) // 1 frame per second timer
 	{
-		fprintf(stderr, "Unable to create timer \n");
+		printf("Unable to create timer \n");
+		return -1;
 	}
 
 	// Initialize allegro images controller
 	if (!al_init_image_addon())
 	{
-		fprintf(stderr, "Unable to start image addon \n");
+		printf("Unable to start image addon \n");
+		return -1;
 	}
 
 	// Initialize allegro primitives addon
 	if (!al_init_primitives_addon())
 	{
-		fprintf(stderr, "Unable to start primitives addon \n");
+		printf("Unable to start primitives addon \n");
+		return -1;
 	}
 
 	// Initialize allegro video addon
 	if (!al_init_video_addon())
 	{
-		fprintf(stderr, "Unable to start video addon \n");
+		printf("Unable to start video addon \n");
+		return -1;
 	}
 
 	// Create bitmaps for objects
@@ -214,12 +222,18 @@ void initGraphics(void)
 	// Error managing for elements created
 	if (!(display && timer && alien0BitMap && alien1BitMap && alien2BitMap && alien3BitMap && alien4BitMap && shipBitMap && barrierPixelBitmap && bulletBitmap && mothershipBitmap && eventQueue))
 	{
-		fprintf(stderr, "Failed to load assets.\n");
-		cleanupGraphics();
+		printf("Failed to load assets.\n");
+		cleanupGraphics(); // cleanup allegro graphics if there was an error
+		return -1;
 	}
 
 	// Calls private function to load sprites
-	loadImages();
+	if(loadImages())
+	{
+		printf("Failed to load images.\n");
+		cleanupGraphics(); // cleanup allegro graphics if there was an error
+		return -1;
+	}
 
 	// Start background video
 	al_start_video(backgroundVideo1, al_get_default_mixer());
@@ -231,15 +245,17 @@ void initGraphics(void)
 	al_register_event_source(eventQueue, al_get_video_event_source(backgroundVideo2));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
+	// Clears the screen and starts the timer
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_flip_display();
 	al_start_timer(timer);
+
+	return 0;
 }
 
 void cleanupGraphics(void)
 {
-	// Destroys all elements at the end of the program
-
+	// Destroys all the allegro elements created 
 	if (display)
 		al_destroy_display(display);
 	if (timer)
@@ -288,25 +304,34 @@ void cleanupGraphics(void)
 		al_destroy_font(fontRetro);
 }
 
+ALLEGRO_EVENT_QUEUE *getEventQueue(void)
+{
+	// Returns allegro event queue
+	return eventQueue;
+}
+
 void renderGame(game_t game)
 {
-	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_clear_to_color(al_map_rgb(0, 0, 0)); // first clears the screen to black
 
 	drawMenu = 1;
 
 	if (game.status == GAME_LOADING)
 	{
+		// draw loading screen (with more FPS)
 		if (game.loadingTimer == LOADING_TIME)
 			al_set_timer_speed(timer, 1.0 / (FPS * 2));
 		else if (game.loadingTimer == 1)
 			al_set_timer_speed(timer, 1.0 / FPS);
 
-		renderBackgroundVideo();
-		drawAliensLoading(game.aliens, LOADING_TIME - game.loadingTimer);
+		renderBackgroundVideo(); // renders background video
+		drawAliensLoading(game.aliens, LOADING_TIME - game.loadingTimer); // draw the animation of aliens setting
 	}
 	else
 	{
-		renderBackgroundVideo();
+		renderBackgroundVideo(); // renders background video
+
+		// Draw elements on display
 		drawShip(game.ship);
 		drawAliens(game.aliens, game.activePowerUp);
 		drawBullets(game.shipBullet, game.alienBullet);
@@ -316,7 +341,8 @@ void renderGame(game_t game)
 		drawHUD(game.score, game.ship.livesLeft, game.currentLevel);
 	}
 
-	al_flip_display();
+	al_flip_display(); // updates the display
+
 }
 
 void renderMenu(game_t game)
@@ -325,15 +351,14 @@ void renderMenu(game_t game)
 
 	if (status == GAME_MENU) // If player is at menu
 	{
-		renderBackgroundVideo();
-
-		int titleWidth = al_get_bitmap_width(titleBitmap);
-		int titleHeight = al_get_bitmap_height(titleBitmap);
-
-		float destX = (SCREEN_WIDTH - titleWidth) / 2;
-		float destY = SCREEN_HEIGHT / 11; // Relative height
+		renderBackgroundVideo(); // renders the background video
 
 		// Draws game title
+		int titleWidth = al_get_bitmap_width(titleBitmap);
+		int titleHeight = al_get_bitmap_height(titleBitmap);
+		float destX = (SCREEN_WIDTH - titleWidth) / 2;
+		float destY = SCREEN_HEIGHT / 11;
+
 		al_draw_scaled_bitmap(
 			titleBitmap,
 			0, 0,
@@ -344,6 +369,7 @@ void renderMenu(game_t game)
 
 		drawAliensPoints(); // draws aliens points table
 
+		// Draws input space to enter name tag
 		al_draw_text(fontRetro, al_map_rgb(200, 200, 200), SCREEN_WIDTH / 3, SCREEN_HEIGHT * 0.85, 0, "Enter a name to play:");
 
 		// Coords and dims for input box
@@ -355,7 +381,7 @@ void renderMenu(game_t game)
 		al_draw_filled_rectangle(boxX, boxY, boxX + boxWidth, boxY + boxHeight, al_map_rgb(30, 30, 30)); // input box background
 		al_draw_rectangle(boxX, boxY, boxX + boxWidth, boxY + boxHeight, al_map_rgb(255, 255, 255), 2);	 // input box border
 
-		// draws the text from nameTag
+		// draws the text from name tag updated
 		al_draw_text(
 			fontRetro,
 			al_map_rgb(255, 255, 255),
@@ -364,9 +390,9 @@ void renderMenu(game_t game)
 			ALLEGRO_ALIGN_CENTRE,
 			game.nameTag);
 	}
-	else if (status == GAME_PAUSED) // if game was paused
+	else if (status == GAME_PAUSED) // If game was paused
 	{
-		if (drawMenu)
+		if (drawMenu) // renders pause menu only one time
 		{
 			al_draw_filled_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, al_map_rgba(0, 0, 0, 128));
 
@@ -381,16 +407,16 @@ void renderMenu(game_t game)
 		drawMenu = 0;
 	}
 
-	al_flip_display();
+	al_flip_display(); // updates the display
 }
 
 void renderGameOver(game_t game)
 {
 	int score = game.score;
 	int i;
-	char highScoreBuffer[100];
+	char highScoreBuffer[100]; // buffer to save player's name tag and scores
 
-	al_draw_filled_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, al_map_rgba(0, 0, 0, 20));
+	al_draw_filled_rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, al_map_rgba(0, 0, 0, 20)); // shadowing the background gameplay
 
 	al_draw_text(fontRetro, al_map_rgb(255, 0, 0),
 				 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 6,
@@ -407,13 +433,13 @@ void renderGameOver(game_t game)
 	{
 		sprintf(highScoreBuffer, "%s %d", game.highScores[i].tag, game.highScores[i].score);
 
-		if (game.scoreRank == i + 1)
+		if (game.scoreRank == i + 1) // if the player entered the top, highlights it
 		{
 			al_draw_text(fontRetro, al_map_rgb(255, 255, 0),
 						 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4 + 60 + i * 50,
 						 ALLEGRO_ALIGN_CENTER, highScoreBuffer);
 		}
-		else
+		else // draws the other players records in gray
 		{
 			al_draw_text(fontRetro, al_map_rgb(200, 200, 200),
 						 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4 + 60 + i * 50,
@@ -425,7 +451,7 @@ void renderGameOver(game_t game)
 				 SCREEN_WIDTH / 2, SCREEN_HEIGHT - 200,
 				 ALLEGRO_ALIGN_CENTER, "Enter ESC to quit, R to restart the game");
 
-	al_flip_display();
+	al_flip_display(); //updates the display
 }
 
 /*******************************************************************************
@@ -434,92 +460,106 @@ void renderGameOver(game_t game)
  *******************************************************************************
  ******************************************************************************/
 
-static void loadImages(void)
+static int loadImages(void)
 {
-	// Load the images
+	// Load the bitmaps with the images stored
 
 	alien0BitMap = al_load_bitmap("frontend_pc/assets/img/alien0.png");
 	if (!alien0BitMap)
 	{
-		fprintf(stderr, "Failed to load alien0.png\n");
+		printf("Failed to load alien0.png\n");
+		return -1;
 	}
 
 	alien1BitMap = al_load_bitmap("frontend_pc/assets/img/alien1.png");
 	if (!alien1BitMap)
 	{
-		fprintf(stderr, "Failed to load alien1.png\n");
+		printf("Failed to load alien1.png\n");
+		return -1;
 	}
 
 	alien2BitMap = al_load_bitmap("frontend_pc/assets/img/alien2.png");
 	if (!alien2BitMap)
 	{
-		fprintf(stderr, "Failed to load alien2.png\n");
+		printf("Failed to load alien2.png\n");
+		return -1;
 	}
 
 	alien3BitMap = al_load_bitmap("frontend_pc/assets/img/alien3.png");
 	if (!alien3BitMap)
 	{
-		fprintf(stderr, "Failed to load alien3.png\n");
+		printf("Failed to load alien3.png\n");
+		return -1;
 	}
 
 	alien4BitMap = al_load_bitmap("frontend_pc/assets/img/alien4.png");
 	if (!alien4BitMap)
 	{
-		fprintf(stderr, "Failed to load alien4.png\n");
+		printf("Failed to load alien4.png\n");
+		return -1;
 	}
 
 	alien0MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien0move.png");
 	if (!alien0MoveBitMap)
 	{
-		fprintf(stderr, "Failed to load alien0move.png\n");
+		printf("Failed to load alien0move.png\n");
+		return -1;
 	}
 
 	alien1MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien1move.png");
 	if (!alien1MoveBitMap)
 	{
-		fprintf(stderr, "Failed to load alien1move.png\n");
+		printf("Failed to load alien1move.png\n");
+		return -1;
 	}
 
 	alien2MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien2move.png");
 	if (!alien2MoveBitMap)
 	{
-		fprintf(stderr, "Failed to load alien2move.png\n");
+		printf("Failed to load alien2move.png\n");
+		return -1;
 	}
 
 	alien3MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien3move.png");
 	if (!alien3MoveBitMap)
 	{
-		fprintf(stderr, "Failed to load alien3move.png\n");
+		printf("Failed to load alien3move.png\n");
+		return -1;
 	}
 
 	alien4MoveBitMap = al_load_bitmap("frontend_pc/assets/img/alien4move.png");
 	if (!alien4MoveBitMap)
 	{
-		fprintf(stderr, "Failed to load alien4move.png\n");
+		printf("Failed to load alien4move.png\n");
+		return -1;
 	}
 
 	shipBitMap = al_load_bitmap("frontend_pc/assets/img/ship.png");
 	if (!shipBitMap)
 	{
-		fprintf(stderr, "Failed to load ship.png\n");
+		printf("Failed to load ship.png\n");
+		return -1;
 	}
 
 	mothershipBitmap = al_load_bitmap("frontend_pc/assets/img/mothership.png");
 	if (!mothershipBitmap)
 	{
-		fprintf(stderr, "Failed to load mothership.png\n");
+		printf("Failed to load mothership.png\n");
+		return -1;
 	}
 
 	shipBulletBitmap = al_load_bitmap("frontend_pc/assets/img/shipBullet.png");
 	if (!shipBulletBitmap)
 	{
-		fprintf(stderr, "Failed to load shipBullet.png\n");
+		printf("Failed to load shipBullet.png\n");
+		return -1;
 	}
 
 	alienBulletBitmap = al_load_bitmap("frontend_pc/assets/img/alienBullet.png");
 	if (!alienBulletBitmap)
 	{
-		fprintf(stderr, "Failed to load alienBullet.png\n");
+		printf("Failed to load alienBullet.png\n");
+		return -1;
 	}
 
 	int i;
@@ -527,83 +567,98 @@ static void loadImages(void)
 	{
 		char filename[64];
 		snprintf(filename, sizeof(filename), "frontend_pc/assets/img/powerUp%d.png", i);
-		powerUpBitmaps[i] = al_load_bitmap(filename);
+		powerUpBitmaps[i] = al_load_bitmap(filename); // load each power up individually
 		if (!powerUpBitmaps[i])
 		{
-			fprintf(stderr, "Failed to load powerup%d.png\n", i);
+			printf("Failed to load powerup%d.png\n", i);
+			return -1;
 		}
 	}
 
 	explosionBitmap = al_load_bitmap("frontend_pc/assets/img/explosion.png");
 	if (!explosionBitmap)
 	{
-		fprintf(stderr, "Failed to load explosion.png\n");
+		printf("Failed to load explosion.png\n");
+		return -1;
 	}
 
 	titleBitmap = al_load_bitmap("frontend_pc/assets/img/title.png");
 	if (!titleBitmap)
 	{
-		fprintf(stderr, "Failed to load title.png\n");
+		printf("Failed to load title.png\n");
+		return -1;
 	}
 
 	backgroundVideo1 = al_open_video("frontend_pc/assets/img/background.ogv");
 	if (!backgroundVideo1)
 	{
-		fprintf(stderr, "Failed to load background.ogv\n");
+		printf("Failed to load background.ogv\n");
+		return -1;
 	}
 
 	backgroundVideo2 = al_open_video("frontend_pc/assets/img/background.ogv");
 	if (!backgroundVideo2)
 	{
-		fprintf(stderr, "Failed to load background.ogv\n");
+		printf("Failed to load background.ogv\n");
+		return -1;
 	}
+
+	return 0;
 }
 
 static void renderBackgroundVideo()
 {
+	// Get the current position of the first background video (in seconds)
 	double pos = al_get_video_position(backgroundVideo1, 0);
 	double dur = BACKGROUND_VIDEO_DURATION;
 
+	// If not already crossfading and the first video is near its end
 	if (!crossfading && pos >= dur - CROSSFADE_TIME)
 	{
-		// Start reproducing second video
+        // Start playing the second video with the default audio mixer
 		al_start_video(backgroundVideo2, al_get_default_mixer());
+
+		// Activate crossfade mode
 		crossfading = true;
-		crossfadeStartTime = al_get_time();
+		crossfadeStartTime = al_get_time(); // Mark the start time of the crossfad
 	}
 
+	// If currently crossfading between video
 	if (crossfading)
 	{
-		double elapsed = al_get_time() - crossfadeStartTime;
-		float alpha1 = 1.0f - (elapsed / CROSSFADE_TIME);
-		float alpha2 = elapsed / CROSSFADE_TIME;
+		double elapsed = al_get_time() - crossfadeStartTime; // Time passed since crossfade began
+        float alpha1 = 1.0f - (elapsed / CROSSFADE_TIME);    // Fade-out factor for video1
+        float alpha2 = elapsed / CROSSFADE_TIME;             // Fade-in factor for video2
 
-		// Limit alfa between 0 and 1
+	 	// Clamp alpha values between 0 and 1
 		if (alpha1 < 0.0f)
 			alpha1 = 0.0f;
 		if (alpha2 > 1.0f)
 			alpha2 = 1.0f;
 
-		// Draw both videos with transparency
+        // --- Draw both video frames with their respective transparency ---
+
+		// Get the current frame of the first video
 		ALLEGRO_BITMAP *currentFrame1 = al_get_video_frame(backgroundVideo1);
 		if (currentFrame1)
 		{
 			al_draw_tinted_scaled_bitmap(
 				currentFrame1,
-				al_map_rgba_f(1, 1, 1, alpha1),
+				al_map_rgba_f(1, 1, 1, alpha1), // Apply alpha1 transparency
 				0, 0,
 				al_get_bitmap_width(currentFrame1), al_get_bitmap_height(currentFrame1),
 				0, 0,
 				SCREEN_WIDTH, SCREEN_HEIGHT,
 				0);
-		}
+		}		
 
+		// Get the current frame of the second video
 		ALLEGRO_BITMAP *currentFrame2 = al_get_video_frame(backgroundVideo2);
 		if (currentFrame2)
 		{
 			al_draw_tinted_scaled_bitmap(
 				currentFrame2,
-				al_map_rgba_f(1, 1, 1, alpha2),
+				al_map_rgba_f(1, 1, 1, alpha2), // Apply alpha2 transparency
 				0, 0,
 				al_get_bitmap_width(currentFrame2), al_get_bitmap_height(currentFrame2),
 				0, 0,
@@ -611,20 +666,23 @@ static void renderBackgroundVideo()
 				0);
 		}
 
+		// If the crossfade is complete
 		if (elapsed >= CROSSFADE_TIME)
 		{
-			// Prepare next cycle
+            // Swap video pointers: backgroundVideo2 becomes the new main video
 			ALLEGRO_VIDEO *temp = backgroundVideo1;
 			backgroundVideo1 = backgroundVideo2;
 			backgroundVideo2 = temp;
 
-			al_seek_video(backgroundVideo2, 0); // Reload the old video to use it in the next loop
+			// Rewind the old video to use it again in the next crossfade
+			al_seek_video(backgroundVideo2, 0);
+			// End the crossfade mode
 			crossfading = false;
 		}
 	}
 	else
 	{
-		// Draws main video frame to frame
+        // If not crossfading, simply draw the current frame of the main video
 		ALLEGRO_BITMAP *currentFrame = al_get_video_frame(backgroundVideo1);
 		if (currentFrame)
 		{
@@ -637,6 +695,7 @@ static void renderBackgroundVideo()
 				0);
 		}
 	}
+
 }
 
 static void drawShip(ship_t ship)
@@ -670,6 +729,7 @@ static void drawShip(ship_t ship)
 		const float PI = 3.14159265f;
 		float angleRads = 0, angleGrads = 20;
 
+		// Angles the bitmap if the ship is moving
 		if (ship.direction == MOVING_RIGHT)
 		{
 			angleRads = angleGrads * PI / 180.0f;
@@ -679,7 +739,7 @@ static void drawShip(ship_t ship)
 			angleRads = -angleGrads * PI / 180.0f;
 		}
 
-		// Centres of original bitmapp
+		// Centres of original bitmap
 		float bitmap_cx = al_get_bitmap_width(shipBitMap) / 2.0f;
 		float bitmap_cy = al_get_bitmap_height(shipBitMap) / 2.0f;
 
@@ -743,6 +803,7 @@ static void drawAliens(alienFormation_t aliens, int activePowerUp[POWERUP_TYPES]
 				else
 				{
 
+					// Gets the alien bitmap based on the alien type
 					ALLEGRO_BITMAP *bitmap = NULL;
 
 					if (!aliens.alien[i][j].isMoving)
@@ -764,7 +825,7 @@ static void drawAliens(alienFormation_t aliens, int activePowerUp[POWERUP_TYPES]
 						case 4:
 							bitmap = alien4BitMap;
 							break;
-						default:
+						default:							
 							break;
 						}
 					}
@@ -792,18 +853,18 @@ static void drawAliens(alienFormation_t aliens, int activePowerUp[POWERUP_TYPES]
 						}
 					}
 
-					if (activePowerUp[FREEZE_POWERUP]) // if the aliens are frozen, draw them with a blue tinted
+					if (activePowerUp[FREEZE_POWERUP]) // if the aliens are frozen, draw them "turned off" with a gray tinted
 					{
 						al_draw_tinted_scaled_bitmap(
 							bitmap,
-							al_map_rgba_f(0.5, 0.5, 0.0, 1.0), // blue tint with full opacity
+							al_map_rgba_f(0.5, 0.5, 0.0, 1.0),
 							0, 0,
 							al_get_bitmap_width(bitmap), al_get_bitmap_height(bitmap),
 							alienEntity.x, alienEntity.y,
 							ALIEN_WIDTH, ALIEN_HEIGHT,
 							0);
 					}
-					else
+					else // if not, draw the aliens normally
 					{
 						al_draw_scaled_bitmap(
 							bitmap,
@@ -817,6 +878,7 @@ static void drawAliens(alienFormation_t aliens, int activePowerUp[POWERUP_TYPES]
 			}
 		}
 	}
+
 }
 
 static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw)
@@ -829,13 +891,14 @@ static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw)
 		{
 			if (drawn >= aliensToDraw)
 			{
-				aliensToDraw++;
-				return; // Termina cuando llega al límite
+				// aliensToDraw++;
+				return; // finish when reaches the limit of aliens to draw (per frame)
 			}
 
 			entity_t alienEntity = aliens.alien[i][j].entity;
 			unsigned char alienType = aliens.alien[i][j].alienType;
 
+			// gets and draws the alien bitmap based on its type
 			ALLEGRO_BITMAP *bitmap = NULL;
 			switch (alienType)
 			{
@@ -866,7 +929,7 @@ static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw)
 				ALIEN_WIDTH, ALIEN_HEIGHT,
 				0);
 
-			drawn++;
+			drawn++; // increases the counter of drawn aliens
 		}
 	}
 }
@@ -946,6 +1009,7 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
 {
 	int i, x, y;
 
+	// Draw each barrier pixel by pixel
 	for (i = 0; i < BARRIERS; i++)
 	{
 		for (x = 0; x < BARRIER_HEIGHT; x++)
@@ -975,7 +1039,7 @@ static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES])
 
 	for (i = 0; i < POWERUP_TYPES; i++)
 	{
-		if (powerUps[i].entity.isAlive)
+		if (powerUps[i].entity.isAlive) // Only draws if the power-up is alive
 		{
 			al_draw_scaled_bitmap(
 				powerUpBitmaps[powerUps[i].type],

@@ -21,6 +21,8 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
+#define MUSIC_SAMPLES 6 // number of music samples to reproduce at the same time 
+
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
@@ -37,7 +39,11 @@
 
 // +ej: static void falta_envido (int);+
 
-static void loadAudioAssets(void); // To load audio assets with saved files
+/**
+ * @brief function to load audio assets with saved files
+ * @return 0 if the load was successful, -1 otherwise
+*/
+static int loadAudioAssets(void);
 
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -51,17 +57,21 @@ static void loadAudioAssets(void); // To load audio assets with saved files
 
 // +ej: static int temperaturas_actuales[4];+
 
+// Sounds variables
 static ALLEGRO_SAMPLE *sndShoot = NULL;
 static ALLEGRO_SAMPLE *sndExplosion = NULL;
 static ALLEGRO_SAMPLE *sndMothership = NULL;
+static ALLEGRO_SAMPLE_ID idMothershipSound = {._id = -1};
 static ALLEGRO_SAMPLE *sndPowerUp = NULL;
 static ALLEGRO_SAMPLE *sndGameOver = NULL;
+
+// MUsic variables
 static ALLEGRO_SAMPLE *bgGameMusic = NULL;
 static ALLEGRO_SAMPLE *bgMenuMusic = NULL;
 static ALLEGRO_SAMPLE_ID idMenuMusic = {._id = -1};
-static ALLEGRO_SAMPLE_ID idMothershipSound = {._id = -1};
-// static ALLEGRO_SAMPLE_ID idGameMusic = {._id = -1};
-ALLEGRO_SAMPLE_INSTANCE *gameMusicInstance = NULL;
+
+// Music instance for gameplay music
+static ALLEGRO_SAMPLE_INSTANCE *gameMusicInstance = NULL;
 
 /*******************************************************************************
  *******************************************************************************
@@ -69,67 +79,76 @@ ALLEGRO_SAMPLE_INSTANCE *gameMusicInstance = NULL;
  *******************************************************************************
  ******************************************************************************/
 
-void initAudio(void)
+int initAudio(void)
 {
-    if (!al_install_audio())
+    if (!al_install_audio()) // Initialize the audio system
     {
-        fprintf(stderr, "Error initiating system audio.\n");
+        printf("Error initiating system audio.\n");
+        return -1; // return an error if the installation fail
     }
 
-    if (!al_init_acodec_addon())
+    if (!al_init_acodec_addon()) // Initialize the audio codec
     {
-        fprintf(stderr, "Error updating audio codecs.\n");
+        printf("Error updating audio codecs.\n");
+        return -1; // return an error if the audio coded initialization fail
     }
 
-    if (!al_reserve_samples(6))
-    { // 6 samples (shoot, explosion, music, etc.)
-        fprintf(stderr, "Error reserving audio samples.\n");
+    if (!al_reserve_samples(MUSIC_SAMPLES)) // Reserve samples to reproduce sounds/musics
+    {
+        printf("Error reserving audio samples.\n");
+        return -1; // return an error if the sample reservation fail
     }
 
-    loadAudioAssets();
+    if(loadAudioAssets()) // load private audio files
+    {
+        printf("Error loading audio assets.\n");
+        return -1; // return an error if the audio assets loading fail
+    }
+
+    return 0;
 }
 
 void playShootSound(void)
 {
     if (sndShoot)
-        al_play_sample(sndShoot, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+        al_play_sample(sndShoot, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL); // Play the shoot sound if it exists
 }
 
 void playExplosionSound(void)
 {
     if (sndExplosion)
-        al_play_sample(sndExplosion, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+        al_play_sample(sndExplosion, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL); // Play the explosion sound if it exists
 }
 
 void playPowerUpSound(void)
 {
     if (sndPowerUp)
-        al_play_sample(sndPowerUp, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+        al_play_sample(sndPowerUp, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL); // Play the power up sound if it exists
 }
 
 void playShipDiedSound(void)
 {
     if (sndExplosion)
-        al_play_sample(sndExplosion, 1.0, 0.0, 0.7, ALLEGRO_PLAYMODE_ONCE, NULL);
+        al_play_sample(sndExplosion, 1.0, 0.0, 0.7, ALLEGRO_PLAYMODE_ONCE, NULL); // Play the explosion sound with a lower volume if it exists
 }
 
 void playGameoverSound(void)
 {
     if (sndGameOver)
-        al_play_sample(sndGameOver, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+        al_play_sample(sndGameOver, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL); // Play the game over sound if it exists
 }
 
 void playMenuMusic(void)
 {
     if (bgMenuMusic)
-        al_play_sample(bgMenuMusic, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idMenuMusic);
+        al_play_sample(bgMenuMusic, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idMenuMusic); // Play the menu music in loop if it exists, using its id to stop it later
 }
 
 void stopMenuMusic(void)
 {
     if (idMenuMusic._id != -1)
     {
-        al_stop_sample(&idMenuMusic);
+        al_stop_sample(&idMenuMusic); // Stop the menu music if it's playing (using its id)
     }
 }
 
@@ -137,8 +156,8 @@ unsigned int stopGameplayMusic(void)
 {
     unsigned int position = al_get_sample_instance_position(gameMusicInstance);
 
-    al_set_sample_instance_playing(gameMusicInstance, false);
-    return position; // returns the positin in which the music was paused
+    al_set_sample_instance_playing(gameMusicInstance, false); // pauses the gameplay music
+    return position; // returns the position in which the music was paused
 }
 
 void resumeGameplayMusic(unsigned int position)
@@ -152,6 +171,7 @@ void playGameplayMusic(void)
 {
     if (gameMusicInstance)
     {
+        // Sets the gameplay music sample instance to play from the beginning in loop
         al_set_sample_instance_playmode(gameMusicInstance, ALLEGRO_PLAYMODE_LOOP);
         al_play_sample_instance(gameMusicInstance);
     }
@@ -160,19 +180,20 @@ void playGameplayMusic(void)
 void playMothershipSound(void)
 {
     if (sndMothership)
-        al_play_sample(sndMothership, 0.3, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idMothershipSound);
+        al_play_sample(sndMothership, 0.3, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idMothershipSound); // Play the mothership sound in loop if it exists, using its id to stop it later
 }
 
 void stopMothershipSound(void)
 {
     if (idMothershipSound._id != -1)
     {
-        al_stop_sample(&idMothershipSound);
+        al_stop_sample(&idMothershipSound); // Stop the mothership sound if it's playing (using its id)
     }
 }
 
 void cleanupAudio(void)
 {
+    // Check all sounds and music instances to destroy the ones that were created
     if (sndShoot)
     {
         al_destroy_sample(sndShoot);
@@ -214,7 +235,7 @@ void cleanupAudio(void)
         gameMusicInstance = NULL;
     }
 
-    al_uninstall_audio();
+    al_uninstall_audio(); // uninstall allegro audio
 }
 
 /*******************************************************************************
@@ -223,58 +244,72 @@ void cleanupAudio(void)
  *******************************************************************************
  ******************************************************************************/
 
-static void loadAudioAssets(void)
+static int loadAudioAssets(void)
 {
-    // Sound effects
+    // Load sound effects 
     sndShoot = al_load_sample("frontend_pc/assets/audio/shoot.wav");
     if (!sndShoot)
-        fprintf(stderr, "Error loading shoot.wav\n");
+    {
+        printf("Error loading shoot.wav\n");
+    }
     sndExplosion = al_load_sample("frontend_pc/assets/audio/explosion.wav");
     if (!sndExplosion)
-        fprintf(stderr, "Error loading explosion.wav\n");
+    {
+        printf("Error loading explosion.wav\n");
+    }
+        
     sndPowerUp = al_load_sample("frontend_pc/assets/audio/powerup.wav");
     if (!sndExplosion)
-        fprintf(stderr, "Error loading powerup.wav\n");
+    {
+        printf("Error loading powerup.wav\n");
+    }
     sndGameOver = al_load_sample("frontend_pc/assets/audio/gameover.wav");
     if (!sndGameOver)
-        fprintf(stderr, "Error loading gameover.wav\n");
-
+    {
+        printf("Error loading gameover.wav\n");
+    }
     sndMothership = al_load_sample("frontend_pc/assets/audio/mothership.wav");
     if (!sndMothership)
-        fprintf(stderr, "Error loading mothership.wav\n");
+    {
+        printf("Error loading mothership.wav\n");
+    }
 
-    // Background music
+    // Load background gameplay music
     bgGameMusic = al_load_sample("frontend_pc/assets/audio/gamemusic.wav");
     if (bgGameMusic)
     {
-        gameMusicInstance = al_create_sample_instance(bgGameMusic);
+        gameMusicInstance = al_create_sample_instance(bgGameMusic); // create a sample instance for the gameplay music
         if (!gameMusicInstance)
         {
-            fprintf(stderr, "Error creating gameplay music sample instance\n");
-            return;
+            printf("Error creating gameplay music sample instance\n");
         }
 
-        if (!al_attach_sample_instance_to_mixer(gameMusicInstance, al_get_default_mixer()))
+        if (!al_attach_sample_instance_to_mixer(gameMusicInstance, al_get_default_mixer())) // ataches the sample instance to the default mixer of allegro
         {
-            fprintf(stderr, "Error connecting gameplay music sample instance to mixer\n");
-            al_destroy_sample_instance(gameMusicInstance);
+            printf("Error connecting gameplay music sample instance to mixer\n");
+            al_destroy_sample_instance(gameMusicInstance); // destroy the sample instance created if there was an error with the default mixer
             gameMusicInstance = NULL;
-            return;
         }
     }
     else
     {
-        fprintf(stderr, "Error loading gamemusic.wav\n");
+        printf("Error loading gamemusic.wav\n");
     }
 
+    // Load menu music
     bgMenuMusic = al_load_sample("frontend_pc/assets/audio/menumusic.wav");
     if (!bgMenuMusic)
-        fprintf(stderr, "Error loading menumusic.wav\n");
+    {
+        printf("Error loading menumusic.wav\n");
+    }
 
-    // Error managing for samples loaded
+    // If there was an error loading an audio, cleanup and return -1
     if (!sndShoot || !sndExplosion || !sndMothership || !sndGameOver || !bgGameMusic || !bgMenuMusic)
     {
-        fprintf(stderr, "Error loading audio files\n");
+        printf("Error loading audio files\n");
         cleanupAudio();
+        return -1;
     }
+
+    return 0;
 }

@@ -11,9 +11,10 @@
 // +Incluir el header propio (ej: #include "template.h")+
 
 #include <allegro5/allegro.h>
+#include <stdio.h>
+
 #include "../backend/game.h"
 #include "../backend/config.h"
-
 #include "input_pc.h"
 
 /*******************************************************************************
@@ -56,6 +57,12 @@
 
 void setUserName(game_t *game, int keycode)
 {
+    if(!game)
+    {
+        printf("Error: game param is NULL\n");
+        return; // check that the game pointer is not NULL
+    }
+
     static int charIndex = 0;
 
     // allows backspace
@@ -64,13 +71,13 @@ void setUserName(game_t *game, int keycode)
         game->nameTag[--charIndex] = '_';
     }
 
-    if (charIndex >= MAX_NAME_CHARS) // validates name max characters
-        return;
-
-    // only letters from A to Z
-    if (keycode >= ALLEGRO_KEY_A && keycode <= ALLEGRO_KEY_Z)
+    if(charIndex < MAX_NAME_CHARS) // validates name max characters
     {
-        game->nameTag[charIndex++] = 'A' + (keycode - ALLEGRO_KEY_A);
+        // only letters from A to Z
+        if (keycode >= ALLEGRO_KEY_A && keycode <= ALLEGRO_KEY_Z)
+        {
+            game->nameTag[charIndex++] = 'A' + (keycode - ALLEGRO_KEY_A);
+        }
     }
 
 }
@@ -78,6 +85,7 @@ void setUserName(game_t *game, int keycode)
 void setInput(inputStatus_t *inputStatus, int keycode)
 {
 
+    // Change the input status based on the key pressed
     switch (keycode)
     {
     case ALLEGRO_KEY_LEFT:
@@ -102,12 +110,13 @@ void setInput(inputStatus_t *inputStatus, int keycode)
         inputStatus->exitKeyPressed = true;
         break;
     default:
-        break;
+        break; // does nothing if the key is not contempled
     }
 }
 
 void clearInput(inputStatus_t *inputStatus, int keycode)
 {
+    // Change the input status based on the key released
     switch (keycode)
     {
     case ALLEGRO_KEY_LEFT:
@@ -132,7 +141,7 @@ void clearInput(inputStatus_t *inputStatus, int keycode)
         inputStatus->exitKeyPressed = false;
         break;
     default:
-        break;
+        break; // does nothing if the key is not contempled
     }
 }
 

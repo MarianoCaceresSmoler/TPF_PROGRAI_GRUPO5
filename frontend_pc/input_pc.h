@@ -23,12 +23,6 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
- // To control the movement of the ship
-// typedef struct {
-//     int leftPressed;
-//     int rightPressed;
-// } input_state_t;
-
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
@@ -56,7 +50,7 @@
 void setUserName(game_t *game, int keycode);
 
 /**
- * @brief function to updates input status
+ * @brief functions to update input status
  * @param inputStatus pointer to the input status general struct
  * @param keycode the key to update 
 */

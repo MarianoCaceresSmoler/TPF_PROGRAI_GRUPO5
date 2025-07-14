@@ -45,8 +45,9 @@
 
 /**
  * @brief function to initialize the allegro audio
+ * @return 0 if the inicialization was successful, -1 otherwise
 */
-void initAudio(void);
+int initAudio(void);
 
 /**
  * @brief function to free allegro audio
@@ -59,15 +60,15 @@ void cleanupAudio(void);
 void playShootSound(void);
 void playExplosionSound(void);
 void playMothershipSound(void);
+void stopMothershipSound(void);
 void playPowerUpSound(void);
 void playShipDiedSound(void);
 void playGameoverSound(void);
 void playMenuMusic(void);
-void playGameplayMusic(void);
 void stopMenuMusic(void);
-unsigned int stopGameplayMusic(void);
-void stopMothershipSound(void);
-void resumeGameplayMusic(unsigned int position);
+void playGameplayMusic(void);
+unsigned int stopGameplayMusic(void); // returns the position in which the music was stopped
+void resumeGameplayMusic(unsigned int position); // param position is the moment where the music was stopped, used to reproduce it from there
 
 /*******************************************************************************
  ******************************************************************************/

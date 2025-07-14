@@ -1,7 +1,7 @@
 /***************************************************************************/ /**
 	@render_pc.h
-    @Render frontend
-    @Grupo_5
+  @Render frontend
+  @Grupo_5
   ******************************************************************************/
 
 #ifndef RENDER_PC_H
@@ -43,11 +43,20 @@
 // +ej: char lcd_goto (int fil, int col);+
 
 /**
- * @brief functions to create and detroy allegro graphics
+ * @brief function to create and detroy allegro graphics
+ * @return 0 if success, -1 if error
  */
-void initGraphics(void);
+int initGraphics(void);
+
+/**
+ * @brief function to detroy allegro graphics
+ */
 void cleanupGraphics(void);
 
+/**
+ * @brief function to get the allegro event queue
+ * @return the allegro event queue
+ */
 ALLEGRO_EVENT_QUEUE *getEventQueue(void);
 
 /**

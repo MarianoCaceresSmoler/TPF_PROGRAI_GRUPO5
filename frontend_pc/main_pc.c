@@ -70,56 +70,75 @@ int main(void)
 	game_t game;
 	gameInit(&game);
 
-	initAudio();
-	initGraphics();
+	// Initialize audio and check for errors
+	if(initAudio())
+	{
+		printf("Error initializing audio\n");
+		return -1;
+	}
+	
+	// Initialize graphics and check for errors
+	if(initGraphics())
+	{
+		printf("Error initializing graphics\n");
+		return -1;
+	}
 
-	// Allegro variables to manage the game loop and the inputs
+	// Main loop control and input handling setup
 	bool programRunning = true;
 	ALLEGRO_EVENT ev;
 	inputStatus_t inputStatus = {false, false, false, false, false, false, false, false};
 
-	// For audio management
+	// Audio state variables
 	bool isMenuMusicPlaying = false;
 	bool isGameplayMusicPlaying = false;
 	bool isMothershipSoundPlaying = false;
 	bool gameoverSoundPlayed = false;
 	unsigned int gameplayMusicPosition = 0;
+	// Game state tracking
 	int currentPoints = 0;
 	int currentLives = SHIP_INITIAL_LIVES;
 	int currentPowerUps[POWERUP_TYPES] = {0, 0, 0, 0};
 	int i;
 
+	// Main game loop
 	while (programRunning)
 	{
+		// Process incoming events
 		if (al_get_next_event(getEventQueue(), &ev))
 		{
+			// Timer event triggers game logic and rendering
 			if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
 				switch (game.status)
 				{
 				case GAME_MENU:
 
-					if (!isMenuMusicPlaying) // Inits menu music only when game starts
+					if (!isMenuMusicPlaying) // Start menu music if not already playing
 					{
 						playMenuMusic();
 						isMenuMusicPlaying = true;
 					}
-
+ 
+					// Render main menu
 					renderMenu(game);
 
+					// If resume key pressed, switch to gameplay
 					if (inputStatus.resumeKeyPressed)
-					{
-						// Changes background music and inits level
+					{						
 						stopMenuMusic();
 						isMenuMusicPlaying = false;
-
 						levelInit(&game);
 					}
+
 					break;
 
 				case GAME_LOADING:
 
+					// Show loading screen
 					renderGame(game);
+
+					// Countdown before starting gameplay
 					if (game.loadingTimer > 0)
 						game.loadingTimer--;
 					else
@@ -133,20 +152,23 @@ int main(void)
 
 				case GAME_RUNNING:
 
-					if (currentPoints != game.score || currentLives > game.ship.livesLeft) // Updates points when score changes and plays explosion sound
+					// If score or lives changed, play explosion sound and update tracked values
+					if (currentPoints != game.score || currentLives > game.ship.livesLeft)
 					{
 						playExplosionSound();
 						currentPoints = game.score;
 						currentLives = game.ship.livesLeft;
 					}
 
-					if (!isGameplayMusicPlaying) // resumes game music if it is paused
+					// Resume gameplay music if previously paused
+					if (!isGameplayMusicPlaying)
 					{
 						resumeGameplayMusic(gameplayMusicPosition);
 						isGameplayMusicPlaying = true;
 					}
 
-					for (i = 0; i < POWERUP_TYPES; i++) // check if a powerup was collected to play powerup sound
+					// Check for newly collected power-ups and play powerup sound
+					for (i = 0; i < POWERUP_TYPES; i++)
 					{
 						if (currentPowerUps[i] != game.activePowerUp[i])
 						{
@@ -159,9 +181,12 @@ int main(void)
 						}
 					}
 
-					if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
+					// Play shoot sound if the shoot key is pressed
+					if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive)
 						playShootSound();
-					if (game.mothership.entity.isAlive && !isMothershipSoundPlaying) // Plays mothership sound when it appears
+					
+					// Play mothership sound when it appears
+					if (game.mothership.entity.isAlive && !isMothershipSoundPlaying)
 					{
 						playMothershipSound();
 						isMothershipSoundPlaying = true;
@@ -172,6 +197,7 @@ int main(void)
 						isMothershipSoundPlaying = false;
 					}
 
+					// Update and render game frame
 					renderGame(game);
 					gameUpdate(&game, inputStatus);
 					
@@ -179,23 +205,25 @@ int main(void)
 
 				case GAME_PAUSED:
 
-					if (isGameplayMusicPlaying) // Stops gameplay music when paused
+					// Stop gameplay and mothership music
+					if (isGameplayMusicPlaying)
 					{
 						gameplayMusicPosition = stopGameplayMusic();
 						isGameplayMusicPlaying = false;
 					}
-
 					if (isMothershipSoundPlaying)
 					{
 						stopMothershipSound();
 						isMothershipSoundPlaying = false;
 					}
 
+					// Render pause menu
 					renderMenu(game);
 
+					// Manage user inputs in pause menu
 					if (inputStatus.resumeKeyPressed)
 					{
-						// Resumes game
+						// Resume game
 						resumeGameplayMusic(gameplayMusicPosition);
 						isGameplayMusicPlaying = true;
 						gameResume(&game);
@@ -209,6 +237,7 @@ int main(void)
 					}
 					else if (inputStatus.exitKeyPressed)
 					{
+						// Exit game
 						programRunning = false;
 					}
 
@@ -216,24 +245,26 @@ int main(void)
 
 				case GAME_END:
 
+					// Stop gameplay and mothership sounds
 					if (isGameplayMusicPlaying)
 					{
-						gameplayMusicPosition = stopGameplayMusic(); // Stops gameplay music when game ends
+						gameplayMusicPosition = stopGameplayMusic();
 						isGameplayMusicPlaying = false;
 					}
-
 					if (isMothershipSoundPlaying)
 					{
 						stopMothershipSound();
 						isMothershipSoundPlaying = false;
 					}
 
-					if (!gameoverSoundPlayed) // Plays gameover sound only when game ends
+					// Play game over sound once
+					if (!gameoverSoundPlayed)
 					{
 						playGameoverSound();
 						gameoverSoundPlayed = true;
 					}
 
+					// Manage input in game over screen
 					if (inputStatus.restartKeyPressed)
 					{
 						currentPoints = 0;
@@ -246,41 +277,49 @@ int main(void)
 						programRunning = false;
 					}
 
+					// Show game over screen
 					renderGameOver(game);
 
 					break;
 				default:
+					// Handle unexpected state
 					programRunning = false;
 					printf("Error: Invalid game status.\n");
+					return -1;
 					break;
 				}
 			}
 			else if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
+				// Update input status when key is pressed
 				setInput(&inputStatus, ev.keyboard.keycode);
 
-				// Manages if the player pauses or exits the game
+				// Allow player to pause or quit game
 				if (inputStatus.pauseKeyPressed && game.status == GAME_RUNNING)
 					game.status = GAME_PAUSED;
 				else if (inputStatus.exitKeyPressed)
 					programRunning = false;
 				else if (game.status == GAME_MENU)
 					setUserName(&game, ev.keyboard.keycode);
+				
 			}
 			else if (ev.type == ALLEGRO_EVENT_KEY_UP)
 			{
+				// Clear input status when key is released
 				clearInput(&inputStatus, ev.keyboard.keycode);
 			}
 			else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			{
+				// Handle window close
 				programRunning = false;
 			}
 		}
 	}
 
-	// Cleanup allegro when program ends
+	// Cleanup Allegro resources before exiting
 	cleanupGraphics();
 	cleanupAudio();
 	printf("\nProgram finished.\n\n");
 	return 0;
 }
+
