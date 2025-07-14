@@ -45,7 +45,7 @@
 
 /**
  * @brief function to initialize the allegro audio
- * @return 0 if the inicialization was successful, -1 otherwise
+ * @return 0 if the initialization was successful, -1 otherwise
 */
 int initAudio(void);
 

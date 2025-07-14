@@ -281,6 +281,12 @@ int main(void)
 					renderGameOver(game);
 
 					break;
+				case GAME_ERROR:
+					// If game status was set to GAME_ERROR, it means the game needs to end
+					programRunning = false;
+					printf("Game status ERROR\n");
+					return -1;
+					break;
 				default:
 					// Handle unexpected state
 					programRunning = false;

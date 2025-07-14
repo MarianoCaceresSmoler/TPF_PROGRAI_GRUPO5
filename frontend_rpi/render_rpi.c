@@ -28,15 +28,19 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
+// Macro to check if an element in (x,y) position enters in the display
 #define CHECK_IS_IN_DISPLAY(x, y) (((x) >= 0) && ((x) < DISP_CANT_X_DOTS) && ((y) > 0) && ((y) < DISP_CANT_Y_DOTS))
 
+// Constants to draw text on display
 #define CHAR_WIDTH 3
 #define CHAR_SEPARATION 1
 #define CHAR_WIDTH_PIXELS (CHAR_WIDTH + CHAR_SEPARATION)
 #define CHAR_HEIGHT 5
 
+// Durations for animations
 #define ANIMATION_DURATION (ONE_SECOND * 4)
-#define ANIMATION_FRAME_DURATION (ANIMATION_DURATION / 6)
+#define SWIPING_TEXT_DELAY 100
+
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -55,27 +59,38 @@
 // +ej: static void falta_envido (int);+
 
 /**
- * @brief private functions to render the different parts of the game
- */
+ * @brief function to render game in a separate thread
+ * @param gamearg pointer to game object used in main
+*/
 static void *render(void *gamearg);
+
+/**
+ * @brief private functions to render the different screens of the game
+ * @param game pointer to the game object created in main
+ */
 static void renderLoading(game_t *game);
 static void renderGame(game_t *game);
 static void renderMenu(game_t *game);
 static void renderGameOver(game_t *game);
 
 /**
- * @brief draws an object in display
+ * @brief draws a rectangular object in display
  * @param x position x of the object
  * @param y position y of the object
  * @param width width of the object
  * @param height height of the object
  */
 static void drawObject(int x, int y, int width, int height);
-static void swipeText(const char * text, int x, int y, gameStatus_t *gameStatus);
 
-
+/**
+ * @brief functions to draw menus
+ * @param gameStatus pointer to real time game status
+ */
 static void drawStartMenu(gameStatus_t *gameStatus);
 static void drawPauseMenu(gameStatus_t *gameStatus);
+
+// Functions to draw initial menu animation 
+// param animationTicks is used to determine which frame to draw
 static void drawStartAnimation(int animationTicks);
 static void drawFrame1();
 static void drawFrame2();
@@ -115,6 +130,15 @@ static void drawChar(char c, int x, int y);
  */
 static void drawText(const char *text, int x, int y);
 
+/**
+ * @brief draws text scrolling on display
+ * @param x initial position x of the text
+ * @param y initial position y of the text
+ * @param width width of the object
+ * @param gameStatus pointer to real time game status
+ */
+static void swipeText(const char * text, int x, int y, gameStatus_t *gameStatus);
+
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -127,10 +151,12 @@ static void drawText(const char *text, int x, int y);
 
 // +ej: static int temperaturas_actuales[4];+
 
+// Variables to control the input thread
 static pthread_t renderThread;
 static bool stopRenderThread = false;
 
-const uint8_t font3x5_letters[26][5] =
+// Matrix to get formatted letters
+const uint8_t font3x5_letters[26][CHAR_HEIGHT] =
     {
         // A
         {0b010,
@@ -314,7 +340,8 @@ const uint8_t font3x5_letters[26][5] =
          0b100,
          0b111}};
 
-const uint8_t font3x5_digits[12][5] =
+// Matrix to get formatted digits
+const uint8_t font3x5_digits[12][CHAR_HEIGHT] =
     {
         // 0
         {0b111,
@@ -407,19 +434,34 @@ const uint8_t font3x5_digits[12][5] =
  *******************************************************************************
  ******************************************************************************/
 
-void initGraphics(game_t *game)
+int initGraphics(game_t *game)
 {
-    disp_init();
+    if(!game)
+    {
+        printf("Error: game param is NULL");
+        return -1; // return an error code the game object received is NULL
+    }
 
-    pthread_create(&renderThread, NULL, render, game); // creates thread for rendering
+    // Initialize the display
+    disp_init(); 
+    
+    // Creates thread for rendering
+    if(pthread_create(&renderThread, NULL, render, game))
+    {
+        printf("Error creating render thread\n");
+        return -1; // return an error code if the thread creation fails
+    }
 
     disp_clear();
+    return 0;
 }
 
-void cleanupGraphics(void)
+void cleanupGraphics(void) // to stop the loop in render
 {
-    stopRenderThread = true;
-    pthread_join(renderThread, NULL);
+    stopRenderThread = true; // to stop the loop in render
+    pthread_join(renderThread, NULL); // waits for the thread to finish
+    
+    // Clears display and updates
     disp_clear();
     disp_update();
 }
@@ -432,12 +474,14 @@ void cleanupGraphics(void)
 
 static void *render(void *gamearg)
 {
+    // Cast the generic pointer to the proper type
     game_t *game = (game_t *)gamearg;
 
     while (!stopRenderThread)
     {
         disp_clear(); // first clears all the leds
 
+        // Then renders depending on game state
         if (game->status == GAME_LOADING)
             renderLoading(game);
         else if (game->status == GAME_RUNNING)
@@ -459,11 +503,12 @@ static void *render(void *gamearg)
 
 static void renderLoading(game_t *game)
 {
-    drawAliensLoading(game->aliens, LOADING_TIME - game->loadingTimer);
+    drawAliensLoading(game->aliens, LOADING_TIME - game->loadingTimer); // draws aliens loading
 }
 
 static void renderGame(game_t *game)
 {
+    // Draw each element of the game
     drawShip(game->ship);
     drawAliens(game->aliens);
     drawMothership(game->mothership);
@@ -475,17 +520,25 @@ static void renderGame(game_t *game)
 
 static void renderMenu(game_t *game)
 {
+    // If the game is currently in the main menu state
     if (game->status == GAME_MENU)
     {
+        // Static variable to control the duration of the start animation
         static int animationTicks = ANIMATION_DURATION;
+
+        // If there are still animation ticks left, play the start animation
         if (animationTicks > 0)
         {
-            drawStartAnimation(animationTicks);
-            animationTicks--;
+            drawStartAnimation(animationTicks); // Draw the animation frame
+            animationTicks--; // Decrease the animation timer
         }
         else
+        {
+            // Once the animation finishes, draw the main menu
             drawStartMenu(&game->status);
+        }
     }
+    // If the game is paused, show the pause menu
     else if (game->status == GAME_PAUSED)
     {
         drawPauseMenu(&game->status);
@@ -496,21 +549,23 @@ static void renderGameOver(game_t *game)
 {
     if (game->status == GAME_END)
     {
+        // Get final score and level
         int finalScore = game->score;
         int finalLevel = game->currentLevel;
-        disp_clear();
+
+        disp_clear(); // clears display
+
+        // Draws GAME OVER
         drawText("GAME", 1, 1);
         drawText("OVER", 1, 7);
         disp_update();
         SDL_Delay(1000);
 
-        // Convertir a string
+        // Draws final score and level
         char finalStr[24];
+        sprintf(finalStr, "SCORE:%d  LEVEL:%d", finalScore, finalLevel); // converts to string
+        swipeText(finalStr, SCREEN_WIDTH, 5, &game->status); // draws text scrolling
 
-        sprintf(finalStr, "SCORE:%d  LEVEL:%d", finalScore, finalLevel);
-
-        // Mostrar score arriba, level abajo
-        swipeText(finalStr, SCREEN_WIDTH, 5, &game->status); // Y=2 deja margen arriba
     }
 }
 
@@ -519,11 +574,12 @@ static void drawObject(int x, int y, int width, int height)
     for (int row = 0; row < height; row++)
     {
         for (int col = 0; col < width; col++)
-        {
+        { 
+            // Draws each pixel of the object individually
             int px = x + col;
             int py = y + row;
 
-            if (!CHECK_IS_IN_DISPLAY(px, py))
+            if (!CHECK_IS_IN_DISPLAY(px, py)) // only draws if the pixel fits in the display
                 continue;
 
             dcoord_t coord = {.x = px, .y = py};
@@ -534,6 +590,8 @@ static void drawObject(int x, int y, int width, int height)
 
 static void drawStartAnimation(int animationTicks)
 {
+    // Draws an animation of 4 frames of an alien moving
+
     if (animationTicks == 0)
         return;
 
@@ -677,13 +735,13 @@ static void drawFrame4()
 
 static void drawStartMenu(gameStatus_t *gameStatus)
 {
-    swipeText("HOLD BUTTON TO PLAY", SCREEN_WIDTH, 5, gameStatus);
+    swipeText("HOLD BUTTON TO PLAY", SCREEN_WIDTH, 5, gameStatus); // swiping text in start menu after the animation is over
 }
 
 static void drawPauseMenu(gameStatus_t *gameStatus)
 {
 
-    // Shows and X to close, and a wheel to restart
+    // Shows a wheel to restart, and an X to close
     char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
@@ -723,7 +781,7 @@ static void drawShip(ship_t ship)
         int y = ship.entity.y;
 
         if (ship.invencibilityTicks % 2 == 0) // ticks mode if ship is invincible after being shooted
-            drawObject(x, y, SHIP_WIDTH, SHIP_HEIGHT);
+            drawObject(x, y, SHIP_WIDTH, SHIP_HEIGHT); // draws ship in display
     }
 }
 
@@ -741,14 +799,14 @@ static void drawAliens(alienFormation_t aliens)
             int x = alien->entity.x;
             int y = alien->entity.y;
 
-            drawObject(x, y, ALIEN_WIDTH, ALIEN_HEIGHT);
+            drawObject(x, y, ALIEN_WIDTH, ALIEN_HEIGHT); // draws each alien individually
         }
     }
 }
 
 static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw)
 {
-    int drawn = 0;
+    int drawn = 0; // to store the aliens drawn in one frame
 
     // draws aliens from bottom to top, from left to right
     for (int i = ALIENS_ROWS - 1; i >= 0; i--)
@@ -756,12 +814,12 @@ static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw)
         for (int j = 0; j < ALIENS_COLS; j++)
         {
             if (drawn >= aliensToDraw)
-                return; // when we have drawn the aliens we wanted
+                return; // when we have drawn the aliens we wanted (per frame)
 
             alien_t alien = aliens.alien[i][j];
 
-            drawObject(alien.entity.x, alien.entity.y, ALIEN_WIDTH, ALIEN_HEIGHT);
-            drawn++;
+            drawObject(alien.entity.x, alien.entity.y, ALIEN_WIDTH, ALIEN_HEIGHT); // draws each alien individually
+            drawn++; // increment the counter
         }
     }
 }
@@ -773,7 +831,7 @@ static void drawMothership(mothership_t mothership)
         int x = mothership.entity.x;
         int y = mothership.entity.y;
 
-        drawObject(x, y, MOTHERSHIP_WIDTH, MOTHERSHIP_HEIGHT);
+        drawObject(x, y, MOTHERSHIP_WIDTH, MOTHERSHIP_HEIGHT); // draws the mothership
     }
 }
 
@@ -823,6 +881,7 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
 {
     int i, x, y;
 
+    // Draws each barrier pixel by pixel
     for (i = 0; i < BARRIERS; i++)
     {
         for (x = 0; x < BARRIER_HEIGHT; x++)
@@ -831,7 +890,7 @@ static void drawBarriers(barrier_t barriers[BARRIERS])
             {
                 entity_t pixel = barriers[i].pixel[x][y].entity;
 
-                // Only draws if the pixel is alive
+                // Only draws the pixel if it is alive
                 if (pixel.isAlive)
                 {
                     if (CHECK_IS_IN_DISPLAY(pixel.x, pixel.y))
@@ -863,34 +922,43 @@ static void drawChar(char c, int x, int y)
     const uint8_t *matrixChar = NULL;
     int col, row;
 
+    // Determine the bitmap to use based on the character
     if (c >= 'A' && c <= 'Z')
     {
+        // Uppercase letters: get the corresponding 3x5 font matrix
         matrixChar = font3x5_letters[c - 'A'];
     }
     else if (c >= '0' && c <= '9')
     {
+        // Digits: get the corresponding 3x5 font matrix
         matrixChar = font3x5_digits[c - '0'];
     }
     else if (c == ':')
     {
+        // Colon character uses the 11th index in digits font
         matrixChar = font3x5_digits[10];
     }
     else if (c == ' ')
     {
+        // Space character uses the 12th index in digits font (blank matrix)
         matrixChar = font3x5_digits[11];
     }
     else
     {
-        return; // not a printable character
+        // Unsupported or non-printable character: do nothing
+        return; 
     }
 
-    // Draws the pixels of the character
-    for (row = 0; row < 5; row++)
+    // Loop through the 5x3 char
+    for (row = 0; row < CHAR_HEIGHT; row++)
     {
-        for (col = 0; col < 3; col++)
+        for (col = 0; col < CHAR_WIDTH; col++)
         {
+            // Check if the bit corresponding to this pixel is set
+            // and ensure the pixel is within the screen bounds
             if (matrixChar[row] & (1 << (2 - col)) && x+col >= 0 && x+col < SCREEN_WIDTH && y+row > 0 && y+row < SCREEN_HEIGHT)
             {
+                // Set the pixel on the display at the correct position
                 dcoord_t coord = {.x = x + col, .y = y + row};
                 disp_write(coord, D_ON);
             }
@@ -902,23 +970,37 @@ static void drawText(const char *text, int x, int y)
 {
     while (*text)
     {
+        // Draw each character at the current position
         drawChar(*text, x, y);
-        x += 4; // 3 width + 1 space
+
+        // Move the x position to the right for the next character
+        // 3 pixels for character width + 1 pixel space = 4 pixels
+        x += 4;
+
+        // Move to the next character in the string
         text++;
     }
 }
 
 static void swipeText(const char * text, int x, int y, gameStatus_t *gameStatus)
 {
-    int i, j, length = strlen(text);
-    gameStatus_t lastStatus = *gameStatus;
-    for(i = x, j = 0; i > x - length * CHAR_WIDTH_PIXELS && lastStatus == *gameStatus; i--, j++)
+    int i, j;
+    int length = strlen(text);          // Get the length of the text
+    gameStatus_t lastStatus = *gameStatus;  // Store the current game status at the start
+
+    // Animate from position x to x - text length (scrolling to the left)
+    for (i = x, j = 0; 
+         i > x - length * CHAR_WIDTH_PIXELS && lastStatus == *gameStatus; 
+         i--, j++)
     {
-        disp_clear();
+        disp_clear(); // Clear the screen
+
+        // Draw the text at the current position
+        // Add a small vertical offset using j % 2 to give a bouncing effect
         drawText(text, i, y + j % 2);
-        disp_update();
-        SDL_Delay(100);
 
+        disp_update(); // Refresh the display
+
+        SDL_Delay(SWIPING_TEXT_DELAY); // Delay to control animation speed
     }
-
 }

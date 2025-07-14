@@ -72,198 +72,230 @@
 
 int main(void)
 {
+    // Main program loop control
+    bool programRunning = true;
 
-	bool programRunning = true;
-	game_t game;
-	inputStatus_t inputStatus = {false, false, false, false, false, false, false, false};
+    // Game state structure
+    game_t game;
 
-	gameInit(&game);	
-	
-	initGraphics(&game);
-	initInput(&inputStatus);
-	initializeAudio();
+    // Input status flags for keys
+    inputStatus_t inputStatus = {false, false, false, false, false, false, false, false};
 
-	// For audio management
-	bool isGameplayMusicPlaying = false;
-	bool isMotherShipPlaying = false;
-	bool gameoverSoundPlayed = false;
-	bool isFirstTry = true;
-	int currentPoints = 0;
-	int currentLives = SHIP_INITIAL_LIVES;
-	int currentPowerUps[POWERUP_TYPES] = {0, 0, 0, 0};
-	int i;
+    // Initialize the game structure
+    gameInit(&game);	
 
-	while (programRunning)
-	{
-		switch (game.status)
-		{
-		case GAME_MENU:
+    // Initialize graphics; exit if failed
+    if(initGraphics(&game))
+    {
+        printf("Error initializing graphics");
+        return -1;
+    }
 
-			if (inputStatus.resumeKeyPressed)
-			{
-				levelInit(&game);
-				resetInputFlags(&inputStatus);
-			}
-			else if (inputStatus.exitKeyPressed)
-			{
-				programRunning = false;
-			}
+    // Initialize input; exit if failed
+    if(initInput(&inputStatus))
+    {
+        printf("Error initializing input");
+        return -1;
+    }
 
-			break;
+    // Initialize audio; exit if failed
+    if(initializeAudio())
+    {
+        printf("Error initializing audio");
+        return -1;
+    }
 
-		case GAME_LOADING:
+    // Flags and variables for managing audio and game events
+    bool isGameplayMusicPlaying = false;
+    bool isMotherShipPlaying = false;
+    bool gameoverSoundPlayed = false;
+    bool isFirstTry = true;
+    int currentPoints = 0;
+    int currentLives = SHIP_INITIAL_LIVES;
+    int currentPowerUps[POWERUP_TYPES] = {0, 0, 0, 0}; // Tracks current powerup status
+    int i;
 
-			if (game.loadingTimer > 0)
-				game.loadingTimer--;
-			else
-			{
-				if (isFirstTry)
-				{
-					playGameMusic();
-					isFirstTry = false;
-				}
-				else
-				{
-					resumeMusic();
-				}
-				isGameplayMusicPlaying = true;
-				game.status = GAME_RUNNING;
-			}
+    // Main game loop
+    while (programRunning)
+    {
+        switch (game.status)
+        {
+        case GAME_MENU:
+            // Start the game if resume key is pressed
+            if (inputStatus.resumeKeyPressed)
+            {
+                levelInit(&game);
+                resetInputFlags(&inputStatus);
+            }
+            // Exit game if exit key is pressed
+            else if (inputStatus.exitKeyPressed)
+            {
+                programRunning = false;
+            }
+            break;
 
-			break;
+        case GAME_LOADING:
+            // Countdown loading timer before entering the game
+            if (game.loadingTimer > 0)
+                game.loadingTimer--;
+            else
+            {
+                // Play music depending on whether it's the first try or a resume
+                if (isFirstTry)
+                {
+                    playGameMusic();
+                    isFirstTry = false;
+                }
+                else
+                {
+                    resumeMusic();
+                }
+                isGameplayMusicPlaying = true;
+                game.status = GAME_RUNNING;
+            }
+            break;
 
-		case GAME_RUNNING:
+        case GAME_RUNNING:
+            // Resume music if it was stopped
+            if (!isGameplayMusicPlaying)
+            {
+                resumeMusic();
+                isGameplayMusicPlaying = true;
+            }
 
-			if (!isGameplayMusicPlaying) // resumes game music if it is paused
-			{
-				resumeMusic();
-				isGameplayMusicPlaying = true;
-			}
+            // Check for new powerups collected and play sound
+            for (i = 0; i < POWERUP_TYPES; i++)
+            {
+                if (currentPowerUps[i] != game.activePowerUp[i])
+                {
+                    currentPowerUps[i] = game.activePowerUp[i];
+                    if (currentPowerUps[i] == 1)
+                    {
+                        playPowerUpSound();
+                    }
+                }
+            }
 
-			for (i = 0; i < POWERUP_TYPES; i++) // check if a powerup was collected to play powerup sound
-			{
-				if (currentPowerUps[i] != game.activePowerUp[i])
-				{
-					currentPowerUps[i] = game.activePowerUp[i];
+            // Play explosion sound if score or lives changed
+            if (currentPoints != game.score || currentLives != game.ship.livesLeft)
+            {
+                playExplosionSound();
+                currentPoints = game.score;
+                currentLives = game.ship.livesLeft;
+            }
 
-					if (currentPowerUps[i] == 1)
-					{
-						playPowerUpSound();
-					}
-				}
-			}
+            // Play shoot sound when player fires
+            if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive)
+                playShootSound();
 
-			if (currentPoints != game.score || currentLives != game.ship.livesLeft) // Updates points when score changes and plays explosion sound
-			{
-				playExplosionSound();
-				currentPoints = game.score;
-				currentLives = game.ship.livesLeft;
-			}
+            // Play mothership sound only when it's alive
+            if (game.mothership.entity.isAlive && !isMotherShipPlaying)
+            {
+                playMothershipSound();
+                isMotherShipPlaying = true;
+            }
+            else if (!game.mothership.entity.isAlive && isMotherShipPlaying)
+            {
+                isMotherShipPlaying = false;
+            }
 
-			if (inputStatus.shootKeyPressed && !game.shipBullet.entity.isAlive) // Plays shot sound when shoot key is pressed
-				playShootSound();
+            // Pause the game
+            if (inputStatus.pauseKeyPressed)
+            {
+                game.status = GAME_PAUSED;
+            }
+            else
+            {
+                // Regular game update cycle
+                gameUpdate(&game, inputStatus);
+                resetInputFlags(&inputStatus);
+            }
+            break;
 
-			if (game.mothership.entity.isAlive && !isMotherShipPlaying) // Plays mothership sound when it is on display
-			{
-				playMothershipSound();
-				isMotherShipPlaying = true;
-			}
-			else if (!game.mothership.entity.isAlive && isMotherShipPlaying)
-			{
-				isMotherShipPlaying = false;
-			}
+        case GAME_PAUSED:
+            // Stop music while paused
+            stopMusic();
+            isGameplayMusicPlaying = false;
 
-			if (inputStatus.pauseKeyPressed)
-			{
-				game.status = GAME_PAUSED;
-			}
-			else
-			{
-				gameUpdate(&game, inputStatus);
-				resetInputFlags(&inputStatus);
-			}
+            // Resume game
+            if (inputStatus.resumeKeyPressed)
+            {
+                gameResume(&game);
+                resetInputFlags(&inputStatus);
+            }
+            // Restart game from beginning
+            else if (inputStatus.restartKeyPressed)
+            {
+                currentPoints = 0;
+                currentLives = SHIP_INITIAL_LIVES;
+                gameReset(&game);
+                resetInputFlags(&inputStatus);
+            }
+            // Exit game
+            else if (inputStatus.exitKeyPressed)
+            {
+                programRunning = false;
+                game.status = GAME_END;
+                resetInputFlags(&inputStatus);
+            }
+            break;
 
-			break;
+        case GAME_END:
+            // Stop music if it's still playing
+            if (isGameplayMusicPlaying)
+            {
+                stopMusic();
+                isGameplayMusicPlaying = false;
+            }
 
-		case GAME_PAUSED:
+            // Play game over sound only once
+            if (!gameoverSoundPlayed)
+            {
+                playGameoverSound();
+                gameoverSoundPlayed = true;
+            }
 
-			stopMusic();
-			isGameplayMusicPlaying = false;
+            // Restart game after game over
+            if (inputStatus.restartKeyPressed)
+            {
+                currentPoints = 0;
+                currentLives = SHIP_INITIAL_LIVES;
 
-			if (inputStatus.resumeKeyPressed)
-			{
-				gameResume(&game);
-				resetInputFlags(&inputStatus);
-			}
-			else if (inputStatus.restartKeyPressed)
-			{
-				// Restarts game
-				currentPoints = 0;
-				currentLives = SHIP_INITIAL_LIVES;
-				gameReset(&game);
-				resetInputFlags(&inputStatus);
-			}
-			else if (inputStatus.exitKeyPressed)
-			{
-				programRunning = false;
-				game.status = GAME_END;
-				resetInputFlags(&inputStatus);
-			}
+                gameReset(&game);
+                resetInputFlags(&inputStatus);
 
-			break;
+                gameoverSoundPlayed = false;
+            }
+            // Exit game
+            else if (inputStatus.exitKeyPressed)
+            {
+                programRunning = false;
+                resetInputFlags(&inputStatus);
+            }
+            break;
 
-		case GAME_END:
+        case GAME_ERROR:
+            // Handle unexpected error status
+            programRunning = false;
+            printf("Error: game error status.\n");
+            break;
 
-			if (isGameplayMusicPlaying)
-			{
-				stopMusic(); // Stops gameplay music when game ends
-				isGameplayMusicPlaying = false;
-			}
+        default:
+            // Handle unknown status values
+            programRunning = false;
+            printf("Error: Invalid game status.\n");
+            break;
+        }
 
-			if (!gameoverSoundPlayed) // Plays gameover sound only when game ends
-			{
-				playGameoverSound();
-				gameoverSoundPlayed = true;
-			}
+        // Delay to maintain a consistent frame rate
+        usleep(FRAME_TIME_US);
+    }
 
-			if (inputStatus.restartKeyPressed)
-			{
-				currentPoints = 0;
-				currentLives = SHIP_INITIAL_LIVES;
+    // Clean up all resources before exiting
+    cleanupGraphics();
+    cleanupAudio();
+    cleanupInput();
+    printf("\nProgram finished.\n\n");
 
-				gameReset(&game);
-				resetInputFlags(&inputStatus);
-
-				gameoverSoundPlayed = false;
-			}
-			else if (inputStatus.exitKeyPressed)
-			{
-				programRunning = false;
-				resetInputFlags(&inputStatus);
-			}
-
-			break;
-
-		case GAME_ERROR:
-			programRunning = false;
-			printf("Error: game error status.\n");
-			break;
-
-		default:
-			programRunning = false;
-			printf("Error: Invalid game status.\n");
-			break;
-		}
-
-		// Delay to keep the FPS
-		usleep(FRAME_TIME_US);
-	}
-
-	// Cleanup when program ends
-	cleanupGraphics();
-	cleanupAudio();
-	cleanupInput();
-	printf("\nProgram finished.\n\n");
-
-	return 0;
+    return 0;
 }

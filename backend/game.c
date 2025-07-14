@@ -530,7 +530,7 @@ static int updateShip(ship_t *ship, bool moveLeft, bool moveRight, int tickCount
 {
 	#ifdef PLATFORM_RPI // in rpi, updates ship taking into account the ship move interval
 		if (tickCounter % SHIP_MOVE_INTERVAL != 0)
-			return;
+			return 0;
 	#endif
 
 	if(!ship)
@@ -645,7 +645,7 @@ static int updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemai
 	firstColumn = getFirstColumnAlive(*aliens);
 	lastColumn = getLastColumnAlive(*aliens);
 
-	if(firstColumn < 0 || lastColumn < 0 || firstColumn > ALIENS_COLS || lastColumn > ALIENS_COLS)
+	if(firstColumn < 0 || lastColumn < 0 || firstColumn >= ALIENS_COLS || lastColumn >= ALIENS_COLS)
 	{
 		printf("Error geting first or last column alive\n");
 		return -1; // returns an error if there are no aliens alive to update
@@ -789,7 +789,7 @@ static int updateMothership(mothership_t *mothership, int tickCounter)
 {
 	#ifdef PLATFORM_RPI //  in rpi, updates mothership taking into account the mothership move interval
 		if (tickCounter % MOTHERSHIP_MOVE_INTERVAL != 0)
-			return;
+			return 0;
 	#endif
 
 	if(!mothership)
@@ -845,7 +845,7 @@ static int updatePowerUps(powerUp_t powerUp[POWERUP_TYPES], int activePowerUp[PO
 			{
 				#ifdef PLATFORM_RPI // in rpi, move only at certain tick intervals
 					if (tickCounter % POWERUP_MOVE_INTERVAL != 0)
-						return;
+						return 0;
 				#endif
 				
 				if(moveEntityY(&powerUp[i].entity, POWERUP_MOVE_RATE)) // move the power-up downwards

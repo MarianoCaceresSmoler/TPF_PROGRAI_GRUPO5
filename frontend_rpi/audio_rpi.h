@@ -1,7 +1,7 @@
 /***************************************************************************/ /**
-     @audio_rpi.h
-     @Control of music and sound effects
-     @Grupo_5
+    @audio_rpi.h
+    @Control of music and sound effects
+    @Grupo_5
   ******************************************************************************/
 
 #ifndef AUDIO_RPI_H
@@ -39,8 +39,10 @@
 
 /**
  * @brief function to initialize the audio
+ * @return 0 if the initialization was successful, -1 otherwise
+
  */
-void initializeAudio(void);
+int initializeAudio(void);
 
 /**
  * @brief function to end and free the audio

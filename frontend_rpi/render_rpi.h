@@ -46,7 +46,7 @@
  * @brief function to init and clear the display
  * @param game pointer to game used in main
  */
-void initGraphics(game_t * game);
+int initGraphics(game_t * game);
 
 /**
  * @brief function to cleanup graphics

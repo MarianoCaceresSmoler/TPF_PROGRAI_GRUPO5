@@ -23,11 +23,6 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
- // To control the movement of the ship
-// typedef struct {
-//     int leftPressed;
-//     int rightPressed;
-// } input_state_t;
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
@@ -51,8 +46,14 @@
 /**
  * @brief function to init input system
  * @param inputStatus pointer to input status used in main
+ * @return 0 if input init is successful, -1 otherwise
 */
-void initInput(inputStatus_t *inputStatus);
+int initInput(inputStatus_t *inputStatus);
+
+/**
+ * @brief function to finish inputs loop
+*/
+void cleanupInput(void);
 
 /**
  * @brief function to reset input input flags
@@ -60,10 +61,6 @@ void initInput(inputStatus_t *inputStatus);
 */
 void resetInputFlags(inputStatus_t * inputStatus);
 
-/**
- * @brief function to finish inputs loop
-*/
-void cleanupInput(void);
 
 /*******************************************************************************
  ******************************************************************************/
