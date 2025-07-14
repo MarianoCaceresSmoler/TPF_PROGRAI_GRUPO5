@@ -335,8 +335,10 @@ void gameUpdate(game_t *game, inputStatus_t input)
 			game->ship.livesLeft++;
 
 		levelInit(game);
+		return;
 	}
-	else if (game->ship.entity.isAlive == false) // if the ship has been destroyed, updates it state
+	
+	if (game->ship.entity.isAlive == false) // if the ship has been destroyed, updates it state
 	{
 		if (game->ship.livesLeft == 0) // if ship has no lives left, game is over
 		{

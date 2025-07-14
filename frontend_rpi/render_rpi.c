@@ -956,7 +956,7 @@ static void drawChar(char c, int x, int y)
         {
             // Check if the bit corresponding to this pixel is set
             // and ensure the pixel is within the screen bounds
-            if (matrixChar[row] & (1 << (2 - col)) && x+col >= 0 && x+col < SCREEN_WIDTH && y+row > 0 && y+row < SCREEN_HEIGHT)
+            if (matrixChar[row] & (1 << (CHAR_WIDTH - 1 - col)) && x+col >= 0 && x+col < SCREEN_WIDTH && y+row > 0 && y+row < SCREEN_HEIGHT)
             {
                 // Set the pixel on the display at the correct position
                 dcoord_t coord = {.x = x + col, .y = y + row};
