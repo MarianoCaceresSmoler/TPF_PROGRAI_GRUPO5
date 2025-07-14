@@ -317,13 +317,13 @@ int getLastRowAlive(alienFormation_t aliens)
 	// Returns the index of the last row that contains at least one alien alive
 	int i, j, lastRow = -1;
 
-	for (i = ALIENS_ROWS - 1; i > 0 && lastRow == -1; i--)
+	for (i = ALIENS_ROWS - 1; i >= 0 && lastRow == -1; i--)
 	{
-		for (j = ALIENS_COLS; j > 0 && lastRow == -1; j--)
+		for (j = ALIENS_COLS; j >= 0 && lastRow == -1; j--)
 		{
 			if (aliens.alien[i][j].entity.isAlive)
 			{
-				lastRow = j;
+				lastRow = i;
 			}
 		}		
 	}
