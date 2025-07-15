@@ -767,12 +767,12 @@ static int updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemai
 			else
 				aliens->direction = MOVING_RIGHT;
 		}		
-		/*
+		
 		int lastRowAlive = getLastRowAlive(*aliens);
 
 		if (aliens->alien[lastRowAlive][0].entity.y >= SCREEN_HEIGHT)
 			return 1; // if the aliens have reached the bottom of the screen, return 1 to indicate game over
-		*/
+		
 		break;
 
 	default:
