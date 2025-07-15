@@ -1,7 +1,7 @@
 /***************************************************************************//**
-  @entities.h
-  @Entity definitions and actions
-  @Grupo_5
+  @file 	entities.h
+  @brief 	Entity definitions and actions
+  @author 	Grupo_5
  ******************************************************************************/
 
 #ifndef ENTITIES_H
@@ -12,12 +12,6 @@
  ******************************************************************************/
 
 #include "config.h"
-
-/*******************************************************************************
- * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
- ******************************************************************************/
-
-
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -114,12 +108,6 @@ typedef struct
 	powerUpTypes_t type; // to save the power up type
 	int ticksLeft; // to save the time the powerup is active
 } powerUp_t;
-
-/*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE

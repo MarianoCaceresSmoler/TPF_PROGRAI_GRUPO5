@@ -1,46 +1,19 @@
-/***************************************************************************/ /**
-    @audio_rpi.h
-    @Control of music and sound effects
-    @Grupo_5
-  ******************************************************************************/
+/***************************************************************************//**
+  @file 	  audio_rpi.h
+  @brief    Control of music and sound for RPI
+  @author 	Grupo_5
+ ******************************************************************************/
 
 #ifndef AUDIO_RPI_H
 #define AUDIO_RPI_H
-
-/*******************************************************************************
- * INCLUDE HEADER FILES
- ******************************************************************************/
-
-/*******************************************************************************
- * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
- ******************************************************************************/
-
-/*******************************************************************************
- * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
- ******************************************************************************/
-
-/*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: extern unsigned int anio_actual;+
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
 
 /**
- * @brief completar descripcion
- * @param param1 Descripcion parametro 1
- * @param param2 Descripcion parametro 2
- * @return Descripcion valor que devuelve
- */
-// +ej: char lcd_goto (int fil, int col);+
-
-/**
  * @brief function to initialize the audio
  * @return 0 if the initialization was successful, -1 otherwise
-
  */
 int initializeAudio(void);
 
@@ -50,15 +23,43 @@ int initializeAudio(void);
 void cleanupAudio(void);
 
 /**
- * @brief functions to reproduce sounds and music
+ * @brief function to play explosion sound
  */
 void playExplosionSound(void);
+
+/**
+ * @brief function to play power up sound
+ */
 void playPowerUpSound(void);
+
+/**
+ * @brief function to play mothership sound
+ */
 void playMothershipSound(void);
+
+/**
+ * @brief function to play ship shooting sound
+ */
 void playShootSound(void);
+
+/**
+ * @brief function to play game over sound
+ */
 void playGameoverSound(void);
+
+/**
+ * @brief function to play gameplay music
+ */
 void playGameMusic(void);
+
+/**
+ * @brief function to stop playing gameplay music
+ */
 void stopMusic(void);
+
+/**
+ * @brief function to resume gameplay music
+ */
 void resumeMusic(void);
 
 /*******************************************************************************

@@ -1,7 +1,7 @@
 /***************************************************************************//**
-  @file     +Nombre del archivo (ej: template.c)+
-  @brief    +Descripcion del archivo+
-  @author   +Nombre del autor (ej: Salvador Allende)+
+  @file     entities.c
+  @brief    Entity settings and movement functions
+  @author   Grupo_5
  ******************************************************************************/
 
 /*******************************************************************************

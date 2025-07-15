@@ -1,13 +1,12 @@
-/***************************************************************************/ /**
-   @physics.h
-   @Physics ant interactions
-   @Grupo_5
-  ******************************************************************************/
+/***************************************************************************//**
+  @file 	physics.c
+  @brief 	Collisions and interactions between entities
+  @author 	Grupo_5
+ ******************************************************************************/
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
-// +Incluir el header propio (ej: #include "template.h")+
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -20,24 +19,8 @@
 #include "scores.h"
 
 /*******************************************************************************
- * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
- ******************************************************************************/
-
-/*******************************************************************************
- * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
- ******************************************************************************/
-
-/*******************************************************************************
- * VARIABLES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: unsigned int anio_actual;+
-
-/*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
-
-// +ej: static void falta_envido (int);+
 
 /**
  * @brief function to check a collision between two entities
@@ -48,29 +31,54 @@
 static int checkEntitiesCollision(entity_t entityA, entity_t entityB);
 
 /**
- * @brief functions to check each possible collision individually
+ * @brief function to check if a bullet hit an alien
+ * @param game pointer to the game information
+ * @return points accumulated if an alien was hit 
+ */
+static int checkBulletHitsAliens(game_t *game);
+
+/**
+ * @brief function to check if a bullet hit the mothership
+ * @param game pointer to the game information
+ * @return points accumulated if the mothership was hit 
+ */
+static int checkBulletHitsMothership(game_t *game); 
+
+/**
+ * @brief function to check if a bullet hit the ship
  * @param game pointer to the game information
  */
-static int checkBulletHitsAliens(game_t *game); // returns the points acumulated if an alien was hit
-static int checkBulletHitsMothership(game_t *game); // returns the points acumulated if the mothership was hit
 static void checkBulletHitsShip(game_t *game);
+
+/**
+ * @brief function to check if a bullet hit a barrier pixel
+ * @param game pointer to the game information
+ */
 static void checkBulletHitsBarriers(game_t *game);
+
+/**
+ * @brief function to check if two bullets hit each other
+ * @param game pointer to the game information
+ */
 static void checkBulletHitsBullet(game_t *game);
-static void checkAllienHitsBarrier(game_t *game);
+
+/**
+ * @brief function to check if a bullet hit the ship
+ * @param game pointer to the game information
+ */
+static void checkAlienHitsBarrier(game_t *game);
+
+/**
+ * @brief function to check if an alien hit the ship
+ * @param game pointer to the game information
+ */
 static void checkAlienHitsShip(game_t *game);
+
+/**
+ * @brief function to check if a power up hit the ship
+ * @param game pointer to the game information
+ */
 static void checkPowerUpHitsShip(game_t *game);
-
-/*******************************************************************************
- * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
- ******************************************************************************/
-
-// +ej: static const int temperaturas_medias[4] = {23, 26, 24, 29};+
-
-/*******************************************************************************
- * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
- ******************************************************************************/
-
-// +ej: static int temperaturas_actuales[4];+
 
 /*******************************************************************************
  *******************************************************************************
@@ -91,7 +99,7 @@ int handleCollisions(game_t *game)
     checkBulletHitsShip(game);
     checkBulletHitsBarriers(game);
     checkBulletHitsBullet(game);
-    checkAllienHitsBarrier(game);
+    checkAlienHitsBarrier(game);
     checkAlienHitsShip(game);
     checkPowerUpHitsShip(game);
    
@@ -250,7 +258,7 @@ static void checkBulletHitsBullet(game_t *game)
     }
 }
 
-static void checkAllienHitsBarrier(game_t *game)
+static void checkAlienHitsBarrier(game_t *game)
 {
     int i, j, k, x, y;
     for (i = 0; i < BARRIERS; i++)

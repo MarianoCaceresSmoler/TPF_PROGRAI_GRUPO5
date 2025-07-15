@@ -1,14 +1,12 @@
-
-/***************************************************************************/ /**
-   @input_rpi.c
-   @Management of user inputs
-   @Grupo_5
-  ******************************************************************************/
+/***************************************************************************//**
+  @file 	inputs_rpi.c
+  @brief    Management of user inputs for RPI
+  @author 	Grupo_5
+ ******************************************************************************/
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
-// +Incluir el header propio (ej: #include "template.h")+
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -30,20 +28,8 @@
 #define LONG_PRESS_MS 500 // to control long pressing of joystick button
 
 /*******************************************************************************
- * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
- ******************************************************************************/
-
-/*******************************************************************************
- * VARIABLES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: unsigned int anio_actual;+
-
-/*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
-
-// +ej: static void falta_envido (int);+
 
 /**
  * @brief function to update user inputs in a separate thread
@@ -61,17 +47,9 @@ static unsigned int getCurrentTimeMs(void);
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
-// +ej: static const int temperaturas_medias[4] = {23, 26, 24, 29};+
-
 // Variables to control the input thread
 static pthread_t inputThread;
 static bool stopInputThread = false;
-
-/*******************************************************************************
- * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
- ******************************************************************************/
-
-// +ej: static int temperaturas_actuales[4];+
 
 /*******************************************************************************
  *******************************************************************************

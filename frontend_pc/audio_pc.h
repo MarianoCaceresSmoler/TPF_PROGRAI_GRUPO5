@@ -1,47 +1,15 @@
 /***************************************************************************//**
-	@audio_pc.h
-    @Control of music and sound effects
-    @Grupo_5
+  @file 	audio_pc.h
+  @brief 	Audio and sound functions for allegro
+  @author 	Grupo_5
  ******************************************************************************/
 
 #ifndef AUDIO_PC_H
 #define AUDIO_PC_H
 
 /*******************************************************************************
- * INCLUDE HEADER FILES
- ******************************************************************************/
-
-
-/*******************************************************************************
- * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
- ******************************************************************************/
-
-
-
-/*******************************************************************************
- * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
- ******************************************************************************/
-
-
-
-/*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: extern unsigned int anio_actual;+
-
-
-/*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
-
-/**
- * @brief completar descripcion
- * @param param1 Descripcion parametro 1
- * @param param2 Descripcion parametro 2
- * @return Descripcion valor que devuelve
-*/
-// +ej: char lcd_goto (int fil, int col);+
 
 /**
  * @brief function to initialize the allegro audio
@@ -55,20 +23,66 @@ int initAudio(void);
 void cleanupAudio(void);
 
 /**
- * @brief functions to reproduce sounds and music
+ * @brief function to play the ship shooting sound
 */
 void playShootSound(void);
+
+/**
+ * @brief function to play the entity explosion sound
+*/
 void playExplosionSound(void);
+
+/**
+ * @brief function to play the mothership sound
+*/
 void playMothershipSound(void);
+
+/**
+ * @brief function to stop playing mothership sound
+*/
 void stopMothershipSound(void);
+
+/**
+ * @brief function to play power up sound
+*/
 void playPowerUpSound(void);
+
+/**
+ * @brief function to play ship explosion sound
+*/
 void playShipDiedSound(void);
+
+/**
+ * @brief function to play game over sound
+*/
 void playGameoverSound(void);
+
+/**
+ * @brief function to start playing menu music
+*/
 void playMenuMusic(void);
+
+/**
+ * @brief function to stop playing menu music
+*/
 void stopMenuMusic(void);
+
+/**
+ * @brief function to start playing gameplay music from the beginning
+*/
 void playGameplayMusic(void);
-unsigned int stopGameplayMusic(void); // returns the position in which the music was stopped
-void resumeGameplayMusic(unsigned int position); // param position is the moment where the music was stopped, used to reproduce it from there
+
+/**
+ * @brief function to stop playing gameplay music
+ * @return position in which the music was stopped
+*/
+unsigned int stopGameplayMusic(void);
+
+/**
+ * @brief functions to resume gameplay music from a certain position
+ * @param position is the moment where the music will begin playing
+*/
+void resumeGameplayMusic(unsigned int position);
 
 /*******************************************************************************
  ******************************************************************************/

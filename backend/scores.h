@@ -1,8 +1,8 @@
-/***************************************************************************/ /**
-   @scores.h
-   @Saving and updating scores
-   @Grupo_5
-  ******************************************************************************/
+/***************************************************************************//**
+  @file 	  scores.h
+  @brief 	  Score functions to update and get max scores
+  @author 	Grupo_5
+ ******************************************************************************/
 
 #ifndef SCORES_H
 #define SCORES_H
@@ -14,10 +14,6 @@
 #include "config.h"
 
 /*******************************************************************************
- * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
- ******************************************************************************/
-
-/*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
@@ -27,12 +23,6 @@ typedef struct // Structure of a score with its nametag
 	unsigned int score;
 } score_t;
 
-
-/*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: extern unsigned int anio_actual;+
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
@@ -51,7 +41,6 @@ int updateScoreRank(score_t lastScore);
  * @return 0 if all ok, -1 if there was an error
  */
 int getHighScores(score_t scores[MAX_SCORES]);
-
 
 /**
  * @brief function to get the amount of points given by the type of alien killed

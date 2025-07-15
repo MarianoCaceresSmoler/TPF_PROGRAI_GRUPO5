@@ -1,14 +1,12 @@
-
-/***************************************************************************/ /**
-   @render_rpi.c
-   @Render frontend
-   @Grupo_5
-  ******************************************************************************/
+/***************************************************************************//**
+  @file 	render_rpi.c
+  @brief    Render functions for the matrix display
+  @author 	Grupo_5
+ ******************************************************************************/
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
-// +Incluir el header propio (ej: #include "template.h")+
 
 #include <stdio.h>
 #include <unistd.h>
@@ -41,22 +39,9 @@
 #define ANIMATION_DURATION (ONE_SECOND * 4)
 #define SWIPING_TEXT_DELAY 100
 
-
-/*******************************************************************************
- * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
- ******************************************************************************/
-
-/*******************************************************************************
- * VARIABLES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: unsigned int anio_actual;+
-
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
-
-// +ej: static void falta_envido (int);+
 
 /**
  * @brief function to render game in a separate thread
@@ -65,12 +50,27 @@
 static void *render(void *gamearg);
 
 /**
- * @brief private functions to render the different screens of the game
+ * @brief function to render loading screen
  * @param game pointer to the game object created in main
  */
 static void renderLoading(game_t *game);
+
+/**
+ * @brief function to render gameplay screen
+ * @param game pointer to the game object created in main
+ */
 static void renderGame(game_t *game);
+
+/**
+ * @brief function to render menu screen
+ * @param game pointer to the game object created in main
+ */
 static void renderMenu(game_t *game);
+
+/**
+ * @brief function to render game over screen
+ * @param game pointer to the game object created in main
+ */
 static void renderGameOver(game_t *game);
 
 /**
@@ -83,29 +83,88 @@ static void renderGameOver(game_t *game);
 static void drawObject(int x, int y, int width, int height);
 
 /**
- * @brief functions to draw menus
+ * @brief function to draw start menu
  * @param gameStatus pointer to real time game status
  */
 static void drawStartMenu(gameStatus_t *gameStatus);
+
+/**
+ * @brief function to draw pause menu
+ * @param gameStatus pointer to real time game status
+ */
 static void drawPauseMenu(gameStatus_t *gameStatus);
 
 // Functions to draw initial menu animation 
 // param animationTicks is used to determine which frame to draw
-static void drawStartAnimation(int animationTicks);
-static void drawFrame1();
-static void drawFrame2();
-static void drawFrame3();
-static void drawFrame4();
 
 /**
- * @brief private functions to draw the differents elements in display
+ * @brief function to draw start animation
+ * @param animationTicks ticks of animation left to play
+ */
+static void drawStartAnimation(int animationTicks);
+
+/**
+ * @brief function to draw start animation frame 1
+ */
+static void drawFrame1(void);
+
+/**
+ * @brief function to draw start animation frame 2
+ */
+static void drawFrame2(void);
+
+/**
+ * @brief function to draw start animation frame 3
+ */
+static void drawFrame3(void);
+
+/**
+ * @brief function to draw start animation frame 4
+ */
+static void drawFrame4(void);
+
+/**
+ * @brief function to draw ship on display
+ * @param ship copy of ship structure
  */
 static void drawShip(ship_t ship);
+
+/**
+ * @brief function to draw aliens on display
+ * @param aliens copy of alienformation structure
+ */
 static void drawAliens(alienFormation_t aliens);
+
+/**
+ * @brief function to draw loading aliens on display
+ * @param aliens copy of alienformation structure
+ * @param aliensToDraw total number of aliens to draw
+ */
 static void drawAliensLoading(alienFormation_t aliens, int aliensToDraw);
+
+/**
+ * @brief function to draw mothership on display
+ * @param mothership copy of mothership structure
+ */
 static void drawMothership(mothership_t mothership);
+
+/**
+ * @brief function to draw bullets on display
+ * @param shipBullet copy of ship bullet structure
+ * @param alienBullet copy of alien bullet structure
+ */
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
+
+/**
+ * @brief function to draw power ups on display
+ * @param powerUps array with every power up on the game
+ */
 static void drawPowerUps(powerUp_t powerUps[POWERUP_TYPES]);
+
+/**
+ * @brief function to draw barriers on display
+ * @param barriers array with the barriers to draw
+ */
 static void drawBarriers(barrier_t barriers[BARRIERS]);
 
 /**
@@ -140,16 +199,8 @@ static void drawText(const char *text, int x, int y);
 static void swipeText(const char * text, int x, int y, gameStatus_t *gameStatus);
 
 /*******************************************************************************
- * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
- ******************************************************************************/
-
-// +ej: static const int temperaturas_medias[4] = {23, 26, 24, 29};+
-
-/*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
-
-// +ej: static int temperaturas_actuales[4];+
 
 // Variables to control the input thread
 static pthread_t renderThread;
@@ -607,7 +658,7 @@ static void drawStartAnimation(int animationTicks)
         drawFrame4();
 }
 
-static void drawFrame1()
+static void drawFrame1(void)
 {
     char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -639,7 +690,7 @@ static void drawFrame1()
     }
 }
 
-static void drawFrame2()
+static void drawFrame2(void)
 {
     char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -670,7 +721,7 @@ static void drawFrame2()
     }
 }
 
-static void drawFrame3()
+static void drawFrame3(void)
 {
     char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -701,7 +752,7 @@ static void drawFrame3()
     }
 }
 
-static void drawFrame4()
+static void drawFrame4(void)
 {
     char matrix[SCREEN_HEIGHT][SCREEN_WIDTH] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},

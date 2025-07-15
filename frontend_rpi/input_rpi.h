@@ -1,7 +1,7 @@
 /***************************************************************************//**
-	@input_rpi.h
-    @Management of user inputs
-    @Grupo_5
+  @file 	inputs_rpi.h
+  @brief    Management of user inputs for RPI
+  @author 	Grupo_5
  ******************************************************************************/
 
 #ifndef INPUT_RPI_H
@@ -14,34 +14,8 @@
 #include "../backend/game.h"
 
 /*******************************************************************************
- * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
- ******************************************************************************/
-
-
-
-/*******************************************************************************
- * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
- ******************************************************************************/
-
-
-/*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: extern unsigned int anio_actual;+
-
-
-/*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
-
-/**
- * @brief completar descripcion
- * @param param1 Descripcion parametro 1
- * @param param2 Descripcion parametro 2
- * @return Descripcion valor que devuelve
-*/
-// +ej: char lcd_goto (int fil, int col);+
 
 /**
  * @brief function to init input system

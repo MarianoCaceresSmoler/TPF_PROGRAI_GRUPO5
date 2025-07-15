@@ -1,8 +1,8 @@
-/***************************************************************************/ /**
-	@render_pc.h
-  @Render frontend
-  @Grupo_5
-  ******************************************************************************/
+/***************************************************************************//**
+  @file 	render_pc.h
+  @brief 	Render functions for allegro display
+  @author 	Grupo_5
+ ******************************************************************************/
 
 #ifndef RENDER_PC_H
 #define RENDER_PC_H
@@ -17,30 +17,8 @@
 #include "../backend/game.h"
 
 /*******************************************************************************
- * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
- ******************************************************************************/
-
-/*******************************************************************************
- * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
- ******************************************************************************/
-
-/*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: extern unsigned int anio_actual;+
-
-/*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
-
-/**
- * @brief completar descripcion
- * @param param1 Descripcion parametro 1
- * @param param2 Descripcion parametro 2
- * @return Descripcion valor que devuelve
- */
-// +ej: char lcd_goto (int fil, int col);+
 
 /**
  * @brief function to create and detroy allegro graphics
@@ -60,11 +38,21 @@ void cleanupGraphics(void);
 ALLEGRO_EVENT_QUEUE *getEventQueue(void);
 
 /**
- * @brief functions to render the game screens
+ * @brief function to render the game while playing
  * @param game copy of the game object
  */
 void renderGame(game_t game);
+
+/**
+ * @brief function to render the game menu
+ * @param game copy of the game object
+ */
 void renderMenu(game_t game);
+
+/**
+ * @brief function to render the game over screen
+ * @param game copy of the game object
+ */
 void renderGameOver(game_t game);
 
 /*******************************************************************************

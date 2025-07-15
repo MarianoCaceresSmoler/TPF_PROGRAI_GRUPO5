@@ -1,14 +1,12 @@
-
-/***************************************************************************/ /**
-    @audio_pc.h
-    @Control of music and sound effects
-    @Grupo_5
-  ******************************************************************************/
+/***************************************************************************//**
+  @file 	audio_pc.c
+  @brief 	Audio and sound functions for allegro
+  @author 	Grupo_5
+ ******************************************************************************/
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
-// +Incluir el header propio (ej: #include "template.h")+
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_audio.h>
@@ -24,20 +22,8 @@
 #define MUSIC_SAMPLES 6 // number of music samples to reproduce at the same time 
 
 /*******************************************************************************
- * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
- ******************************************************************************/
-
-/*******************************************************************************
- * VARIABLES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: unsigned int anio_actual;+
-
-/*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
-
-// +ej: static void falta_envido (int);+
 
 /**
  * @brief function to load audio assets with saved files
@@ -46,16 +32,8 @@
 static int loadAudioAssets(void);
 
 /*******************************************************************************
- * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
- ******************************************************************************/
-
-// +ej: static const int temperaturas_medias[4] = {23, 26, 24, 29};+
-
-/*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
-
-// +ej: static int temperaturas_actuales[4];+
 
 // Sounds variables
 static ALLEGRO_SAMPLE *sndShoot = NULL;
@@ -180,15 +158,15 @@ void playGameplayMusic(void)
 void playMothershipSound(void)
 {
     if (sndMothership)
-        al_play_sample(sndMothership, 0.3, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idMothershipSound); // Play the mothership sound in loop if it exists, using its id to stop it later
+        al_play_sample(sndMothership, 0.3, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &idMothershipSound); 
+        // Play the mothership sound in loop
 }
 
 void stopMothershipSound(void)
 {
     if (idMothershipSound._id != -1)
-    {
-        al_stop_sample(&idMothershipSound); // Stop the mothership sound if it's playing (using its id)
-    }
+        al_stop_sample(&idMothershipSound); 
+        // Stop the mothership sound if it's playing (using its id)
 }
 
 void cleanupAudio(void)

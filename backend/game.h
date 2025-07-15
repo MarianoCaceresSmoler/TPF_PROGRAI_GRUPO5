@@ -1,8 +1,8 @@
-/***************************************************************************/ /**
-   @game.h
-   @Game structs and functions
-   @Grupo_5
-  ******************************************************************************/
+/***************************************************************************//**
+  @file 	game.h
+  @brief 	Game structures and functions for status and parameters 
+  @author 	Grupo_5
+ ******************************************************************************/
 
 #ifndef GAME_H
 #define GAME_H
@@ -14,10 +14,6 @@
 #include "config.h"
 #include "entities.h"
 #include "scores.h"
-
-/*******************************************************************************
- * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
- ******************************************************************************/
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -87,22 +83,8 @@ typedef struct
 } game_t;
 
 /*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: extern unsigned int anio_actual;+
-
-/*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
-
-/**
- * @brief completar descripcion
- * @param param1 Descripcion parametro 1
- * @param param2 Descripcion parametro 2
- * @return Descripcion valor que devuelve
- */
-// +ej: char lcd_goto (int fil, int col);+
 
 /**
  * @brief function to set the state of the game before running it

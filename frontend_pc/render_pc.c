@@ -1,14 +1,12 @@
-
-/***************************************************************************/ /**
-   @render_pc.c
-   @Render frontend
-   @Grupo_5
-  ******************************************************************************/
+/***************************************************************************//**
+  @file 	render_pc.c
+  @brief 	Render functions for allegro display
+  @author 	Grupo_5
+ ******************************************************************************/
 
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
-// +Incluir el header propio (ej: #include "template.h")+
 
 #include <stdio.h>
 #include <allegro5/allegro.h>
@@ -30,20 +28,8 @@
 #define BACKGROUND_VIDEO_DURATION 5 // duration of background video between fades
 
 /*******************************************************************************
- * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
- ******************************************************************************/
-
-/*******************************************************************************
- * VARIABLES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-// +ej: unsigned int anio_actual;+
-
-/*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
-
-// +ej: static void falta_envido (int);+
 
 /**
  * @brief private function to load sprites
@@ -52,21 +38,58 @@
 static int loadImages(void);
 
 /**
- * @brief private functions to draw objects in display
+ * @brief function to draw background on display
  */
 static void renderBackgroundVideo();
+
+/**
+ * @brief function to draw ship on display
+ * @param ship copy of the ship object
+ */
 static void drawShip(ship_t ship);
+
+/**
+ * @brief function to draw aliens on display
+ * @param alienFormation structure of aliens of the game
+ * @param activePowerUp array with the status of every power up in the game
+ */
 static void drawAliens(alienFormation_t alienFormation, int activePowerUp[POWERUP_TYPES]);
+
+/**
+ * @brief function to draw aliens loading animation on display
+ * @param alienFormation structure of aliens of the game
+ * @param aliensToDraw number of aliens to draw on display
+ */
 static void drawAliensLoading(alienFormation_t alienFormation, int aliensToDraw);
+
+/**
+ * @brief function to draw mothership on display
+ * @param mothership structure with the mothership information
+ */
 static void drawMothership(mothership_t mothership);
+
+/**
+ * @brief function to draw bullets on display
+ * @param shipBullet structure of the ship bullet to draw
+ * @param alienBullet structure of the aliens bullet to draw
+ */
 static void drawBullets(bullet_t shipBullet, bullet_t alienBullet);
+
+/**
+ * @brief function to draw barriers on display
+ * @param barriers array of structures with the barriers to draw
+ */
 static void drawBarriers(barrier_t barriers[BARRIERS]);
+
+/**
+ * @brief function to draw power ups on display
+ * @param powerUp array with every power up on the game 
+ */
 static void drawPowerUps(powerUp_t powerUp[POWERUP_TYPES]);
 
 /**
  * @brief private function to draw aliens/mothership points in menu
  * @return 0 if success, -1 if failure drawing on display
-
  */
 static void drawAliensPoints();
 
@@ -80,16 +103,8 @@ static void drawAliensPoints();
 static void drawHUD(int score, int lives, int level);
 
 /*******************************************************************************
- * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
- ******************************************************************************/
-
-// +ej: static const int temperaturas_medias[4] = {23, 26, 24, 29};+
-
-/*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
-
-// +ej: static int temperaturas_actuales[4];+
 
 // General control variables
 static ALLEGRO_DISPLAY *display = NULL;
@@ -314,7 +329,7 @@ void renderGame(game_t game)
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0)); // first clears the screen to black
 
-	drawMenu = 1;
+	drawMenu = 1; // to draw the menu only once
 
 	if (game.status == GAME_LOADING)
 	{
@@ -325,7 +340,8 @@ void renderGame(game_t game)
 			al_set_timer_speed(timer, 1.0 / FPS);
 
 		renderBackgroundVideo(); // renders background video
-		drawAliensLoading(game.aliens, LOADING_TIME - game.loadingTimer); // draw the animation of aliens setting
+		drawAliensLoading(game.aliens, LOADING_TIME - game.loadingTimer); 
+		// draw the animation of aliens setting
 	}
 	else
 	{
@@ -342,7 +358,6 @@ void renderGame(game_t game)
 	}
 
 	al_flip_display(); // updates the display
-
 }
 
 void renderMenu(game_t game)
