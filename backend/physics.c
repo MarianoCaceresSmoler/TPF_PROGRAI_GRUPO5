@@ -291,6 +291,7 @@ static void checkAlienHitsShip(game_t *game)
                 if (game->aliens.alien[i][j].entity.isAlive && checkEntitiesCollision(game->aliens.alien[i][j].entity, game->ship.entity)) // checks collision only if the alien is alive
                 {
                     // if collision detected, kills the ship and ends the game
+                    game->ship.entity.isAlive = false;
                     game->ship.entity.explosionTimer = EXPLOSION_TIMER;
                     game->ship.livesLeft = 0;
                 }

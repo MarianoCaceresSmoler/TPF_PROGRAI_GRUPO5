@@ -200,7 +200,6 @@ int main(void)
 					// Update and render game frame
 					renderGame(game);
 					gameUpdate(&game, inputStatus);
-					
 					break;
 
 				case GAME_PAUSED:
