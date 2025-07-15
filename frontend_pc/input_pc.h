@@ -35,14 +35,6 @@
  ******************************************************************************/
 
 /**
- * @brief completar descripcion
- * @param param1 Descripcion parametro 1
- * @param param2 Descripcion parametro 2
- * @return Descripcion valor que devuelve
-*/
-// +ej: char lcd_goto (int fil, int col);+
-
-/**
  * @brief function to set the user name
  * @param game pointer to the game
  * @param keycode the key the user enter 
@@ -50,11 +42,17 @@
 void setUserName(game_t *game, int keycode);
 
 /**
- * @brief functions to update input status
+ * @brief function to set input when a key goes down
  * @param inputStatus pointer to the input status general struct
  * @param keycode the key to update 
 */
 void setInput(inputStatus_t * inputStatus, int keycode);
+
+/**
+ * @brief function to clear input when a key goes up
+ * @param inputStatus pointer to the input status general struct
+ * @param keycode the key to update 
+*/
 void clearInput(inputStatus_t *inputStatus, int keycode);
 
 
