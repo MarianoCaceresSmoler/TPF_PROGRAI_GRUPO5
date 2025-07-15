@@ -14,10 +14,12 @@
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
+#define FPS 30 // Frames per second to render
+#define ONE_SECOND FPS // ticks
 
 #define SHIP_INITIAL_LIVES 3 // Initial number of lives for the player
 #define SHIP_MAX_LIVES 5 // Maximum number of lives for the player
-#define INVENCIBILITY_TICKS 30 // Ticks of invencibility after dying
+#define INVENCIBILITY_TICKS (ONE_SECOND * 3 / 2) // Ticks of invencibility after dying
 
 #define STANDBY_POSITION 2000 // Logical position for inactive entities
 
@@ -25,7 +27,7 @@
 #define ALIEN_COUNT_SPEED_WEIGHT (1 - TIME_SPEED_WEIGHT)
 
 #define MOTHERSHIP_CHANCE 20 // % of mothership chance
-#define MOTHERSHIP_TIMER 150 // Interval between every mothership appareance chance
+#define MOTHERSHIP_TIMER (ONE_SECOND * 6) // Interval between every mothership appareance chance
 #define POWERUP_CHANCE 15 // % of power up chanche everytime an enemy dies
 
 #define MAX_SCORES 10 // Number of scores displayed on screen
@@ -46,8 +48,6 @@
 #define TOTAL_INPUTS 8 // Total number of inputs
 
 #define LOADING_TIME (ALIENS_NUMBER) // Time to load aliens on display
-
-#define FPS 30 // Frames per second to render
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /////////// SPECIFIC PARAMETERS FOR DIFFERENT PLATFORMS ////////////////////////////////
@@ -125,7 +125,6 @@
 // PowerUps configurations
 #define POWERUP_TYPES 4
 #define POWERUP_USES 1
-#define ONE_SECOND 30 // ticks
 #define FREEZE_POWERUP_DURATION (ONE_SECOND * 4)
 
 // For space between bullets
@@ -205,7 +204,6 @@
 // PowerUps configurations
 #define POWERUP_TYPES 4
 #define POWERUP_USES 1
-#define ONE_SECOND 30 // ticks
 #define FREEZE_POWERUP_DURATION (ONE_SECOND * 6)
 
 // For space between bullets

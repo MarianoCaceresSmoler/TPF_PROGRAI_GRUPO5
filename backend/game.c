@@ -100,8 +100,6 @@ static int updateEntityExplosion(entity_t *entity);
 
 // +ej: static int temperaturas_actuales[4];+
 
-static bool randSeedIsSet = false;
-
 /*******************************************************************************
  *******************************************************************************
 						GLOBAL FUNCTION DEFINITIONS
@@ -115,51 +113,49 @@ static bool randSeedIsSet = false;
 
 void gameInit(game_t *game)
 {
-	if (game) // only inits the game if game parameter is not NULL
-	{
-		// initialize rand seed the first time this function is called
-		if(!randSeedIsSet)
-		{
-			srand(time(NULL));
-			randSeedIsSet = true;
-		}
-
-		// initialize entities
-		game->ship = createShip();
-		game->aliens = createAlienFormation(ALIENS_ROWS, ALIENS_COLS);
-		game->mothership = createMothership();
-
-		int i;
-		for (i = 0; i < BARRIERS; i++)
-		{
-			game->barriers[i] = createBarrier();
-		}
-
-		game->shipBullet = createBullet(MOVING_UP);
-		game->alienBullet = createBullet(MOVING_DOWN);
-
-		for (i = 0; i < POWERUP_TYPES; i++)
-		{
-			game->powerUp[i] = createPowerUp(i);
-			game->activePowerUp[i] = 0;
-		}
-
-		// initialize game parameters
-		game->status = GAME_MENU;
-		game->score = 0;
-		game->currentLevel = 1;
-		game->tickCounter = 0;
-		game->aliensRemaining = ALIENS_NUMBER;
-		for (i = 0; i < MAX_NAME_CHARS; i++)
-			game->nameTag[i] = '_'; // game tag is set to "___" by default
-		game->nameTag[i] = 0;
-		
-	}
-	else
+	if (!game) // only inits the game if game parameter is not NULL
 	{
 		printf("Error: game parameter is NULL\n");
+		return;
 	}
 
+	// initialize rand seed the first time this function is called
+	static bool randSeedIsSet = false;
+	if(!randSeedIsSet)
+	{
+		srand(time(NULL));
+		randSeedIsSet = true;
+	}
+
+	// initialize entities
+	game->ship = createShip();
+	game->aliens = createAlienFormation(ALIENS_ROWS, ALIENS_COLS);
+	game->mothership = createMothership();
+
+	int i;
+	for (i = 0; i < BARRIERS; i++)
+	{
+		game->barriers[i] = createBarrier();
+	}
+
+	game->shipBullet = createBullet(MOVING_UP);
+	game->alienBullet = createBullet(MOVING_DOWN);
+
+	for (i = 0; i < POWERUP_TYPES; i++)
+	{
+		game->powerUp[i] = createPowerUp(i);
+		game->activePowerUp[i] = 0;
+	}
+
+	// initialize game parameters
+	game->status = GAME_MENU;
+	game->score = 0;
+	game->currentLevel = 1;
+	game->tickCounter = 0;
+	game->aliensRemaining = ALIENS_NUMBER;
+	for (i = 0; i < MAX_NAME_CHARS; i++)
+		game->nameTag[i] = '_'; // game tag is set to "___" by default
+	game->nameTag[i] = 0;
 }
 
 void levelInit(game_t *game)
@@ -549,8 +545,10 @@ static int updateShip(ship_t *ship, bool moveLeft, bool moveRight, int tickCount
 			printf("Error updating ship explosion\n");
 			return -1; // returns error if there was an error updating the ship explosion
 		}
+		return 0;
 	}
-	else if (ship->entity.isAlive)
+
+	if (ship->entity.isAlive)
 	{
 		if (ship->invencibilityTicks > 0) // if ship is invincible, decreases the invencibility timer
 			ship->invencibilityTicks--;
