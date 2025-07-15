@@ -169,7 +169,7 @@ int setEntity(entity_t * entity, int x, int y)
 	entity->y = y;
 	entity->isAlive = 1;
 	entity->explosionTimer = 0;
-	
+
 	return 0;
 }
 
@@ -322,7 +322,7 @@ int getLastRowAlive(alienFormation_t aliens)
 
 	for (i = ALIENS_ROWS - 1; i >= 0 && lastRow == -1; i--)
 	{
-		for (j = ALIENS_COLS; j >= 0 && lastRow == -1; j--)
+		for (j = ALIENS_COLS - 1; j >= 0 && lastRow == -1; j--)
 		{
 			if (aliens.alien[i][j].entity.isAlive)
 			{

@@ -614,7 +614,6 @@ static int updateBullet(bullet_t *bullet, int tickCounter)
 
 static int updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemaining, int activePowerUp[POWERUP_TYPES])
 {
-
 	if(!aliens)
 	{
 		printf("Error: aliens is NULL\n");
@@ -666,6 +665,7 @@ static int updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemai
 			}
 		}
 		activePowerUp[ALIENRETREAT_POWERUP] = false;
+		return 0;
 	}
 
 	// Initialize which row will move first (rowToMove cycles through the rows)
@@ -767,12 +767,12 @@ static int updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemai
 			else
 				aliens->direction = MOVING_RIGHT;
 		}		
-
+		/*
 		int lastRowAlive = getLastRowAlive(*aliens);
 
 		if (aliens->alien[lastRowAlive][0].entity.y >= SCREEN_HEIGHT)
 			return 1; // if the aliens have reached the bottom of the screen, return 1 to indicate game over
-
+		*/
 		break;
 
 	default:
