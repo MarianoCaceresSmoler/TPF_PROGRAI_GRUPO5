@@ -339,7 +339,6 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		if (game->ship.livesLeft == 0) // if ship has no lives left, game is over
 		{
 			gameEnd(game);
-			game->status = GAME_END;
 		}
 		else
 		{
@@ -448,7 +447,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 		game->status = GAME_ERROR; // if there was an error updating the aliens, set game status to GAME_ERROR
 		return;
 	}
-	else if(aliensUpdateResult)
+	else if(aliensUpdateResult && game->aliensRemaining)
 	{
 		gameEnd(game); // ends the game if the function returns 1 (aliens reached the bottom of the screen)
 		return;
@@ -615,7 +614,6 @@ static int updateBullet(bullet_t *bullet, int tickCounter)
 
 static int updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemaining, int activePowerUp[POWERUP_TYPES])
 {
-
 	if(!aliens)
 	{
 		printf("Error: aliens is NULL\n");
@@ -667,6 +665,7 @@ static int updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemai
 			}
 		}
 		activePowerUp[ALIENRETREAT_POWERUP] = false;
+		return 0;
 	}
 
 	// Initialize which row will move first (rowToMove cycles through the rows)
@@ -768,12 +767,12 @@ static int updateAliens(alienFormation_t *aliens, int gameTicks, int aliensRemai
 			else
 				aliens->direction = MOVING_RIGHT;
 		}		
-
+		/*
 		int lastRowAlive = getLastRowAlive(*aliens);
 
 		if (aliens->alien[lastRowAlive][0].entity.y >= SCREEN_HEIGHT)
 			return 1; // if the aliens have reached the bottom of the screen, return 1 to indicate game over
-
+		*/
 		break;
 
 	default:
