@@ -602,21 +602,41 @@ static void renderGameOver(game_t *game)
     {
         // Get final score and level
         int finalScore = game->score;
+        int finalScoreRank = game->scoreRank;
         int finalLevel = game->currentLevel;
 
         disp_clear(); // clears display
 
         // Draws GAME OVER
-        drawText("GAME", 1, 1);
-        drawText("OVER", 1, 7);
-        disp_update();
-        SDL_Delay(1000);
-
-        // Draws final score and level
+        int i;
+        for (i = ANIMATION_DURATION; i > 0; i--)
+        {
+            disp_clear();
+            if (i % 20 >= 10)
+            {
+                drawText("GAME", 1, 2);
+                drawText("OVER", 1, 8);
+            }
+            
+            disp_update();
+            SDL_Delay(10);
+        }
         char finalStr[24];
+
+        // if score is on top ten, show it
+        if(finalScoreRank)
+        {
+            disp_clear();
+            char scoreStr[2];
+            drawText("TOP", 1, 2);
+            sprintf(scoreStr, "%d", finalScoreRank);
+            drawText(scoreStr, 1, 8);
+            disp_update();
+            SDL_Delay(1000);
+        }
+        // Draws final score and level
         sprintf(finalStr, "SCORE:%d  LEVEL:%d", finalScore, finalLevel); // converts to string
         swipeText(finalStr, SCREEN_WIDTH, 5, &game->status); // draws text scrolling
-
     }
 }
 
