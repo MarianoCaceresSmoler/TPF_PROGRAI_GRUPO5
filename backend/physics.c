@@ -85,7 +85,7 @@ int handleCollisions(game_t *game)
     
     int points = 0;
 
-    // Check for collisions between bullets and other objects
+    // Check for collisions between different objects during the game
     points += checkBulletHitsAliens(game); // add points for each alien hit
     points += checkBulletHitsMothership(game); // add points if the mothership was hit
     checkBulletHitsShip(game);
@@ -106,7 +106,7 @@ int handleCollisions(game_t *game)
 
 static int checkEntitiesCollision(entity_t entityA, entity_t entityB)
 {
-    // Check if the entities are colliding (sharing the same space on display)
+    // Only adds the size offset if the entity's size is more than 1 pixel
     int hA = entityA.height <= 1? 0: entityA.height;
     int hB = entityB.height <= 1? 0: entityB.height;
 
@@ -115,7 +115,6 @@ static int checkEntitiesCollision(entity_t entityA, entity_t entityB)
         entityA.x + entityA.width > entityB.x &&
         entityA.y <= entityB.y + hB &&
         entityA.y + hA >= entityB.y);
-
 }
 
 static int checkBulletHitsAliens(game_t *game)
@@ -138,7 +137,7 @@ static int checkBulletHitsAliens(game_t *game)
                     // allows the ship to shoot
                     game->ship.canShoot = 1;
 
-                    points = getAlienPoints(game->aliens.alien[i][j]); // gets the alien's points for the impact
+                    points = getAlienPoints(game->aliens.alien[i][j].alienType); // gets the alien's points for the impact
 
                     if(!points)
                     {

@@ -11,7 +11,7 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 
-#include "entities.h"
+#include "config.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -21,7 +21,7 @@
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
 
-typedef struct // Structure to store the scores with their respective nametags
+typedef struct // Structure of a score with its nametag
 {
 	char tag[MAX_NAME_CHARS + 1];
 	unsigned int score;
@@ -55,10 +55,10 @@ int getHighScores(score_t scores[MAX_SCORES]);
 
 /**
  * @brief function to get the amount of points given by the type of alien killed
- * @param alien is the alien killed
+ * @param alienType is the type of alien killed
  * @return int with the score the alien gives, 0 if the alien is not in the list
  */
-int getAlienPoints(alien_t alien);
+int getAlienPoints(unsigned char alienType);
 
 /*******************************************************************************
  ******************************************************************************/

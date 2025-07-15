@@ -169,6 +169,7 @@ int setEntity(entity_t * entity, int x, int y)
 	entity->y = y;
 	entity->isAlive = 1;
 	entity->explosionTimer = 0;
+	
 	return 0;
 }
 
@@ -179,10 +180,12 @@ int shootFromEntity(bullet_t *bullet, entity_t *shootingEntity)
 		printf("Error: entity is NULL\n");
 		return -1; // returns an error if one or both of the entities are NULL
 	}
+	
+	int yOffset = (bullet->direction > 0? shootingEntity->height + bullet->entity.height / 2: - bullet->entity.height / 2);
 
-	bullet->entity.x = shootingEntity->x + shootingEntity->width / 2; // sets the bullet x position to the middle of the shooting entity
-	bullet->entity.y = shootingEntity->y + (bullet->direction > 0? shootingEntity->height + bullet->entity.height/2: -bullet->entity.height/2); // sets the bullet y position to the border of the shooting entity, depending on the bullet's direction
-	bullet->entity.isAlive = 1; // set the bullet as alive
+	setEntity(&bullet->entity, 
+			shootingEntity->x + shootingEntity->width / 2,
+			shootingEntity->y + yOffset);
 
 	return 0;
 }
@@ -298,7 +301,7 @@ int getLastColumnAlive(alienFormation_t aliens)
 	// Returns the index of the last column (from right to left) that contains at least one alien alive
 
 	int i, j, lastColumn = -1;
-	for (j = ALIENS_COLS - 1; j > 0 && lastColumn == -1; j--)
+	for (j = ALIENS_COLS - 1; j >= 0 && lastColumn == -1; j--)
 	{
 		for (i = 0; i < ALIENS_ROWS && lastColumn == -1; i++)
 		{
@@ -356,15 +359,6 @@ static int setBarrierShape(barrier_t *barrier)
 	{
 		printf("Error: barrier is NULL\n");
 		return -1; // returns an error if the barrier is NULL
-	}
-
-	int i, j;
-	for (i = 0; i < BARRIER_HEIGHT; i++)
-	{
-		for (j = 0; j < BARRIER_WIDTH; j++)
-		{
-			barrier->pixel[i][j].entity.isAlive = 1; // initially sets all pixels as alive
-		}
 	}
 
 	// Depending on the platform, sets some pixels as dead to give the shape to the barrier

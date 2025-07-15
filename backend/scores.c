@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "scores.h"
-#include "config.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -144,10 +143,10 @@ int getHighScores(score_t scores[MAX_SCORES])
     return 0;
 }
 
-int getAlienPoints(alien_t alien)
+int getAlienPoints(unsigned char alienType)
 {
     // Returns the points for the alien depending on its type
-    switch(alien.alienType)
+    switch(alienType)
     {
     case 0:
         return ALIEN_TYPE_0_POINTS;

@@ -446,7 +446,7 @@ void gameUpdate(game_t *game, inputStatus_t input)
 
 	// update the alien formation
 	int aliensUpdateResult = updateAliens(&game->aliens, game->tickCounter, game->aliensRemaining, game->activePowerUp);
-	if(aliensUpdateResult == -1)
+	if(aliensUpdateResult == -1 && game->aliensRemaining)
 	{
 		printf("Error updating aliens\n");
 		game->status = GAME_ERROR; // if there was an error updating the aliens, set game status to GAME_ERROR
